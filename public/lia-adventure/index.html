@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Lia Adventure</title>
-    <meta name="description" content="Jogo de aventura side-scroller com Lia! Derrote esqueletos e sobreviva o máximo que puder.">
+    <meta name="description" content="Jogo de aventura side-scroller com Lia e My Melody! Derrote esqueletos e avance pelas fases.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
@@ -32,6 +32,7 @@
             --gold: #ffd700;
             --ground: #3a5a40;
             --ground-light: #588157;
+            --melody-pink: #ff9cc2;
         }
 
         body {
@@ -118,13 +119,12 @@
             pointer-events: none;
         }
 
-        /* HUD Overlay */
+        /* Compact HUD - Much smaller */
         .hud-overlay {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            padding: 15px;
+            top: 8px;
+            left: 8px;
+            right: 8px;
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
@@ -134,72 +134,61 @@
 
         .hud-left, .hud-right {
             display: flex;
-            flex-direction: column;
-            gap: 8px;
+            gap: 6px;
+            flex-wrap: wrap;
         }
 
         .hud-stat {
-            background: var(--bg-panel);
-            padding: 8px 15px;
-            border-radius: 25px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 4px 8px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
+            gap: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
         }
 
         .hud-icon {
-            font-size: 1.2rem;
+            font-size: 0.7rem;
         }
 
         .hud-value {
             font-family: 'Press Start 2P', cursive;
-            font-size: 0.7rem;
+            font-size: 0.45rem;
             color: var(--gold);
         }
 
         .health-bar-container {
-            width: 150px;
-            height: 20px;
+            width: 60px;
+            height: 10px;
             background: rgba(0, 0, 0, 0.7);
-            border-radius: 10px;
+            border-radius: 5px;
             overflow: hidden;
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .health-bar {
             height: 100%;
-            background: linear-gradient(90deg, var(--danger), var(--warning), var(--secondary));
+            background: linear-gradient(90deg, var(--danger), var(--warning));
             transition: width 0.3s ease;
-            border-radius: 8px;
-            position: relative;
-        }
-
-        .health-bar::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 50%;
-            background: linear-gradient(180deg, rgba(255,255,255,0.3), transparent);
-            border-radius: 8px 8px 0 0;
-        }
-
-        /* Level Progress */
-        .level-progress {
-            width: 100%;
-            height: 8px;
-            background: rgba(0, 0, 0, 0.5);
             border-radius: 4px;
-            overflow: hidden;
         }
 
-        .level-progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, var(--secondary), var(--accent));
-            transition: width 0.3s ease;
+        /* Stage indicator */
+        .stage-indicator {
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.5rem;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            z-index: 11;
         }
 
         /* Game Screens */
@@ -228,31 +217,132 @@
 
         .screen-title {
             font-family: 'Press Start 2P', cursive;
-            font-size: 2rem;
+            font-size: 1.8rem;
             color: var(--primary);
             text-shadow: 0 0 30px var(--primary-glow);
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-align: center;
         }
 
         .screen-subtitle {
-            font-size: 1.2rem;
+            font-size: 1rem;
             color: var(--text-secondary);
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             text-align: center;
+        }
+
+        /* Character Selection */
+        .character-select {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 600px;
+        }
+
+        .character-card {
+            background: var(--bg-panel);
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 140px;
+            text-align: center;
+        }
+
+        .character-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .character-card.selected {
+            border-color: var(--secondary);
+            box-shadow: 0 0 25px rgba(77, 204, 189, 0.5);
+            background: rgba(77, 204, 189, 0.1);
+        }
+
+        .character-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .character-card.locked:hover {
+            transform: none;
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: none;
+        }
+
+        .character-portrait {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 10px;
+            image-rendering: pixelated;
+        }
+
+        .character-name {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6rem;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .character-role {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        .character-ability {
+            font-size: 0.65rem;
+            color: var(--secondary);
+            margin-top: 5px;
+        }
+
+        .lock-badge {
+            font-size: 0.5rem;
+            color: var(--warning);
+            margin-top: 5px;
+        }
+
+        .team-display {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: rgba(0,0,0,0.3);
+            padding: 10px 20px;
+            border-radius: 20px;
+        }
+
+        .team-slot {
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.1);
+            border: 2px dashed rgba(255,255,255,0.3);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .team-slot img {
+            width: 40px;
+            height: 40px;
+            image-rendering: pixelated;
         }
 
         .final-score {
             font-family: 'Press Start 2P', cursive;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             color: var(--gold);
             margin-bottom: 10px;
         }
 
         .final-stats {
             display: flex;
-            gap: 30px;
-            margin-bottom: 30px;
+            gap: 25px;
+            margin-bottom: 20px;
         }
 
         .final-stat {
@@ -261,21 +351,21 @@
 
         .final-stat-value {
             font-family: 'Press Start 2P', cursive;
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: var(--secondary);
         }
 
         .final-stat-label {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--text-secondary);
-            margin-top: 5px;
+            margin-top: 3px;
         }
 
         /* Buttons */
         .game-btn {
             font-family: 'Press Start 2P', cursive;
-            font-size: 0.9rem;
-            padding: 15px 40px;
+            font-size: 0.8rem;
+            padding: 12px 35px;
             border: none;
             border-radius: 50px;
             cursor: pointer;
@@ -290,22 +380,30 @@
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
             box-shadow: 
-                0 6px 0 #b03e6a,
-                0 10px 20px rgba(255, 107, 157, 0.3);
+                0 5px 0 #b03e6a,
+                0 8px 15px rgba(255, 107, 157, 0.3);
         }
 
         .game-btn-primary:hover {
-            transform: translateY(-3px);
+            transform: translateY(-2px);
             box-shadow: 
-                0 9px 0 #b03e6a,
-                0 15px 30px rgba(255, 107, 157, 0.4);
+                0 7px 0 #b03e6a,
+                0 12px 25px rgba(255, 107, 157, 0.4);
         }
 
         .game-btn-primary:active {
-            transform: translateY(3px);
+            transform: translateY(2px);
             box-shadow: 
                 0 3px 0 #b03e6a,
-                0 5px 10px rgba(255, 107, 157, 0.3);
+                0 4px 8px rgba(255, 107, 157, 0.3);
+        }
+
+        .game-btn-secondary {
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+            color: white;
+            box-shadow: 
+                0 5px 0 #2a9d8f,
+                0 8px 15px rgba(77, 204, 189, 0.3);
         }
 
         .game-btn::before {
@@ -326,13 +424,13 @@
         /* Controls Panel */
         .controls-panel {
             background: var(--bg-panel);
-            padding: 15px 25px;
-            border-radius: 16px;
+            padding: 12px 20px;
+            border-radius: 12px;
             width: 100%;
             max-width: 800px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
             border: 2px solid rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
         }
@@ -340,18 +438,18 @@
         .control-item {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .control-label {
             color: var(--text-secondary);
-            font-size: 0.9rem;
-            min-width: 80px;
+            font-size: 0.8rem;
+            min-width: 60px;
         }
 
         .control-keys {
             display: flex;
-            gap: 5px;
+            gap: 4px;
             flex-wrap: wrap;
         }
 
@@ -360,14 +458,14 @@
             align-items: center;
             justify-content: center;
             background: linear-gradient(180deg, #3a4d6e, #2a3d5e);
-            min-width: 35px;
-            height: 30px;
-            padding: 0 8px;
-            border-radius: 6px;
+            min-width: 28px;
+            height: 24px;
+            padding: 0 6px;
+            border-radius: 5px;
             font-family: 'Press Start 2P', cursive;
-            font-size: 0.5rem;
+            font-size: 0.4rem;
             color: var(--text-primary);
-            box-shadow: 0 3px 0 #1a2639, inset 0 1px 0 rgba(255,255,255,0.1);
+            box-shadow: 0 2px 0 #1a2639, inset 0 1px 0 rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.05);
         }
 
@@ -375,27 +473,27 @@
         .mobile-controls {
             display: none;
             position: fixed;
-            bottom: 20px;
+            bottom: 15px;
             left: 0;
             right: 0;
-            padding: 0 20px;
+            padding: 0 15px;
             justify-content: space-between;
             z-index: 1000;
         }
 
         .mobile-btn-group {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
         .mobile-btn {
-            width: 60px;
-            height: 60px;
+            width: 55px;
+            height: 55px;
             border-radius: 50%;
             border: 3px solid rgba(255,255,255,0.3);
             background: rgba(13, 27, 42, 0.8);
             color: white;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -419,6 +517,11 @@
             border-color: var(--secondary);
         }
 
+        .mobile-btn.support {
+            background: rgba(255, 156, 194, 0.3);
+            border-color: var(--melody-pink);
+        }
+
         /* Loading Screen */
         .loading-screen {
             position: absolute;
@@ -435,13 +538,13 @@
         }
 
         .loading-spinner {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             border: 4px solid rgba(255, 107, 157, 0.2);
             border-top-color: var(--primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         @keyframes spin {
@@ -450,7 +553,7 @@
 
         .loading-text {
             font-family: 'Press Start 2P', cursive;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: var(--text-secondary);
             animation: pulse 1.5s ease-in-out infinite;
         }
@@ -463,11 +566,11 @@
         /* Combo Display */
         .combo-display {
             position: absolute;
-            top: 50%;
+            top: 45%;
             left: 50%;
             transform: translate(-50%, -50%);
             font-family: 'Press Start 2P', cursive;
-            font-size: 2rem;
+            font-size: 1.5rem;
             color: var(--gold);
             text-shadow: 
                 0 0 20px var(--gold),
@@ -487,14 +590,14 @@
             100% { opacity: 0; transform: translate(-50%, -80%) scale(1); }
         }
 
-        /* Level Up Display */
+        /* Level/Stage Up Display */
         .levelup-display {
             position: absolute;
             top: 30%;
             left: 50%;
             transform: translateX(-50%);
             font-family: 'Press Start 2P', cursive;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             color: var(--secondary);
             text-shadow: 0 0 30px var(--secondary);
             pointer-events: none;
@@ -513,20 +616,94 @@
             100% { opacity: 0; transform: translateX(-50%) translateY(-30px) scale(0.9); }
         }
 
-        /* Damage Indicator */
-        .damage-indicator {
+        /* Unlock notification */
+        .unlock-display {
             position: absolute;
+            top: 35%;
+            left: 50%;
+            transform: translateX(-50%);
             font-family: 'Press Start 2P', cursive;
-            font-size: 1rem;
-            color: var(--danger);
-            text-shadow: 0 0 10px var(--danger);
+            font-size: 0.9rem;
+            color: var(--melody-pink);
+            text-shadow: 0 0 30px var(--melody-pink);
             pointer-events: none;
-            animation: damageFloat 0.8s ease-out forwards;
+            opacity: 0;
+            z-index: 50;
+            text-align: center;
         }
 
-        @keyframes damageFloat {
-            0% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-40px); }
+        .unlock-display.active {
+            animation: unlockPopup 3s ease-out forwards;
+        }
+
+        @keyframes unlockPopup {
+            0% { opacity: 0; transform: translateX(-50%) scale(0.5); }
+            15% { opacity: 1; transform: translateX(-50%) scale(1.2); }
+            85% { opacity: 1; transform: translateX(-50%) scale(1); }
+            100% { opacity: 0; transform: translateX(-50%) scale(0.9); }
+        }
+
+        /* Support ability indicator */
+        .support-cooldown {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.5rem;
+            color: var(--melody-pink);
+            z-index: 20;
+            display: none;
+        }
+
+        /* Pause overlay */
+        .pause-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            text-shadow: 0 0 20px var(--primary);
+            z-index: 60;
+            display: none;
+        }
+
+        .pause-overlay.active {
+            display: block;
+            animation: pausePulse 1s ease-in-out infinite;
+        }
+
+        @keyframes pausePulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        /* Stage Complete Screen */
+        .stage-complete-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(6, 16, 26, 0.9);
+            z-index: 90;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .stage-complete-screen.active {
+            opacity: 1;
+            pointer-events: auto;
         }
 
         /* Responsive */
@@ -544,29 +721,39 @@
             }
 
             .hud-stat {
-                padding: 5px 10px;
+                padding: 3px 6px;
             }
 
             .hud-value {
-                font-size: 0.5rem;
+                font-size: 0.4rem;
             }
 
             .health-bar-container {
-                width: 100px;
+                width: 45px;
             }
 
             .screen-title {
-                font-size: 1.2rem;
+                font-size: 1rem;
             }
 
             .final-stats {
                 flex-direction: column;
-                gap: 15px;
+                gap: 10px;
             }
 
             .game-btn {
-                font-size: 0.7rem;
-                padding: 12px 30px;
+                font-size: 0.6rem;
+                padding: 10px 25px;
+            }
+
+            .character-card {
+                width: 110px;
+                padding: 10px;
+            }
+
+            .character-portrait {
+                width: 60px;
+                height: 60px;
             }
         }
 
@@ -576,56 +763,14 @@
             }
 
             .game-wrapper {
-                gap: 10px;
+                gap: 8px;
             }
 
             .mobile-btn {
                 width: 50px;
                 height: 50px;
-                font-size: 1.2rem;
+                font-size: 1.1rem;
             }
-        }
-
-        /* Particles container */
-        .particles-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            pointer-events: none;
-            overflow: hidden;
-            z-index: 5;
-        }
-
-        .particle {
-            position: absolute;
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
-        /* Pause overlay */
-        .pause-overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-family: 'Press Start 2P', cursive;
-            font-size: 2rem;
-            color: var(--text-primary);
-            text-shadow: 0 0 20px var(--primary);
-            z-index: 60;
-            display: none;
-        }
-
-        .pause-overlay.active {
-            display: block;
-            animation: pausePulse 1s ease-in-out infinite;
-        }
-
-        @keyframes pausePulse {
-            0%, 100% { opacity: 0.7; }
-            50% { opacity: 1; }
         }
     </style>
 </head>
@@ -633,14 +778,17 @@
     <div class="game-wrapper">
         <header class="game-header">
             <h1 class="game-title">LIA ADVENTURE</h1>
-            <p class="game-subtitle">Derrote os esqueletos e sobreviva!</p>
+            <p class="game-subtitle">Derrote os esqueletos e avance pelas fases!</p>
         </header>
 
         <div class="canvas-container">
             <canvas id="gameCanvas" width="1000" height="500"></canvas>
             <div class="canvas-border"></div>
 
-            <!-- HUD Overlay -->
+            <!-- Stage Indicator -->
+            <div class="stage-indicator" id="stageIndicator" style="display: none;">FASE 1</div>
+
+            <!-- HUD Overlay - Compact -->
             <div class="hud-overlay" id="hudOverlay" style="display: none;">
                 <div class="hud-left">
                     <div class="hud-stat">
@@ -656,21 +804,23 @@
                 </div>
                 <div class="hud-right">
                     <div class="hud-stat">
-                        <span class="hud-icon">🏆</span>
-                        <span class="hud-value">LV <span id="levelDisplay">1</span></span>
-                    </div>
-                    <div class="hud-stat">
                         <span class="hud-icon">💀</span>
                         <span class="hud-value" id="killsDisplay">0</span>
                     </div>
                 </div>
             </div>
 
+            <!-- Support Cooldown -->
+            <div class="support-cooldown" id="supportCooldown">💕 HEAL: PRONTO (K)</div>
+
             <!-- Combo Display -->
             <div class="combo-display" id="comboDisplay"></div>
 
             <!-- Level Up Display -->
-            <div class="levelup-display" id="levelUpDisplay">LEVEL UP!</div>
+            <div class="levelup-display" id="levelUpDisplay">FASE COMPLETA!</div>
+
+            <!-- Unlock Display -->
+            <div class="unlock-display" id="unlockDisplay">🎀 MY MELODY DESBLOQUEADA! 🎀</div>
 
             <!-- Pause Overlay -->
             <div class="pause-overlay" id="pauseOverlay">PAUSADO</div>
@@ -681,11 +831,42 @@
                 <div class="loading-text">CARREGANDO...</div>
             </div>
 
-            <!-- Start Screen -->
+            <!-- Start Screen with Character Selection -->
             <div class="game-screen active" id="startScreen">
                 <h2 class="screen-title">LIA ADVENTURE</h2>
-                <p class="screen-subtitle">Uma aventura épica contra os esqueletos!</p>
+                <p class="screen-subtitle">Escolha seu time (máx. 3 personagens)</p>
+                
+                <div class="team-display" id="teamDisplay">
+                    <div class="team-slot" id="teamSlot1"></div>
+                    <div class="team-slot" id="teamSlot2"></div>
+                    <div class="team-slot" id="teamSlot3"></div>
+                </div>
+
+                <div class="character-select" id="characterSelect">
+                    <div class="character-card selected" data-character="lia">
+                        <img src="lia.png" alt="Lia" class="character-portrait">
+                        <div class="character-name">LIA</div>
+                        <div class="character-role">⚔️ Guerreira</div>
+                        <div class="character-ability">Ataque corpo-a-corpo</div>
+                    </div>
+                    <div class="character-card locked" data-character="melody" id="melodyCard">
+                        <img src="mymelody.png" alt="My Melody" class="character-portrait">
+                        <div class="character-name">MY MELODY</div>
+                        <div class="character-role">💕 Suporte</div>
+                        <div class="character-ability">Cura em área (K)</div>
+                        <div class="lock-badge">🔒 Fase 5</div>
+                    </div>
+                </div>
+                
                 <button class="game-btn game-btn-primary" id="startBtn">JOGAR</button>
+            </div>
+
+            <!-- Stage Complete Screen -->
+            <div class="stage-complete-screen" id="stageCompleteScreen">
+                <h2 class="screen-title" style="color: var(--secondary);">FASE COMPLETA!</h2>
+                <div class="final-score" id="stageScore">+500</div>
+                <p class="screen-subtitle" id="stageMessage">Prepare-se para a próxima fase!</p>
+                <button class="game-btn game-btn-secondary" id="nextStageBtn">PRÓXIMA FASE</button>
             </div>
 
             <!-- Game Over Screen -->
@@ -694,8 +875,8 @@
                 <div class="final-score" id="finalScore">0</div>
                 <div class="final-stats">
                     <div class="final-stat">
-                        <div class="final-stat-value" id="finalLevel">1</div>
-                        <div class="final-stat-label">Nível</div>
+                        <div class="final-stat-value" id="finalStage">1</div>
+                        <div class="final-stat-label">Fase</div>
                     </div>
                     <div class="final-stat">
                         <div class="final-stat-value" id="finalKills">0</div>
@@ -741,10 +922,15 @@
                 </div>
             </div>
             <div class="control-item">
+                <span class="control-label">Curar:</span>
+                <div class="control-keys">
+                    <span class="key">K</span>
+                </div>
+            </div>
+            <div class="control-item">
                 <span class="control-label">Pausar:</span>
                 <div class="control-keys">
                     <span class="key">ESC</span>
-                    <span class="key">P</span>
                 </div>
             </div>
         </div>
@@ -757,6 +943,7 @@
             <button class="mobile-btn" id="mobileRight">▶</button>
         </div>
         <div class="mobile-btn-group">
+            <button class="mobile-btn support" id="mobileSupport">💕</button>
             <button class="mobile-btn jump" id="mobileJump">▲</button>
             <button class="mobile-btn attack" id="mobileAttack">⚔</button>
         </div>
@@ -764,23 +951,30 @@
 
     <script>
         // ============================================
-        // LIA ADVENTURE - Enhanced Game Engine
+        // LIA ADVENTURE - Enhanced Game Engine v2.0
+        // With Mario-style physics, stages, and My Melody!
         // ============================================
 
         // Game Configuration
         const CONFIG = {
             canvas: { width: 1000, height: 500 },
             physics: {
-                gravity: 0.6,
-                friction: 0.85,
-                groundY: 400
+                gravity: 0.45,  // Lower gravity for floatier jumps (Mario-like)
+                friction: 0.89,
+                groundY: 420,
+                airResistance: 0.98
             },
             player: {
                 width: 60,
                 height: 90,
-                speed: 5,
-                runMultiplier: 1.8,
-                jumpForce: -14,
+                walkSpeed: 3.5,
+                runSpeed: 6.5,
+                maxSpeed: 8,
+                acceleration: 0.4,
+                deceleration: 0.3,
+                jumpForce: -13,
+                jumpHoldForce: -0.4, // Variable jump height (Mario-style)
+                maxJumpHoldTime: 180, // ms to hold jump for max height
                 attackDuration: 300,
                 attackCooldown: 400,
                 damageCooldown: 1000,
@@ -788,22 +982,32 @@
                 attackHeight: 60,
                 maxHealth: 100
             },
+            melody: {
+                width: 55,
+                height: 80,
+                healAmount: 30,
+                healCooldown: 8000,
+                healRadius: 150
+            },
             enemy: {
                 width: 50,
                 height: 70,
-                baseSpeed: 2,
+                baseSpeed: 1.8,
                 health: 50,
-                damage: 10,
-                attackRange: 70,
+                damage: 12,
+                attackRange: 65,
                 attackCooldown: 1200,
-                spawnRate: 2500,
-                maxCount: 8
+                maxCount: 6
             },
             scoring: {
                 killBase: 100,
                 comboMultiplier: 1.5,
                 comboTimeout: 2000,
-                levelUpScore: 1000
+                stageBonus: 500
+            },
+            stages: {
+                killsToComplete: [5, 8, 12, 15, 20, 25, 30, 35, 40, 50], // Kills needed per stage
+                melodyUnlockStage: 5
             }
         };
 
@@ -815,25 +1019,35 @@
             loadingScreen: document.getElementById('loadingScreen'),
             startScreen: document.getElementById('startScreen'),
             gameOverScreen: document.getElementById('gameOverScreen'),
+            stageCompleteScreen: document.getElementById('stageCompleteScreen'),
             hudOverlay: document.getElementById('hudOverlay'),
+            stageIndicator: document.getElementById('stageIndicator'),
             healthBar: document.getElementById('healthBar'),
             scoreDisplay: document.getElementById('scoreDisplay'),
-            levelDisplay: document.getElementById('levelDisplay'),
             killsDisplay: document.getElementById('killsDisplay'),
             comboDisplay: document.getElementById('comboDisplay'),
             levelUpDisplay: document.getElementById('levelUpDisplay'),
+            unlockDisplay: document.getElementById('unlockDisplay'),
             pauseOverlay: document.getElementById('pauseOverlay'),
+            supportCooldown: document.getElementById('supportCooldown'),
             startBtn: document.getElementById('startBtn'),
             restartBtn: document.getElementById('restartBtn'),
+            nextStageBtn: document.getElementById('nextStageBtn'),
             finalScore: document.getElementById('finalScore'),
-            finalLevel: document.getElementById('finalLevel'),
+            finalStage: document.getElementById('finalStage'),
             finalKills: document.getElementById('finalKills'),
             finalTime: document.getElementById('finalTime'),
+            stageScore: document.getElementById('stageScore'),
+            stageMessage: document.getElementById('stageMessage'),
+            characterSelect: document.getElementById('characterSelect'),
+            teamDisplay: document.getElementById('teamDisplay'),
+            melodyCard: document.getElementById('melodyCard'),
             mobileControls: document.getElementById('mobileControls'),
             mobileLeft: document.getElementById('mobileLeft'),
             mobileRight: document.getElementById('mobileRight'),
             mobileJump: document.getElementById('mobileJump'),
-            mobileAttack: document.getElementById('mobileAttack')
+            mobileAttack: document.getElementById('mobileAttack'),
+            mobileSupport: document.getElementById('mobileSupport')
         };
 
         // Game State
@@ -841,20 +1055,47 @@
             running: false,
             paused: false,
             score: 0,
-            level: 1,
-            kills: 0,
+            stage: 1,
+            stageKills: 0,
+            totalKills: 0,
             combo: 0,
             lastComboTime: 0,
             lastSpawnTime: 0,
             startTime: 0,
             backgroundOffset: 0,
+            cameraX: 0,
             keys: {},
             particles: [],
             damageIndicators: [],
-            screenShake: { x: 0, y: 0, intensity: 0 }
+            screenShake: { x: 0, y: 0, intensity: 0 },
+            melodyUnlocked: false,
+            melodyInTeam: false,
+            lastHealTime: 0,
+            selectedCharacters: ['lia'],
+            stageEnemiesSpawned: 0,
+            stageComplete: false
         };
 
-        // Audio Context for sound effects
+        // Load saved progress
+        function loadProgress() {
+            const saved = localStorage.getItem('liaAdventureSave');
+            if (saved) {
+                const data = JSON.parse(saved);
+                game.melodyUnlocked = data.melodyUnlocked || false;
+                if (game.melodyUnlocked) {
+                    elements.melodyCard.classList.remove('locked');
+                    elements.melodyCard.querySelector('.lock-badge').style.display = 'none';
+                }
+            }
+        }
+
+        function saveProgress() {
+            localStorage.setItem('liaAdventureSave', JSON.stringify({
+                melodyUnlocked: game.melodyUnlocked
+            }));
+        }
+
+        // Audio Context
         let audioContext = null;
 
         function initAudio() {
@@ -865,25 +1106,18 @@
 
         function playSound(frequency, duration, type = 'sine', volume = 0.3) {
             if (!audioContext) return;
-            
             try {
                 const oscillator = audioContext.createOscillator();
                 const gainNode = audioContext.createGain();
-                
                 oscillator.connect(gainNode);
                 gainNode.connect(audioContext.destination);
-                
                 oscillator.frequency.value = frequency;
                 oscillator.type = type;
-                
                 gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
-                
                 oscillator.start(audioContext.currentTime);
                 oscillator.stop(audioContext.currentTime + duration);
-            } catch (e) {
-                console.log('Audio error:', e);
-            }
+            } catch (e) {}
         }
 
         const sounds = {
@@ -892,10 +1126,20 @@
             hit: () => playSound(150, 0.2, 'square', 0.1),
             damage: () => playSound(180, 0.3, 'sawtooth', 0.2),
             kill: () => playSound(880, 0.3, 'sine', 0.2),
-            levelUp: () => {
+            heal: () => {
+                playSound(660, 0.1, 'sine', 0.2);
+                setTimeout(() => playSound(880, 0.15, 'sine', 0.2), 100);
+            },
+            stageComplete: () => {
+                playSound(523, 0.15, 'sine', 0.2);
+                setTimeout(() => playSound(659, 0.15, 'sine', 0.2), 150);
+                setTimeout(() => playSound(784, 0.15, 'sine', 0.2), 300);
+                setTimeout(() => playSound(1047, 0.3, 'sine', 0.25), 450);
+            },
+            unlock: () => {
                 playSound(523, 0.1, 'sine', 0.2);
-                setTimeout(() => playSound(659, 0.1, 'sine', 0.2), 100);
-                setTimeout(() => playSound(784, 0.2, 'sine', 0.2), 200);
+                setTimeout(() => playSound(784, 0.1, 'sine', 0.2), 100);
+                setTimeout(() => playSound(1047, 0.2, 'sine', 0.25), 200);
             },
             combo: () => playSound(1047, 0.15, 'sine', 0.15)
         };
@@ -909,6 +1153,16 @@
             playerJump: new Image(),
             playerAttack: new Image(),
             playerDamage: new Image(),
+            // My Melody sprites
+            melodyIdle: new Image(),
+            melodyWalkR: new Image(),
+            melodyWalkL: new Image(),
+            melodyRunR: new Image(),
+            melodyRunL: new Image(),
+            melodyJumpR: new Image(),
+            melodyJumpL: new Image(),
+            melodyAttack: new Image(),
+            melodyDamage: new Image(),
             // Enemy sprites
             skeletonIdle: new Image(),
             skeletonAttack: new Image(),
@@ -918,14 +1172,22 @@
             background: new Image()
         };
 
-        // Set image sources - these will be replaced with actual sprites
-        // Using the specified file names
+        // Set image sources
         images.playerIdle.src = 'lia.png';
         images.playerWalk.src = 'liawalk.png';
         images.playerRun.src = 'liarun.png';
         images.playerJump.src = 'liajump.png';
         images.playerAttack.src = 'liaattacking.png';
         images.playerDamage.src = 'liadamage.png';
+        images.melodyIdle.src = 'mymelody.png';
+        images.melodyWalkR.src = 'mymelodywalkr.png';
+        images.melodyWalkL.src = 'mymelodywalkl.png';
+        images.melodyRunR.src = 'mymelodyrun.png';
+        images.melodyRunL.src = 'mymelodyrunl.png';
+        images.melodyJumpR.src = 'mymelodyjumpr.png';
+        images.melodyJumpL.src = 'mymelodyjumpl.png';
+        images.melodyAttack.src = 'mymelodyattack.png';
+        images.melodyDamage.src = 'mymelodydamage.png';
         images.skeletonIdle.src = 'skeleton.png';
         images.skeletonAttack.src = 'skeletonattack.png';
         images.skeletonDamage.src = 'skeletondamage.png';
@@ -934,22 +1196,20 @@
 
         let imagesLoaded = 0;
         const totalImages = Object.keys(images).length;
-        let imagesReady = false;
 
         function onImageLoad() {
             imagesLoaded++;
             if (imagesLoaded >= totalImages) {
-                imagesReady = true;
                 elements.loadingScreen.style.display = 'none';
+                loadProgress();
             }
         }
 
         function onImageError(e) {
-            console.warn('Image failed to load:', e.target.src);
             imagesLoaded++;
             if (imagesLoaded >= totalImages) {
-                imagesReady = true;
                 elements.loadingScreen.style.display = 'none';
+                loadProgress();
             }
         }
 
@@ -958,7 +1218,7 @@
             img.onerror = onImageError;
         });
 
-        // Player Object
+        // Player Object - Mario-style physics
         const player = {
             x: 100,
             y: CONFIG.physics.groundY - CONFIG.player.height,
@@ -975,6 +1235,8 @@
             facingRight: true,
             lastAttackTime: 0,
             lastDamageTime: 0,
+            jumpHoldTime: 0,
+            jumpPressed: false,
 
             reset() {
                 this.x = 100;
@@ -990,34 +1252,52 @@
                 this.facingRight = true;
                 this.lastAttackTime = 0;
                 this.lastDamageTime = 0;
+                this.jumpHoldTime = 0;
+                this.jumpPressed = false;
             },
 
             update(deltaTime) {
                 const now = Date.now();
 
-                // Reset horizontal velocity
-                this.velocityX = 0;
-
-                // Movement input
-                if (game.keys['a'] || game.keys['arrowleft']) {
-                    this.velocityX = -CONFIG.player.speed;
-                    this.facingRight = false;
-                }
-                if (game.keys['d'] || game.keys['arrowright']) {
-                    this.velocityX = CONFIG.player.speed;
-                    this.facingRight = true;
-                }
-
-                // Running
+                // Mario-style movement with acceleration
                 this.isRunning = game.keys['shift'];
-                if (this.isRunning && this.velocityX !== 0) {
-                    this.velocityX *= CONFIG.player.runMultiplier;
+                const targetSpeed = this.isRunning ? CONFIG.player.runSpeed : CONFIG.player.walkSpeed;
+                const accel = CONFIG.player.acceleration;
+                const decel = CONFIG.player.deceleration;
+
+                // Horizontal input
+                if (game.keys['a'] || game.keys['arrowleft']) {
+                    this.velocityX = Math.max(this.velocityX - accel, -targetSpeed);
+                    this.facingRight = false;
+                } else if (game.keys['d'] || game.keys['arrowright']) {
+                    this.velocityX = Math.min(this.velocityX + accel, targetSpeed);
+                    this.facingRight = true;
+                } else {
+                    // Deceleration when no input
+                    if (Math.abs(this.velocityX) < decel) {
+                        this.velocityX = 0;
+                    } else if (this.velocityX > 0) {
+                        this.velocityX -= decel;
+                    } else {
+                        this.velocityX += decel;
+                    }
+                }
+
+                // Air resistance
+                if (!this.isGrounded) {
+                    this.velocityX *= CONFIG.physics.airResistance;
+                }
+
+                // Variable jump height (Mario-style - hold to jump higher)
+                if (this.isJumping && this.jumpPressed && this.jumpHoldTime < CONFIG.player.maxJumpHoldTime) {
+                    this.velocityY += CONFIG.player.jumpHoldForce;
+                    this.jumpHoldTime += deltaTime;
                 }
 
                 // Apply gravity
                 this.velocityY += CONFIG.physics.gravity;
 
-                // Update position
+                // Apply velocities
                 this.x += this.velocityX;
                 this.y += this.velocityY;
 
@@ -1031,20 +1311,15 @@
                     this.isGrounded = false;
                 }
 
-                // Screen bounds
-                const margin = 50;
-                if (this.x < margin) this.x = margin;
-                if (this.x > CONFIG.canvas.width - this.width - margin) {
-                    this.x = CONFIG.canvas.width - this.width - margin;
-                }
+                // Keep player in bounds
+                this.x = Math.max(0, Math.min(CONFIG.canvas.width - this.width, this.x));
 
-                // Update attack state
+                // Update states
                 if (this.isAttacking && now - this.lastAttackTime > CONFIG.player.attackDuration) {
                     this.isAttacking = false;
                 }
 
-                // Update damage state
-                if (this.isDamaged && now - this.lastDamageTime > CONFIG.player.damageCooldown) {
+                if (this.isDamaged && now - this.lastDamageTime > 300) {
                     this.isDamaged = false;
                 }
             },
@@ -1054,8 +1329,14 @@
                     this.velocityY = CONFIG.player.jumpForce;
                     this.isJumping = true;
                     this.isGrounded = false;
+                    this.jumpHoldTime = 0;
+                    this.jumpPressed = true;
                     sounds.jump();
                 }
+            },
+
+            releaseJump() {
+                this.jumpPressed = false;
             },
 
             attack() {
@@ -1066,65 +1347,57 @@
                 this.lastAttackTime = now;
                 sounds.attack();
 
-                // Attack hitbox
+                // Hit detection
                 const attackBox = {
-                    x: this.facingRight ? this.x + this.width : this.x - CONFIG.player.attackRange,
-                    y: this.y + this.height / 4,
+                    x: this.facingRight ? this.x + this.width - 10 : this.x - CONFIG.player.attackRange + 10,
+                    y: this.y + 20,
                     width: CONFIG.player.attackRange,
                     height: CONFIG.player.attackHeight
                 };
 
-                // Check hits on enemies
+                let hitEnemy = false;
                 enemies.forEach(enemy => {
                     if (!enemy.isDead && checkCollision(attackBox, enemy)) {
-                        enemy.takeDamage(25);
-                        
-                        // Combo system
-                        const comboNow = Date.now();
-                        if (comboNow - game.lastComboTime < CONFIG.scoring.comboTimeout) {
-                            game.combo++;
-                            if (game.combo > 1) {
-                                showCombo(game.combo);
-                                sounds.combo();
-                            }
-                        } else {
-                            game.combo = 1;
-                        }
-                        game.lastComboTime = comboNow;
-
-                        // Screen shake
-                        game.screenShake.intensity = 3;
-                        
-                        // Create hit particles
-                        createParticles(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2, '#ff6b9d', 5);
+                        enemy.takeDamage(25 + game.stage * 2);
+                        hitEnemy = true;
                     }
                 });
+
+                if (hitEnemy) {
+                    game.combo++;
+                    game.lastComboTime = now;
+                    if (game.combo > 1) {
+                        showCombo(game.combo);
+                        sounds.combo();
+                    }
+                    createParticles(
+                        this.facingRight ? this.x + this.width + 20 : this.x - 20,
+                        this.y + this.height / 2,
+                        '#ff6b9d',
+                        5
+                    );
+                }
             },
 
             takeDamage(amount) {
                 const now = Date.now();
-                if (this.isDamaged || now - this.lastDamageTime < CONFIG.player.damageCooldown) return;
+                if (now - this.lastDamageTime < CONFIG.player.damageCooldown) return;
 
                 this.health -= amount;
                 this.isDamaged = true;
                 this.lastDamageTime = now;
                 sounds.damage();
 
-                // Screen shake
-                game.screenShake.intensity = 5;
+                game.screenShake.intensity = 8;
+                game.combo = 0;
 
-                // Create damage indicator
                 createDamageIndicator(this.x + this.width / 2, this.y, amount);
-
-                // Create particles
                 createParticles(this.x + this.width / 2, this.y + this.height / 2, '#ff6b6b', 8);
 
-                // Check death
                 if (this.health <= 0) {
                     this.health = 0;
                     gameOver();
                 }
-
                 updateHUD();
             },
 
@@ -1137,9 +1410,9 @@
                     sprite = images.playerDamage;
                 } else if (this.isAttacking) {
                     sprite = images.playerAttack;
-                } else if (this.isJumping || !this.isGrounded) {
+                } else if (!this.isGrounded) {
                     sprite = images.playerJump;
-                } else if (this.velocityX !== 0) {
+                } else if (Math.abs(this.velocityX) > 0.5) {
                     sprite = this.isRunning ? images.playerRun : images.playerWalk;
                 }
 
@@ -1155,7 +1428,7 @@
                 );
                 ctx.fill();
 
-                // Draw sprite (flip if facing left)
+                // Flip if facing left
                 if (!this.facingRight) {
                     ctx.scale(-1, 1);
                     ctx.drawImage(sprite, -this.x - this.width, this.y, this.width, this.height);
@@ -1164,13 +1437,144 @@
                 }
 
                 ctx.restore();
+            }
+        };
 
-                // Draw attack hitbox (debug)
-                if (this.isAttacking) {
-                    ctx.fillStyle = 'rgba(255, 107, 157, 0.3)';
-                    const attackX = this.facingRight ? this.x + this.width : this.x - CONFIG.player.attackRange;
-                    ctx.fillRect(attackX, this.y + this.height / 4, CONFIG.player.attackRange, CONFIG.player.attackHeight);
+        // My Melody companion
+        const melody = {
+            x: 160,
+            y: CONFIG.physics.groundY - CONFIG.melody.height,
+            width: CONFIG.melody.width,
+            height: CONFIG.melody.height,
+            velocityX: 0,
+            velocityY: 0,
+            facingRight: true,
+            isJumping: false,
+            isHealing: false,
+            healAnimTime: 0,
+
+            reset() {
+                this.x = 160;
+                this.y = CONFIG.physics.groundY - this.height;
+                this.velocityX = 0;
+                this.velocityY = 0;
+                this.facingRight = true;
+                this.isJumping = false;
+                this.isHealing = false;
+                this.healAnimTime = 0;
+            },
+
+            update(deltaTime) {
+                if (!game.melodyInTeam) return;
+
+                // Follow player with some distance
+                const targetX = player.x + (player.facingRight ? -70 : 70);
+                const dx = targetX - this.x;
+
+                // Smooth follow
+                if (Math.abs(dx) > 20) {
+                    this.velocityX += Math.sign(dx) * 0.3;
+                    this.velocityX = Math.max(-4, Math.min(4, this.velocityX));
+                    this.facingRight = dx > 0;
+                } else {
+                    this.velocityX *= 0.8;
                 }
+
+                // Jump if player jumps and we're close
+                if (player.isJumping && this.y >= CONFIG.physics.groundY - this.height - 5 && Math.abs(dx) < 150) {
+                    this.velocityY = -10;
+                    this.isJumping = true;
+                }
+
+                this.velocityY += CONFIG.physics.gravity;
+                this.x += this.velocityX;
+                this.y += this.velocityY;
+
+                if (this.y >= CONFIG.physics.groundY - this.height) {
+                    this.y = CONFIG.physics.groundY - this.height;
+                    this.velocityY = 0;
+                    this.isJumping = false;
+                }
+
+                this.x = Math.max(0, Math.min(CONFIG.canvas.width - this.width, this.x));
+
+                // Heal animation timer
+                if (this.isHealing) {
+                    this.healAnimTime += deltaTime;
+                    if (this.healAnimTime > 500) {
+                        this.isHealing = false;
+                        this.healAnimTime = 0;
+                    }
+                }
+            },
+
+            heal() {
+                if (!game.melodyInTeam) return;
+                const now = Date.now();
+                if (now - game.lastHealTime < CONFIG.melody.healCooldown) return;
+
+                game.lastHealTime = now;
+                this.isHealing = true;
+                this.healAnimTime = 0;
+                sounds.heal();
+
+                // Heal player
+                const healAmount = CONFIG.melody.healAmount;
+                player.health = Math.min(CONFIG.player.maxHealth, player.health + healAmount);
+                
+                // Visual effect
+                createParticles(this.x + this.width / 2, this.y + this.height / 2, '#ff9cc2', 15);
+                createParticles(player.x + player.width / 2, player.y + player.height / 2, '#ff9cc2', 10);
+                
+                // Heal indicator
+                createHealIndicator(player.x + player.width / 2, player.y, healAmount);
+                
+                updateHUD();
+            },
+
+            draw() {
+                if (!game.melodyInTeam) return;
+
+                ctx.save();
+
+                // Get sprite
+                let sprite = images.melodyIdle;
+                if (this.isHealing) {
+                    sprite = images.melodyAttack;
+                } else if (this.isJumping) {
+                    sprite = this.facingRight ? images.melodyJumpR : images.melodyJumpL;
+                } else if (Math.abs(this.velocityX) > 0.5) {
+                    if (Math.abs(this.velocityX) > 2.5) {
+                        sprite = this.facingRight ? images.melodyRunR : images.melodyRunL;
+                    } else {
+                        sprite = this.facingRight ? images.melodyWalkR : images.melodyWalkL;
+                    }
+                }
+
+                // Draw shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+                ctx.beginPath();
+                ctx.ellipse(
+                    this.x + this.width / 2,
+                    CONFIG.physics.groundY + 3,
+                    this.width / 2.5,
+                    6,
+                    0, 0, Math.PI * 2
+                );
+                ctx.fill();
+
+                // Draw heal aura when healing
+                if (this.isHealing) {
+                    ctx.globalAlpha = 0.3 + Math.sin(this.healAnimTime * 0.02) * 0.2;
+                    ctx.fillStyle = '#ff9cc2';
+                    ctx.beginPath();
+                    ctx.arc(this.x + this.width / 2, this.y + this.height / 2, 60 + Math.sin(this.healAnimTime * 0.03) * 10, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+
+                ctx.drawImage(sprite, this.x, this.y, this.width, this.height);
+                ctx.restore();
             }
         };
 
@@ -1182,21 +1586,20 @@
                 this.width = CONFIG.enemy.width;
                 this.height = CONFIG.enemy.height;
                 this.velocityX = 0;
-                this.health = CONFIG.enemy.health;
-                this.maxHealth = CONFIG.enemy.health;
-                this.isDead = false;
+                this.health = CONFIG.enemy.health + game.stage * 10;
+                this.maxHealth = this.health;
+                this.speed = CONFIG.enemy.baseSpeed + game.stage * 0.15;
                 this.isAttacking = false;
                 this.isDamaged = false;
+                this.isDead = false;
                 this.lastAttackTime = 0;
                 this.lastDamageTime = 0;
                 this.deathTime = 0;
-                this.speed = CONFIG.enemy.baseSpeed + (game.level - 1) * 0.3;
             }
 
             update(deltaTime) {
                 if (this.isDead) {
-                    // Fade out after death
-                    if (Date.now() - this.deathTime > 800) {
+                    if (Date.now() - this.deathTime > 600) {
                         const index = enemies.indexOf(this);
                         if (index > -1) enemies.splice(index, 1);
                     }
@@ -1204,8 +1607,6 @@
                 }
 
                 const now = Date.now();
-
-                // Move towards player
                 const direction = player.x > this.x ? 1 : -1;
                 const distanceToPlayer = Math.abs(player.x - this.x);
 
@@ -1213,8 +1614,6 @@
                     this.velocityX = direction * this.speed;
                 } else {
                     this.velocityX = 0;
-
-                    // Attack player
                     if (now - this.lastAttackTime > CONFIG.enemy.attackCooldown) {
                         this.attack();
                     }
@@ -1222,7 +1621,6 @@
 
                 this.x += this.velocityX;
 
-                // Update states
                 if (this.isDamaged && now - this.lastDamageTime > 300) {
                     this.isDamaged = false;
                 }
@@ -1231,7 +1629,6 @@
                     this.isAttacking = false;
                 }
 
-                // Remove if off screen
                 if (this.x < -100 || this.x > CONFIG.canvas.width + 100) {
                     const index = enemies.indexOf(this);
                     if (index > -1) enemies.splice(index, 1);
@@ -1242,7 +1639,6 @@
                 this.isAttacking = true;
                 this.lastAttackTime = Date.now();
 
-                // Check if player is in range
                 const distanceToPlayer = Math.abs(player.x - this.x);
                 if (distanceToPlayer < CONFIG.enemy.attackRange) {
                     player.takeDamage(CONFIG.enemy.damage);
@@ -1257,7 +1653,6 @@
                 this.lastDamageTime = Date.now();
                 sounds.hit();
 
-                // Create damage indicator
                 createDamageIndicator(this.x + this.width / 2, this.y, amount);
 
                 if (this.health <= 0) {
@@ -1268,24 +1663,23 @@
             die() {
                 this.isDead = true;
                 this.deathTime = Date.now();
-                game.kills++;
-                
-                // Score with combo
+                game.stageKills++;
+                game.totalKills++;
+
                 const comboMultiplier = Math.pow(CONFIG.scoring.comboMultiplier, game.combo - 1);
-                const score = Math.floor(CONFIG.scoring.killBase * game.level * comboMultiplier);
+                const score = Math.floor(CONFIG.scoring.killBase * game.stage * comboMultiplier);
                 game.score += score;
 
                 sounds.kill();
                 createParticles(this.x + this.width / 2, this.y + this.height / 2, '#cccccc', 10);
-                
+
                 updateHUD();
-                checkLevelUp();
+                checkStageComplete();
             }
 
             draw() {
                 ctx.save();
 
-                // Get current sprite
                 let sprite = images.skeletonIdle;
                 if (this.isDead) {
                     sprite = images.skeletonKO;
@@ -1295,25 +1689,16 @@
                     sprite = images.skeletonAttack;
                 }
 
-                // Fade out when dead
                 if (this.isDead) {
-                    const fadeProgress = (Date.now() - this.deathTime) / 800;
+                    const fadeProgress = (Date.now() - this.deathTime) / 600;
                     ctx.globalAlpha = 1 - fadeProgress;
                 }
 
-                // Draw shadow
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
                 ctx.beginPath();
-                ctx.ellipse(
-                    this.x + this.width / 2,
-                    CONFIG.physics.groundY + 5,
-                    this.width / 2,
-                    6,
-                    0, 0, Math.PI * 2
-                );
+                ctx.ellipse(this.x + this.width / 2, CONFIG.physics.groundY + 5, this.width / 2, 6, 0, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Flip to face player
                 const facingRight = player.x > this.x;
                 if (!facingRight) {
                     ctx.scale(-1, 1);
@@ -1324,24 +1709,17 @@
 
                 ctx.restore();
 
-                // Draw health bar (if not dead)
                 if (!this.isDead) {
-                    const barWidth = 40;
-                    const barHeight = 5;
+                    const barWidth = 35;
+                    const barHeight = 4;
                     const barX = this.x + (this.width - barWidth) / 2;
-                    const barY = this.y - 10;
+                    const barY = this.y - 8;
                     const healthPercent = this.health / this.maxHealth;
 
-                    ctx.fillStyle = '#333';
+                    ctx.fillStyle = '#222';
                     ctx.fillRect(barX, barY, barWidth, barHeight);
-
-                    const healthColor = healthPercent > 0.5 ? '#ff6b6b' : (healthPercent > 0.25 ? '#ffb347' : '#4dccbd');
-                    ctx.fillStyle = healthColor;
+                    ctx.fillStyle = healthPercent > 0.5 ? '#ff6b6b' : '#ffb347';
                     ctx.fillRect(barX, barY, barWidth * healthPercent, barHeight);
-
-                    ctx.strokeStyle = '#222';
-                    ctx.lineWidth = 1;
-                    ctx.strokeRect(barX, barY, barWidth, barHeight);
                 }
             }
         }
@@ -1363,7 +1741,7 @@
                     y: y,
                     velocityX: (Math.random() - 0.5) * 8,
                     velocityY: (Math.random() - 0.5) * 8,
-                    size: Math.random() * 6 + 2,
+                    size: Math.random() * 5 + 2,
                     color: color,
                     life: 1
                 });
@@ -1395,7 +1773,18 @@
             game.damageIndicators.push({
                 x: x,
                 y: y,
-                amount: amount,
+                text: `-${amount}`,
+                color: '#ff6b6b',
+                life: 1
+            });
+        }
+
+        function createHealIndicator(x, y, amount) {
+            game.damageIndicators.push({
+                x: x,
+                y: y,
+                text: `+${amount}`,
+                color: '#4dccbd',
                 life: 1
             });
         }
@@ -1412,10 +1801,10 @@
             game.damageIndicators.forEach(d => {
                 ctx.save();
                 ctx.globalAlpha = d.life;
-                ctx.font = 'bold 16px "Press Start 2P"';
-                ctx.fillStyle = '#ff6b6b';
+                ctx.font = 'bold 14px "Press Start 2P"';
+                ctx.fillStyle = d.color;
                 ctx.textAlign = 'center';
-                ctx.fillText(`-${d.amount}`, d.x, d.y);
+                ctx.fillText(d.text, d.x, d.y);
                 ctx.restore();
             });
         }
@@ -1423,14 +1812,21 @@
         function showCombo(combo) {
             elements.comboDisplay.textContent = `${combo}x COMBO!`;
             elements.comboDisplay.classList.remove('active');
-            void elements.comboDisplay.offsetWidth; // Trigger reflow
+            void elements.comboDisplay.offsetWidth;
             elements.comboDisplay.classList.add('active');
         }
 
-        function showLevelUp() {
+        function showStageComplete() {
+            elements.levelUpDisplay.textContent = `FASE ${game.stage} COMPLETA!`;
             elements.levelUpDisplay.classList.remove('active');
             void elements.levelUpDisplay.offsetWidth;
             elements.levelUpDisplay.classList.add('active');
+        }
+
+        function showUnlock() {
+            elements.unlockDisplay.classList.remove('active');
+            void elements.unlockDisplay.offsetWidth;
+            elements.unlockDisplay.classList.add('active');
         }
 
         function updateScreenShake() {
@@ -1444,32 +1840,66 @@
 
         // Spawning
         function spawnEnemy() {
-            if (enemies.length >= CONFIG.enemy.maxCount + Math.floor(game.level / 2)) return;
+            const killsNeeded = CONFIG.stages.killsToComplete[game.stage - 1] || 50;
+            const maxEnemies = Math.min(CONFIG.enemy.maxCount + Math.floor(game.stage / 2), 10);
+            
+            if (enemies.length >= maxEnemies) return;
+            if (game.stageKills >= killsNeeded) return; // Don't spawn more if stage is complete
 
             const side = Math.random() > 0.5 ? 1 : -1;
             const x = side === 1 ? CONFIG.canvas.width + 50 : -50;
             enemies.push(new Enemy(x));
+            game.stageEnemiesSpawned++;
         }
 
-        // Level System
-        function checkLevelUp() {
-            const nextLevelScore = game.level * CONFIG.scoring.levelUpScore;
-            if (game.score >= nextLevelScore) {
-                game.level++;
-                showLevelUp();
-                sounds.levelUp();
+        // Stage System
+        function checkStageComplete() {
+            const killsNeeded = CONFIG.stages.killsToComplete[game.stage - 1] || 50;
+            
+            if (game.stageKills >= killsNeeded && enemies.length === 0) {
+                game.stageComplete = true;
+                game.paused = true;
 
-                // Heal player a bit
-                player.health = Math.min(CONFIG.player.maxHealth, player.health + 20);
-
-                // Update difficulty
-                CONFIG.enemy.baseSpeed += 0.2;
-                if (CONFIG.enemy.spawnRate > 800) {
-                    CONFIG.enemy.spawnRate -= 100;
+                // Check for My Melody unlock
+                if (game.stage === CONFIG.stages.melodyUnlockStage && !game.melodyUnlocked) {
+                    game.melodyUnlocked = true;
+                    saveProgress();
+                    showUnlock();
+                    sounds.unlock();
                 }
 
-                updateHUD();
+                sounds.stageComplete();
+                showStageComplete();
+
+                // Add stage bonus
+                const bonus = CONFIG.scoring.stageBonus * game.stage;
+                game.score += bonus;
+
+                elements.stageScore.textContent = `+${bonus} pontos`;
+                elements.stageMessage.textContent = game.stage < 10 
+                    ? `Prepare-se para a Fase ${game.stage + 1}!` 
+                    : 'Você é incrível! Continue!';
+                
+                setTimeout(() => {
+                    elements.stageCompleteScreen.classList.add('active');
+                }, 1500);
             }
+        }
+
+        function nextStage() {
+            game.stage++;
+            game.stageKills = 0;
+            game.stageEnemiesSpawned = 0;
+            game.stageComplete = false;
+            game.paused = false;
+            
+            // Heal player a bit between stages
+            player.health = Math.min(CONFIG.player.maxHealth, player.health + 25);
+            
+            elements.stageCompleteScreen.classList.remove('active');
+            elements.stageIndicator.textContent = `FASE ${game.stage}`;
+            
+            updateHUD();
         }
 
         // HUD Update
@@ -1477,13 +1907,26 @@
             const healthPercent = (player.health / CONFIG.player.maxHealth) * 100;
             elements.healthBar.style.width = `${healthPercent}%`;
             elements.scoreDisplay.textContent = game.score.toLocaleString();
-            elements.levelDisplay.textContent = game.level;
-            elements.killsDisplay.textContent = game.kills;
+            
+            const killsNeeded = CONFIG.stages.killsToComplete[game.stage - 1] || 50;
+            elements.killsDisplay.textContent = `${game.stageKills}/${killsNeeded}`;
+            
+            // Update support cooldown display
+            if (game.melodyInTeam) {
+                const now = Date.now();
+                const cooldownRemaining = Math.max(0, CONFIG.melody.healCooldown - (now - game.lastHealTime));
+                if (cooldownRemaining > 0) {
+                    elements.supportCooldown.textContent = `💕 HEAL: ${Math.ceil(cooldownRemaining / 1000)}s`;
+                    elements.supportCooldown.style.color = '#888';
+                } else {
+                    elements.supportCooldown.textContent = '💕 HEAL: PRONTO (K)';
+                    elements.supportCooldown.style.color = '#ff9cc2';
+                }
+            }
         }
 
         // Drawing
         function drawBackground() {
-            // Sky gradient
             const gradient = ctx.createLinearGradient(0, 0, 0, CONFIG.physics.groundY);
             gradient.addColorStop(0, '#1a2c4a');
             gradient.addColorStop(0.5, '#2d4a6d');
@@ -1491,7 +1934,6 @@
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, CONFIG.canvas.width, CONFIG.physics.groundY);
 
-            // Draw background image with parallax
             if (images.background.complete && images.background.naturalWidth > 0) {
                 const bgWidth = images.background.width || CONFIG.canvas.width;
                 const offset = game.backgroundOffset % bgWidth;
@@ -1507,18 +1949,15 @@
                 }
             }
 
-            // Ground
             ctx.fillStyle = '#3a5a40';
             ctx.fillRect(0, CONFIG.physics.groundY, CONFIG.canvas.width, CONFIG.canvas.height - CONFIG.physics.groundY);
 
-            // Grass details
             ctx.fillStyle = '#588157';
             for (let i = 0; i < 25; i++) {
                 const x = ((i * 45 + game.backgroundOffset * 0.5) % (CONFIG.canvas.width + 50)) - 25;
                 ctx.fillRect(x, CONFIG.physics.groundY - 3, 25, 8);
             }
 
-            // Ground line
             ctx.strokeStyle = '#4a7a5a';
             ctx.lineWidth = 3;
             ctx.beginPath();
@@ -1536,31 +1975,33 @@
             const deltaTime = timestamp - lastTime;
             lastTime = timestamp;
 
-            if (game.paused) {
+            if (game.paused && !game.stageComplete) {
                 requestAnimationFrame(gameLoop);
                 return;
             }
 
-            // Clear canvas
+            if (game.stageComplete) {
+                requestAnimationFrame(gameLoop);
+                return;
+            }
+
             ctx.clearRect(0, 0, CONFIG.canvas.width, CONFIG.canvas.height);
 
-            // Apply screen shake
             ctx.save();
             ctx.translate(game.screenShake.x, game.screenShake.y);
 
-            // Update
             player.update(deltaTime);
+            melody.update(deltaTime);
             enemies.forEach(e => e.update(deltaTime));
             updateParticles();
             updateDamageIndicators();
             updateScreenShake();
 
-            // Update background offset based on player movement
             game.backgroundOffset -= player.velocityX * 0.3;
 
             // Spawn enemies
             const now = Date.now();
-            const spawnRate = Math.max(800, CONFIG.enemy.spawnRate - game.level * 100);
+            const spawnRate = Math.max(1200, 2500 - game.stage * 150);
             if (now - game.lastSpawnTime > spawnRate) {
                 spawnEnemy();
                 game.lastSpawnTime = now;
@@ -1571,9 +2012,12 @@
                 game.combo = 0;
             }
 
-            // Draw
+            // Update support cooldown display
+            updateHUD();
+
             drawBackground();
             enemies.forEach(e => e.draw());
+            melody.draw();
             player.draw();
             drawParticles();
             drawDamageIndicators();
@@ -1590,27 +2034,40 @@
             game.running = true;
             game.paused = false;
             game.score = 0;
-            game.level = 1;
-            game.kills = 0;
+            game.stage = 1;
+            game.stageKills = 0;
+            game.totalKills = 0;
             game.combo = 0;
             game.lastComboTime = 0;
             game.lastSpawnTime = Date.now();
             game.startTime = Date.now();
+            game.lastHealTime = 0;
             game.backgroundOffset = 0;
             game.particles = [];
             game.damageIndicators = [];
             game.screenShake = { x: 0, y: 0, intensity: 0 };
+            game.stageEnemiesSpawned = 0;
+            game.stageComplete = false;
 
-            // Reset config
-            CONFIG.enemy.baseSpeed = 2;
-            CONFIG.enemy.spawnRate = 2500;
+            // Check if melody is in team
+            game.melodyInTeam = game.selectedCharacters.includes('melody');
 
             player.reset();
+            melody.reset();
             enemies = [];
 
             elements.startScreen.classList.remove('active');
             elements.gameOverScreen.classList.remove('active');
+            elements.stageCompleteScreen.classList.remove('active');
             elements.hudOverlay.style.display = 'flex';
+            elements.stageIndicator.style.display = 'block';
+            elements.stageIndicator.textContent = 'FASE 1';
+            
+            if (game.melodyInTeam) {
+                elements.supportCooldown.style.display = 'block';
+            } else {
+                elements.supportCooldown.style.display = 'none';
+            }
 
             updateHUD();
             lastTime = performance.now();
@@ -1625,19 +2082,66 @@
             const seconds = playTime % 60;
 
             elements.finalScore.textContent = game.score.toLocaleString();
-            elements.finalLevel.textContent = game.level;
-            elements.finalKills.textContent = game.kills;
+            elements.finalStage.textContent = game.stage;
+            elements.finalKills.textContent = game.totalKills;
             elements.finalTime.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
             elements.hudOverlay.style.display = 'none';
+            elements.stageIndicator.style.display = 'none';
+            elements.supportCooldown.style.display = 'none';
             elements.gameOverScreen.classList.add('active');
         }
 
         function togglePause() {
-            if (!game.running) return;
-            
+            if (!game.running || game.stageComplete) return;
             game.paused = !game.paused;
             elements.pauseOverlay.classList.toggle('active', game.paused);
+        }
+
+        // Character Selection
+        function setupCharacterSelection() {
+            const cards = document.querySelectorAll('.character-card');
+            
+            cards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const character = card.dataset.character;
+                    
+                    // Check if locked
+                    if (card.classList.contains('locked')) return;
+                    
+                    // Toggle selection
+                    if (card.classList.contains('selected')) {
+                        // Can't deselect Lia
+                        if (character === 'lia') return;
+                        card.classList.remove('selected');
+                        game.selectedCharacters = game.selectedCharacters.filter(c => c !== character);
+                    } else {
+                        // Max 3 characters
+                        if (game.selectedCharacters.length >= 3) return;
+                        card.classList.add('selected');
+                        game.selectedCharacters.push(character);
+                    }
+                    
+                    updateTeamDisplay();
+                });
+            });
+        }
+
+        function updateTeamDisplay() {
+            const slots = [
+                document.getElementById('teamSlot1'),
+                document.getElementById('teamSlot2'),
+                document.getElementById('teamSlot3')
+            ];
+            
+            slots.forEach((slot, i) => {
+                slot.innerHTML = '';
+                if (game.selectedCharacters[i]) {
+                    const img = document.createElement('img');
+                    img.src = game.selectedCharacters[i] === 'lia' ? 'lia.png' : 'mymelody.png';
+                    slot.appendChild(img);
+                }
+            });
         }
 
         // Input Handling
@@ -1658,83 +2162,80 @@
                 player.attack();
             }
 
+            // Heal (My Melody support ability)
+            if (key === 'k' && !game.paused) {
+                melody.heal();
+            }
+
             // Pause
             if (key === 'escape' || key === 'p') {
                 togglePause();
             }
 
-            // Prevent scrolling
             if ([' ', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(key)) {
                 e.preventDefault();
             }
         });
 
         document.addEventListener('keyup', (e) => {
-            game.keys[e.key.toLowerCase()] = false;
+            const key = e.key.toLowerCase();
+            game.keys[key] = false;
+
+            // Release jump for variable height
+            if (key === 'w' || key === ' ' || key === 'arrowup') {
+                player.releaseJump();
+            }
         });
 
         // Mobile Controls
         function setupMobileControls() {
-            const handleTouchStart = (key) => (e) => {
+            const handleTouchStart = (key, action) => (e) => {
                 e.preventDefault();
                 game.keys[key] = true;
-                if (key === 'jump') player.jump();
-                if (key === 'attack') player.attack();
+                if (action) action();
             };
 
-            const handleTouchEnd = (key) => (e) => {
+            const handleTouchEnd = (key, action) => (e) => {
                 e.preventDefault();
                 game.keys[key] = false;
+                if (action) action();
             };
 
             elements.mobileLeft.addEventListener('touchstart', handleTouchStart('a'));
             elements.mobileLeft.addEventListener('touchend', handleTouchEnd('a'));
             elements.mobileRight.addEventListener('touchstart', handleTouchStart('d'));
             elements.mobileRight.addEventListener('touchend', handleTouchEnd('d'));
-            elements.mobileJump.addEventListener('touchstart', handleTouchStart('jump'));
-            elements.mobileJump.addEventListener('touchend', handleTouchEnd('jump'));
-            elements.mobileAttack.addEventListener('touchstart', handleTouchStart('attack'));
+            elements.mobileJump.addEventListener('touchstart', handleTouchStart('jump', () => player.jump()));
+            elements.mobileJump.addEventListener('touchend', handleTouchEnd('jump', () => player.releaseJump()));
+            elements.mobileAttack.addEventListener('touchstart', handleTouchStart('attack', () => player.attack()));
             elements.mobileAttack.addEventListener('touchend', handleTouchEnd('attack'));
+            elements.mobileSupport.addEventListener('touchstart', handleTouchStart('support', () => melody.heal()));
+            elements.mobileSupport.addEventListener('touchend', handleTouchEnd('support'));
         }
 
-        // Detect mobile
-        function isMobile() {
-            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-                   window.innerWidth <= 768;
-        }
-
-        // Button Events
+        // Event Listeners
         elements.startBtn.addEventListener('click', startGame);
-        elements.restartBtn.addEventListener('click', startGame);
+        elements.restartBtn.addEventListener('click', () => {
+            elements.gameOverScreen.classList.remove('active');
+            elements.startScreen.classList.add('active');
+            
+            // Refresh character selection based on unlocks
+            if (game.melodyUnlocked) {
+                elements.melodyCard.classList.remove('locked');
+                elements.melodyCard.querySelector('.lock-badge').style.display = 'none';
+            }
+        });
+        elements.nextStageBtn.addEventListener('click', nextStage);
 
         // Initialize
-        window.addEventListener('load', () => {
-            setupMobileControls();
+        setupCharacterSelection();
+        setupMobileControls();
+        updateTeamDisplay();
 
-            if (isMobile()) {
-                elements.mobileControls.style.display = 'flex';
-            }
-
-            // Start loading check
-            setTimeout(() => {
-                if (!imagesReady) {
-                    imagesReady = true;
-                    elements.loadingScreen.style.display = 'none';
-                }
-            }, 3000);
-        });
-
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            if (isMobile()) {
-                elements.mobileControls.style.display = 'flex';
-            } else {
-                elements.mobileControls.style.display = 'none';
-            }
-        });
-
-        // Prevent context menu on mobile
-        canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+        // Touch handling for mobile
+        if ('ontouchstart' in window) {
+            elements.mobileControls.style.display = 'flex';
+        }
     </script>
 </body>
 </html>
