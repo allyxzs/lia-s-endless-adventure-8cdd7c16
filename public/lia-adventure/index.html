@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Lia Adventure</title>
     <meta name="description" content="Jogo de aventura side-scroller com Lia e My Melody! Derrote esqueletos e avance pelas fases.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -33,19 +33,23 @@
             --ground: #3a5a40;
             --ground-light: #588157;
             --melody-pink: #ff9cc2;
+            --xp-purple: #a855f7;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
         }
 
         body {
             font-family: 'Fredoka', sans-serif;
             background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 50%, #1a2c4a 100%);
             color: var(--text-primary);
-            overflow: hidden;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            padding: 10px;
+            padding: 0;
         }
 
         .game-wrapper {
@@ -53,73 +57,30 @@
             flex-direction: column;
             align-items: center;
             width: 100%;
-            max-width: 1100px;
-            gap: 15px;
+            height: 100%;
+            max-width: 100vw;
+            max-height: 100vh;
         }
 
-        /* Header */
-        .game-header {
-            text-align: center;
-            width: 100%;
-        }
-
-        .game-title {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 2rem;
-            color: var(--primary);
-            text-shadow: 
-                0 0 20px var(--primary-glow),
-                4px 4px 0 var(--primary-dark),
-                -1px -1px 0 #fff;
-            letter-spacing: 2px;
-            margin-bottom: 5px;
-            animation: titlePulse 2s ease-in-out infinite;
-        }
-
-        @keyframes titlePulse {
-            0%, 100% { text-shadow: 0 0 20px var(--primary-glow), 4px 4px 0 var(--primary-dark); }
-            50% { text-shadow: 0 0 40px var(--primary-glow), 4px 4px 0 var(--primary-dark), 0 0 60px var(--primary-glow); }
-        }
-
-        .game-subtitle {
-            font-size: 1rem;
-            color: var(--text-secondary);
-            font-weight: 400;
-        }
-
-        /* Canvas Container */
+        /* Canvas Container - Full screen */
         .canvas-container {
             position: relative;
             width: 100%;
-            max-width: 1000px;
-            border-radius: 16px;
+            height: 100%;
+            max-width: 100vw;
+            max-height: 100vh;
             overflow: hidden;
-            box-shadow: 
-                0 0 50px rgba(0, 0, 0, 0.8),
-                0 0 100px rgba(77, 204, 189, 0.1),
-                inset 0 0 30px rgba(0, 0, 0, 0.3);
         }
 
         canvas {
             display: block;
             width: 100%;
-            height: auto;
+            height: 100%;
             background: var(--bg-dark);
+            object-fit: contain;
         }
 
-        .canvas-border {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            border: 4px solid transparent;
-            border-image: linear-gradient(135deg, var(--primary), var(--secondary), var(--primary)) 1;
-            border-radius: 16px;
-            pointer-events: none;
-        }
-
-        /* Compact HUD - Much smaller */
+        /* Compact HUD */
         .hud-overlay {
             position: absolute;
             top: 8px;
@@ -134,36 +95,36 @@
 
         .hud-left, .hud-right {
             display: flex;
-            gap: 6px;
+            gap: 4px;
             flex-wrap: wrap;
         }
 
         .hud-stat {
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.7);
             padding: 4px 8px;
-            border-radius: 12px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             gap: 4px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(5px);
         }
 
         .hud-icon {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
         }
 
         .hud-value {
             font-family: 'Press Start 2P', cursive;
-            font-size: 0.45rem;
+            font-size: 0.4rem;
             color: var(--gold);
         }
 
         .health-bar-container {
-            width: 60px;
-            height: 10px;
+            width: 50px;
+            height: 8px;
             background: rgba(0, 0, 0, 0.7);
-            border-radius: 5px;
+            border-radius: 4px;
             overflow: hidden;
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
@@ -172,7 +133,21 @@
             height: 100%;
             background: linear-gradient(90deg, var(--danger), var(--warning));
             transition: width 0.3s ease;
-            border-radius: 4px;
+            border-radius: 3px;
+        }
+
+        .xp-bar-container {
+            width: 40px;
+            height: 6px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .xp-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--xp-purple), #c084fc);
+            transition: width 0.3s ease;
         }
 
         /* Stage indicator */
@@ -183,15 +158,36 @@
             transform: translateX(-50%);
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             padding: 4px 12px;
-            border-radius: 12px;
+            border-radius: 10px;
             font-family: 'Press Start 2P', cursive;
-            font-size: 0.5rem;
+            font-size: 0.4rem;
             color: white;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
             z-index: 11;
         }
 
-        /* Game Screens */
+        /* Mission indicator */
+        .mission-indicator {
+            position: absolute;
+            top: 35px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 3px 10px;
+            border-radius: 8px;
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            z-index: 11;
+            max-width: 80%;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ==================== */
+        /* GAME SCREENS */
+        /* ==================== */
         .game-screen {
             position: absolute;
             top: 0;
@@ -202,12 +198,14 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: rgba(6, 16, 26, 0.95);
+            background: rgba(6, 16, 26, 0.98);
             backdrop-filter: blur(10px);
             z-index: 100;
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s ease;
+            padding: 20px;
+            overflow-y: auto;
         }
 
         .game-screen.active {
@@ -215,134 +213,526 @@
             pointer-events: auto;
         }
 
-        .screen-title {
+        /* TITLE SCREEN */
+        #titleScreen {
+            background: radial-gradient(ellipse at center, #1a2c4a 0%, var(--bg-darker) 70%);
+        }
+
+        .title-logo {
             font-family: 'Press Start 2P', cursive;
-            font-size: 1.8rem;
+            font-size: clamp(1.5rem, 5vw, 3rem);
             color: var(--primary);
-            text-shadow: 0 0 30px var(--primary-glow);
-            margin-bottom: 15px;
+            text-shadow: 
+                0 0 30px var(--primary-glow),
+                4px 4px 0 var(--primary-dark),
+                -2px -2px 0 #fff;
+            margin-bottom: 50px;
+            animation: titleFloat 3s ease-in-out infinite;
             text-align: center;
         }
 
-        .screen-subtitle {
-            font-size: 1rem;
-            color: var(--text-secondary);
-            margin-bottom: 20px;
-            text-align: center;
+        @keyframes titleFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
-        /* Character Selection */
-        .character-select {
+        .press-start {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(0.6rem, 2vw, 1rem);
+            color: var(--text-primary);
+            animation: blink 1s infinite;
+            margin-bottom: 30px;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .start-btn-big {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(0.8rem, 2.5vw, 1.2rem);
+            padding: 20px 60px;
+            border: none;
+            border-radius: 60px;
+            cursor: pointer;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 
+                0 8px 0 #b03e6a,
+                0 12px 30px rgba(255, 107, 157, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .start-btn-big:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 11px 0 #b03e6a,
+                0 18px 40px rgba(255, 107, 157, 0.5);
+        }
+
+        .start-btn-big:active {
+            transform: translateY(4px);
+            box-shadow: 
+                0 4px 0 #b03e6a,
+                0 6px 15px rgba(255, 107, 157, 0.3);
+        }
+
+        /* MAIN MENU SCREEN */
+        #mainMenuScreen .menu-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(1rem, 3vw, 1.8rem);
+            color: var(--primary);
+            text-shadow: 0 0 20px var(--primary-glow);
+            margin-bottom: 40px;
+        }
+
+        .menu-options {
             display: flex;
+            flex-direction: column;
             gap: 15px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-            max-width: 600px;
+            width: 100%;
+            max-width: 350px;
         }
 
-        .character-card {
-            background: var(--bg-panel);
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 15px;
+        .menu-btn {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(0.5rem, 1.5vw, 0.75rem);
+            padding: 18px 30px;
+            border: 3px solid transparent;
+            border-radius: 15px;
             cursor: pointer;
             transition: all 0.3s ease;
-            width: 140px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .menu-btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 5px 0 #b03e6a;
+        }
+
+        .menu-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 #b03e6a;
+        }
+
+        .menu-btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+        }
+
+        .menu-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: var(--secondary);
+        }
+
+        .menu-btn-google {
+            background: linear-gradient(135deg, #4285f4, #356ac3);
+            color: white;
+            box-shadow: 0 5px 0 #2a5298;
+        }
+
+        .menu-btn-google:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 #2a5298;
+        }
+
+        .google-hint {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            margin-top: -5px;
+            opacity: 0.8;
+        }
+
+        /* STAGE SELECT SCREEN - Mario Style */
+        #stageSelectScreen {
+            padding: 10px;
+        }
+
+        .stage-select-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 15px;
+        }
+
+        .stage-select-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(0.7rem, 2vw, 1rem);
+            color: var(--secondary);
+        }
+
+        .back-btn {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.5rem;
+            padding: 8px 15px;
+            border: 2px solid var(--text-secondary);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .player-stats-panel {
+            display: flex;
+            gap: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 10px 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .player-stat-item {
             text-align: center;
         }
 
-        .character-card:hover {
-            transform: translateY(-5px);
+        .player-stat-value {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            color: var(--gold);
+        }
+
+        .player-stat-label {
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+        }
+
+        .world-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .world-tab {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.4rem;
+            padding: 8px 15px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .world-tab.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+
+        .world-tab:hover:not(.active) {
+            border-color: var(--secondary);
+        }
+
+        .stage-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+            width: 100%;
+            max-width: 900px;
+            max-height: 50vh;
+            overflow-y: auto;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+        }
+
+        .stage-node {
+            aspect-ratio: 1;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+            position: relative;
+            min-width: 70px;
+        }
+
+        .stage-node.unlocked {
+            background: linear-gradient(135deg, #2d4a6d, #3d5a80);
+            border-color: var(--secondary);
+        }
+
+        .stage-node.unlocked:hover {
+            transform: scale(1.05);
             border-color: var(--primary);
             box-shadow: 0 0 20px var(--primary-glow);
         }
 
-        .character-card.selected {
-            border-color: var(--secondary);
-            box-shadow: 0 0 25px rgba(77, 204, 189, 0.5);
-            background: rgba(77, 204, 189, 0.1);
+        .stage-node.completed {
+            background: linear-gradient(135deg, #3a5a40, #588157);
+            border-color: #7cb342;
         }
 
-        .character-card.locked {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .stage-node.completed::after {
+            content: '⭐';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 0.8rem;
         }
 
-        .character-card.locked:hover {
-            transform: none;
+        .stage-node.locked {
+            background: rgba(0, 0, 0, 0.4);
             border-color: rgba(255, 255, 255, 0.1);
-            box-shadow: none;
+            cursor: not-allowed;
+            opacity: 0.5;
         }
 
-        .character-portrait {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 10px;
-            image-rendering: pixelated;
+        .stage-node.current {
+            animation: currentPulse 1.5s infinite;
         }
 
-        .character-name {
+        @keyframes currentPulse {
+            0%, 100% { box-shadow: 0 0 10px var(--primary-glow); }
+            50% { box-shadow: 0 0 25px var(--primary-glow), 0 0 40px var(--primary-glow); }
+        }
+
+        .stage-number {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8rem;
+            color: white;
+        }
+
+        .stage-stars {
+            font-size: 0.5rem;
+            margin-top: 3px;
+        }
+
+        .stage-info-panel {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 15px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .stage-info-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .stage-info-mission {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .stage-info-rewards {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .reward-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.65rem;
+            color: var(--gold);
+        }
+
+        .play-stage-btn {
             font-family: 'Press Start 2P', cursive;
             font-size: 0.6rem;
-            color: var(--text-primary);
-            margin-bottom: 5px;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+            color: white;
+            box-shadow: 0 4px 0 #2a9d8f;
+            transition: all 0.2s;
         }
 
-        .character-role {
-            font-size: 0.7rem;
-            color: var(--text-secondary);
+        .play-stage-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #2a9d8f;
         }
 
-        .character-ability {
-            font-size: 0.65rem;
-            color: var(--secondary);
-            margin-top: 5px;
-        }
-
-        .lock-badge {
-            font-size: 0.5rem;
-            color: var(--warning);
-            margin-top: 5px;
-        }
-
-        .team-display {
+        /* CHARACTER SELECT IN STAGE */
+        .team-select-mini {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
-            background: rgba(0,0,0,0.3);
-            padding: 10px 20px;
-            border-radius: 20px;
+            margin-bottom: 15px;
         }
 
-        .team-slot {
+        .team-char-mini {
             width: 50px;
             height: 50px;
-            background: rgba(255,255,255,0.1);
-            border: 2px dashed rgba(255,255,255,0.3);
             border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.4);
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        .team-slot img {
+        .team-char-mini.selected {
+            border-color: var(--secondary);
+            background: rgba(77, 204, 189, 0.2);
+        }
+
+        .team-char-mini.locked {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .team-char-mini img {
             width: 40px;
             height: 40px;
             image-rendering: pixelated;
         }
 
-        .final-score {
+        /* Game Buttons */
+        .game-btn {
             font-family: 'Press Start 2P', cursive;
-            font-size: 1.3rem;
+            font-size: 0.7rem;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+        }
+
+        .game-btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 5px 0 #b03e6a;
+        }
+
+        .game-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 #b03e6a;
+        }
+
+        .game-btn-secondary {
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+            color: white;
+            box-shadow: 0 5px 0 #2a9d8f;
+        }
+
+        /* Stage Complete Screen */
+        .stage-complete-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(6, 16, 26, 0.95);
+            z-index: 90;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .stage-complete-screen.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .complete-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            color: var(--secondary);
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px var(--secondary);
+        }
+
+        .complete-rewards {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .complete-reward {
+            text-align: center;
+        }
+
+        .complete-reward-value {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1rem;
             color: var(--gold);
-            margin-bottom: 10px;
+        }
+
+        .complete-reward-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        .xp-gain-display {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8rem;
+            color: var(--xp-purple);
+            margin-bottom: 15px;
+        }
+
+        .level-up-notice {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1rem;
+            color: var(--gold);
+            animation: levelUpPulse 0.5s ease-in-out infinite alternate;
+            margin-bottom: 15px;
+        }
+
+        @keyframes levelUpPulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+
+        .complete-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* Game Over Screen */
+        .game-over-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(1.2rem, 4vw, 2rem);
+            color: var(--danger);
+            text-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
+            margin-bottom: 20px;
         }
 
         .final-stats {
             display: flex;
             gap: 25px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .final-stat {
@@ -356,127 +746,19 @@
         }
 
         .final-stat-label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--text-secondary);
             margin-top: 3px;
-        }
-
-        /* Buttons */
-        .game-btn {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.8rem;
-            padding: 12px 35px;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .game-btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            box-shadow: 
-                0 5px 0 #b03e6a,
-                0 8px 15px rgba(255, 107, 157, 0.3);
-        }
-
-        .game-btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 
-                0 7px 0 #b03e6a,
-                0 12px 25px rgba(255, 107, 157, 0.4);
-        }
-
-        .game-btn-primary:active {
-            transform: translateY(2px);
-            box-shadow: 
-                0 3px 0 #b03e6a,
-                0 4px 8px rgba(255, 107, 157, 0.3);
-        }
-
-        .game-btn-secondary {
-            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
-            color: white;
-            box-shadow: 
-                0 5px 0 #2a9d8f,
-                0 8px 15px rgba(77, 204, 189, 0.3);
-        }
-
-        .game-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .game-btn:hover::before {
-            left: 100%;
-        }
-
-        /* Controls Panel */
-        .controls-panel {
-            background: var(--bg-panel);
-            padding: 12px 20px;
-            border-radius: 12px;
-            width: 100%;
-            max-width: 800px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
-            border: 2px solid rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-        }
-
-        .control-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .control-label {
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-            min-width: 60px;
-        }
-
-        .control-keys {
-            display: flex;
-            gap: 4px;
-            flex-wrap: wrap;
-        }
-
-        .key {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(180deg, #3a4d6e, #2a3d5e);
-            min-width: 28px;
-            height: 24px;
-            padding: 0 6px;
-            border-radius: 5px;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.4rem;
-            color: var(--text-primary);
-            box-shadow: 0 2px 0 #1a2639, inset 0 1px 0 rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.05);
         }
 
         /* Mobile Controls */
         .mobile-controls {
             display: none;
             position: fixed;
-            bottom: 15px;
+            bottom: 10px;
             left: 0;
             right: 0;
-            padding: 0 15px;
+            padding: 0 10px;
             justify-content: space-between;
             z-index: 1000;
         }
@@ -487,13 +769,13 @@
         }
 
         .mobile-btn {
-            width: 55px;
-            height: 55px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            border: 3px solid rgba(255,255,255,0.3);
-            background: rgba(13, 27, 42, 0.8);
+            border: 3px solid rgba(255,255,255,0.4);
+            background: rgba(13, 27, 42, 0.85);
             color: white;
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -508,18 +790,34 @@
         }
 
         .mobile-btn.attack {
-            background: rgba(255, 107, 157, 0.3);
+            background: rgba(255, 107, 157, 0.4);
             border-color: var(--primary);
         }
 
         .mobile-btn.jump {
-            background: rgba(77, 204, 189, 0.3);
+            background: rgba(77, 204, 189, 0.4);
             border-color: var(--secondary);
         }
 
         .mobile-btn.support {
-            background: rgba(255, 156, 194, 0.3);
+            background: rgba(255, 156, 194, 0.4);
             border-color: var(--melody-pink);
+        }
+
+        /* Support cooldown */
+        .support-cooldown {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.4rem;
+            color: var(--melody-pink);
+            z-index: 20;
+            display: none;
         }
 
         /* Loading Screen */
@@ -547,13 +845,11 @@
             margin-bottom: 15px;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         .loading-text {
             font-family: 'Press Start 2P', cursive;
-            font-size: 0.7rem;
+            font-size: 0.6rem;
             color: var(--text-secondary);
             animation: pulse 1.5s ease-in-out infinite;
         }
@@ -566,15 +862,13 @@
         /* Combo Display */
         .combo-display {
             position: absolute;
-            top: 45%;
+            top: 40%;
             left: 50%;
             transform: translate(-50%, -50%);
             font-family: 'Press Start 2P', cursive;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             color: var(--gold);
-            text-shadow: 
-                0 0 20px var(--gold),
-                2px 2px 0 #b38600;
+            text-shadow: 0 0 20px var(--gold), 2px 2px 0 #b38600;
             pointer-events: none;
             opacity: 0;
             z-index: 50;
@@ -590,14 +884,14 @@
             100% { opacity: 0; transform: translate(-50%, -80%) scale(1); }
         }
 
-        /* Level/Stage Up Display */
+        /* Level Up Display */
         .levelup-display {
             position: absolute;
-            top: 30%;
+            top: 25%;
             left: 50%;
             transform: translateX(-50%);
             font-family: 'Press Start 2P', cursive;
-            font-size: 1.2rem;
+            font-size: 1rem;
             color: var(--secondary);
             text-shadow: 0 0 30px var(--secondary);
             pointer-events: none;
@@ -612,18 +906,18 @@
         @keyframes levelUpPopup {
             0% { opacity: 0; transform: translateX(-50%) translateY(20px) scale(0.8); }
             20% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.1); }
-            80% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateX(-50%) translateY(-30px) scale(0.9); }
+            80% { opacity: 1; }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-30px); }
         }
 
-        /* Unlock notification */
+        /* Unlock Display */
         .unlock-display {
             position: absolute;
-            top: 35%;
+            top: 30%;
             left: 50%;
             transform: translateX(-50%);
             font-family: 'Press Start 2P', cursive;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: var(--melody-pink);
             text-shadow: 0 0 30px var(--melody-pink);
             pointer-events: none;
@@ -639,27 +933,11 @@
         @keyframes unlockPopup {
             0% { opacity: 0; transform: translateX(-50%) scale(0.5); }
             15% { opacity: 1; transform: translateX(-50%) scale(1.2); }
-            85% { opacity: 1; transform: translateX(-50%) scale(1); }
-            100% { opacity: 0; transform: translateX(-50%) scale(0.9); }
+            85% { opacity: 1; }
+            100% { opacity: 0; }
         }
 
-        /* Support ability indicator */
-        .support-cooldown {
-            position: absolute;
-            bottom: 60px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.7);
-            padding: 5px 15px;
-            border-radius: 15px;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.5rem;
-            color: var(--melody-pink);
-            z-index: 20;
-            display: none;
-        }
-
-        /* Pause overlay */
+        /* Pause Overlay */
         .pause-overlay {
             position: absolute;
             top: 50%;
@@ -683,112 +961,97 @@
             50% { opacity: 1; }
         }
 
-        /* Stage Complete Screen */
-        .stage-complete-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: rgba(6, 16, 26, 0.9);
-            z-index: 90;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.5s ease;
-        }
-
-        .stage-complete-screen.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
         /* Responsive */
         @media (max-width: 768px) {
-            .game-title {
-                font-size: 1.2rem;
-            }
-
-            .controls-panel {
-                display: none;
-            }
-
             .mobile-controls {
                 display: flex;
             }
 
-            .hud-stat {
-                padding: 3px 6px;
+            .stage-grid {
+                grid-template-columns: repeat(5, 1fr);
             }
 
-            .hud-value {
-                font-size: 0.4rem;
+            .stage-node {
+                min-width: 50px;
             }
 
-            .health-bar-container {
-                width: 45px;
-            }
-
-            .screen-title {
-                font-size: 1rem;
-            }
-
-            .final-stats {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .game-btn {
+            .stage-number {
                 font-size: 0.6rem;
-                padding: 10px 25px;
-            }
-
-            .character-card {
-                width: 110px;
-                padding: 10px;
-            }
-
-            .character-portrait {
-                width: 60px;
-                height: 60px;
             }
         }
 
         @media (max-width: 480px) {
-            .game-header {
-                display: none;
-            }
-
-            .game-wrapper {
-                gap: 8px;
-            }
-
             .mobile-btn {
-                width: 50px;
-                height: 50px;
-                font-size: 1.1rem;
+                width: 55px;
+                height: 55px;
+                font-size: 1.3rem;
             }
+
+            .stage-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (min-width: 769px) {
+            .controls-panel {
+                display: grid;
+            }
+        }
+
+        /* Desktop Controls Panel */
+        .controls-panel {
+            display: none;
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 20px;
+            border-radius: 10px;
+            grid-template-columns: repeat(6, auto);
+            gap: 15px;
+            z-index: 20;
+        }
+
+        .control-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .control-label {
+            color: var(--text-secondary);
+            font-size: 0.65rem;
+        }
+
+        .key {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(180deg, #3a4d6e, #2a3d5e);
+            min-width: 22px;
+            height: 20px;
+            padding: 0 5px;
+            border-radius: 4px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.35rem;
+            color: var(--text-primary);
+            box-shadow: 0 2px 0 #1a2639;
         }
     </style>
 </head>
 <body>
     <div class="game-wrapper">
-        <header class="game-header">
-            <h1 class="game-title">LIA ADVENTURE</h1>
-            <p class="game-subtitle">Derrote os esqueletos e avance pelas fases!</p>
-        </header>
-
         <div class="canvas-container">
-            <canvas id="gameCanvas" width="1000" height="500"></canvas>
-            <div class="canvas-border"></div>
+            <canvas id="gameCanvas"></canvas>
 
             <!-- Stage Indicator -->
-            <div class="stage-indicator" id="stageIndicator" style="display: none;">FASE 1</div>
+            <div class="stage-indicator" id="stageIndicator" style="display: none;">FASE 1-1</div>
 
-            <!-- HUD Overlay - Compact -->
+            <!-- Mission Indicator -->
+            <div class="mission-indicator" id="missionIndicator" style="display: none;">Derrote 5 esqueletos</div>
+
+            <!-- HUD Overlay -->
             <div class="hud-overlay" id="hudOverlay" style="display: none;">
                 <div class="hud-left">
                     <div class="hud-stat">
@@ -798,14 +1061,21 @@
                         </div>
                     </div>
                     <div class="hud-stat">
-                        <span class="hud-icon">⭐</span>
-                        <span class="hud-value" id="scoreDisplay">0</span>
+                        <span class="hud-icon">⚡</span>
+                        <div class="xp-bar-container">
+                            <div class="xp-bar" id="xpBar" style="width: 0%;"></div>
+                        </div>
+                        <span class="hud-value" id="levelDisplay">Lv.1</span>
                     </div>
                 </div>
                 <div class="hud-right">
                     <div class="hud-stat">
                         <span class="hud-icon">💀</span>
-                        <span class="hud-value" id="killsDisplay">0</span>
+                        <span class="hud-value" id="killsDisplay">0/5</span>
+                    </div>
+                    <div class="hud-stat">
+                        <span class="hud-icon">⭐</span>
+                        <span class="hud-value" id="scoreDisplay">0</span>
                     </div>
                 </div>
             </div>
@@ -817,7 +1087,7 @@
             <div class="combo-display" id="comboDisplay"></div>
 
             <!-- Level Up Display -->
-            <div class="levelup-display" id="levelUpDisplay">FASE COMPLETA!</div>
+            <div class="levelup-display" id="levelUpDisplay"></div>
 
             <!-- Unlock Display -->
             <div class="unlock-display" id="unlockDisplay">🎀 MY MELODY DESBLOQUEADA! 🎀</div>
@@ -831,105 +1101,129 @@
                 <div class="loading-text">CARREGANDO...</div>
             </div>
 
-            <!-- Start Screen with Character Selection -->
-            <div class="game-screen active" id="startScreen">
-                <h2 class="screen-title">LIA ADVENTURE</h2>
-                <p class="screen-subtitle">Escolha seu time (máx. 3 personagens)</p>
-                
-                <div class="team-display" id="teamDisplay">
-                    <div class="team-slot" id="teamSlot1"></div>
-                    <div class="team-slot" id="teamSlot2"></div>
-                    <div class="team-slot" id="teamSlot3"></div>
+            <!-- TITLE SCREEN -->
+            <div class="game-screen active" id="titleScreen">
+                <h1 class="title-logo">LIA ADVENTURE</h1>
+                <p class="press-start">PRESS START</p>
+                <button class="start-btn-big" id="titleStartBtn">START</button>
+            </div>
+
+            <!-- MAIN MENU SCREEN -->
+            <div class="game-screen" id="mainMenuScreen">
+                <h2 class="menu-title">LIA ADVENTURE</h2>
+                <div class="menu-options">
+                    <button class="menu-btn menu-btn-primary" id="playGameBtn">INICIAR JOGO</button>
+                    <button class="menu-btn menu-btn-google" id="googleLoginBtn">🔵 LOGAR CONTA GOOGLE</button>
+                    <p class="google-hint">Essa opção é para salvar seus dados de jogo.</p>
+                </div>
+            </div>
+
+            <!-- STAGE SELECT SCREEN -->
+            <div class="game-screen" id="stageSelectScreen">
+                <div class="stage-select-header">
+                    <h2 class="stage-select-title">SELECIONAR FASE</h2>
+                    <button class="back-btn" id="backToMenuBtn">← VOLTAR</button>
                 </div>
 
-                <div class="character-select" id="characterSelect">
-                    <div class="character-card selected" data-character="lia">
-                        <img src="lia.png" alt="Lia" class="character-portrait">
-                        <div class="character-name">LIA</div>
-                        <div class="character-role">⚔️ Guerreira</div>
-                        <div class="character-ability">Ataque corpo-a-corpo</div>
+                <div class="player-stats-panel">
+                    <div class="player-stat-item">
+                        <div class="player-stat-value" id="playerLevelStat">Lv. 1</div>
+                        <div class="player-stat-label">Nível</div>
                     </div>
-                    <div class="character-card locked" data-character="melody" id="melodyCard">
-                        <img src="mymelody.png" alt="My Melody" class="character-portrait">
-                        <div class="character-name">MY MELODY</div>
-                        <div class="character-role">💕 Suporte</div>
-                        <div class="character-ability">Cura em área (K)</div>
-                        <div class="lock-badge">🔒 Fase 5</div>
+                    <div class="player-stat-item">
+                        <div class="player-stat-value" id="playerXpStat">0</div>
+                        <div class="player-stat-label">XP Total</div>
+                    </div>
+                    <div class="player-stat-item">
+                        <div class="player-stat-value" id="playerStarsStat">0</div>
+                        <div class="player-stat-label">⭐ Estrelas</div>
                     </div>
                 </div>
-                
-                <button class="game-btn game-btn-primary" id="startBtn">JOGAR</button>
+
+                <div class="world-tabs" id="worldTabs"></div>
+
+                <div class="stage-grid" id="stageGrid"></div>
+
+                <div class="stage-info-panel" id="stageInfoPanel" style="display: none;">
+                    <div class="stage-info-title" id="stageInfoTitle">FASE 1-1</div>
+                    <div class="stage-info-mission" id="stageInfoMission">Derrote 5 esqueletos para avançar.</div>
+                    <div class="stage-info-rewards">
+                        <div class="reward-item">🏆 <span id="stageXpReward">50</span> XP</div>
+                        <div class="reward-item">⭐ <span id="stageScoreReward">500</span> pts</div>
+                    </div>
+                    <div class="team-select-mini" id="teamSelectMini"></div>
+                    <button class="play-stage-btn" id="playStageBtn">JOGAR FASE</button>
+                </div>
             </div>
 
             <!-- Stage Complete Screen -->
             <div class="stage-complete-screen" id="stageCompleteScreen">
-                <h2 class="screen-title" style="color: var(--secondary);">FASE COMPLETA!</h2>
-                <div class="final-score" id="stageScore">+500</div>
-                <p class="screen-subtitle" id="stageMessage">Prepare-se para a próxima fase!</p>
-                <button class="game-btn game-btn-secondary" id="nextStageBtn">PRÓXIMA FASE</button>
+                <h2 class="complete-title">FASE COMPLETA!</h2>
+                <div class="complete-rewards">
+                    <div class="complete-reward">
+                        <div class="complete-reward-value" id="completeScore">+500</div>
+                        <div class="complete-reward-label">Pontos</div>
+                    </div>
+                    <div class="complete-reward">
+                        <div class="complete-reward-value" id="completeKills">10</div>
+                        <div class="complete-reward-label">Derrotados</div>
+                    </div>
+                </div>
+                <div class="xp-gain-display" id="xpGainDisplay">+100 XP</div>
+                <div class="level-up-notice" id="levelUpNotice" style="display: none;">🎉 LEVEL UP! 🎉</div>
+                <div class="complete-buttons">
+                    <button class="game-btn game-btn-secondary" id="backToMapBtn">VOLTAR AO MAPA</button>
+                    <button class="game-btn game-btn-primary" id="nextStageBtn">PRÓXIMA FASE →</button>
+                </div>
             </div>
 
             <!-- Game Over Screen -->
             <div class="game-screen" id="gameOverScreen">
-                <h2 class="screen-title">FIM DE JOGO</h2>
-                <div class="final-score" id="finalScore">0</div>
+                <h2 class="game-over-title">FIM DE JOGO</h2>
                 <div class="final-stats">
                     <div class="final-stat">
-                        <div class="final-stat-value" id="finalStage">1</div>
+                        <div class="final-stat-value" id="finalStage">1-1</div>
                         <div class="final-stat-label">Fase</div>
                     </div>
                     <div class="final-stat">
                         <div class="final-stat-value" id="finalKills">0</div>
-                        <div class="final-stat-label">Esqueletos</div>
+                        <div class="final-stat-label">Derrotados</div>
                     </div>
                     <div class="final-stat">
-                        <div class="final-stat-value" id="finalTime">0:00</div>
-                        <div class="final-stat-label">Tempo</div>
+                        <div class="final-stat-value" id="finalScore">0</div>
+                        <div class="final-stat-label">Pontos</div>
                     </div>
                 </div>
-                <button class="game-btn game-btn-primary" id="restartBtn">JOGAR NOVAMENTE</button>
+                <div class="complete-buttons">
+                    <button class="game-btn game-btn-secondary" id="retryStageBtn">TENTAR NOVAMENTE</button>
+                    <button class="game-btn game-btn-primary" id="backToMapFromOverBtn">VOLTAR AO MAPA</button>
+                </div>
             </div>
-        </div>
 
-        <div class="controls-panel">
-            <div class="control-item">
-                <span class="control-label">Mover:</span>
-                <div class="control-keys">
-                    <span class="key">A</span>
-                    <span class="key">D</span>
-                    <span class="key">←</span>
-                    <span class="key">→</span>
+            <!-- Desktop Controls -->
+            <div class="controls-panel" id="controlsPanel">
+                <div class="control-item">
+                    <span class="control-label">Mover:</span>
+                    <span class="key">A</span><span class="key">D</span>
                 </div>
-            </div>
-            <div class="control-item">
-                <span class="control-label">Pular:</span>
-                <div class="control-keys">
-                    <span class="key">W</span>
-                    <span class="key">↑</span>
-                    <span class="key">ESPAÇO</span>
+                <div class="control-item">
+                    <span class="control-label">Pular:</span>
+                    <span class="key">W</span><span class="key">ESPAÇO</span>
                 </div>
-            </div>
-            <div class="control-item">
-                <span class="control-label">Atacar:</span>
-                <div class="control-keys">
+                <div class="control-item">
+                    <span class="control-label">Atacar:</span>
                     <span class="key">J</span>
                 </div>
-            </div>
-            <div class="control-item">
-                <span class="control-label">Correr:</span>
-                <div class="control-keys">
+                <div class="control-item">
+                    <span class="control-label">Correr:</span>
                     <span class="key">SHIFT</span>
                 </div>
-            </div>
-            <div class="control-item">
-                <span class="control-label">Curar:</span>
-                <div class="control-keys">
+                <div class="control-item">
+                    <span class="control-label">Curar:</span>
                     <span class="key">K</span>
                 </div>
-            </div>
-            <div class="control-item">
-                <span class="control-label">Pausar:</span>
-                <div class="control-keys">
+                <div class="control-item">
+                    <span class="control-label">Pausar:</span>
                     <span class="key">ESC</span>
                 </div>
             </div>
@@ -951,98 +1245,249 @@
 
     <script>
         // ============================================
-        // LIA ADVENTURE - Enhanced Game Engine v2.0
-        // With Mario-style physics, stages, and My Melody!
+        // LIA ADVENTURE - Enhanced Game Engine v3.0
+        // 30 Stages, XP System, Mario Physics
         // ============================================
 
-        // Game Configuration
+        // ================ STAGE DATA ================
+        const STAGES_DATA = [];
+        const WORLDS = ['Floresta', 'Caverna', 'Castelo', 'Vulcão', 'Céu', 'Abismo'];
+
+        // Generate 30 stages (5 stages per world)
+        for (let world = 0; world < 6; world++) {
+            for (let stage = 0; stage < 5; stage++) {
+                const stageNum = world * 5 + stage + 1;
+                const difficulty = Math.floor(stageNum / 3) + 1;
+                
+                // Stage mission types
+                const missionTypes = [
+                    { type: 'kill', text: `Derrote ${5 + stageNum * 2} esqueletos`, target: 5 + stageNum * 2 },
+                    { type: 'survive', text: `Sobreviva por ${30 + stageNum * 5} segundos`, target: 30 + stageNum * 5 },
+                    { type: 'combo', text: `Alcance combo ${3 + Math.floor(stageNum / 5)}x`, target: 3 + Math.floor(stageNum / 5) },
+                    { type: 'nodamage', text: 'Complete sem levar dano', target: 1 },
+                    { type: 'boss', text: 'Derrote o Chefe Esqueleto', target: 1 }
+                ];
+
+                // Primary mission based on stage
+                let mission;
+                if (stage === 4) { // Boss stage every 5th
+                    mission = { type: 'kill', text: `Derrote ${10 + stageNum * 3} esqueletos + Chefe`, target: 10 + stageNum * 3, hasBoss: true };
+                } else {
+                    mission = missionTypes[stage % 3];
+                    if (mission.type === 'kill') {
+                        mission = { ...mission, target: 5 + stageNum * 2, text: `Derrote ${5 + stageNum * 2} esqueletos` };
+                    }
+                }
+
+                STAGES_DATA.push({
+                    id: stageNum,
+                    world: world + 1,
+                    worldName: WORLDS[world],
+                    stageInWorld: stage + 1,
+                    name: `${world + 1}-${stage + 1}`,
+                    mission: mission,
+                    enemyHealth: 40 + stageNum * 8,
+                    enemyDamage: 8 + stageNum * 2,
+                    enemySpeed: 1.5 + stageNum * 0.08,
+                    maxEnemies: Math.min(3 + Math.floor(stageNum / 4), 10),
+                    spawnRate: Math.max(800, 2500 - stageNum * 50),
+                    xpReward: 50 + stageNum * 30,
+                    scoreReward: 300 + stageNum * 100,
+                    unlockMelody: stageNum === 5
+                });
+            }
+        }
+
+        // ================ XP SYSTEM ================
+        const XP_SYSTEM = {
+            // XP needed for each level (exponential curve)
+            getXpForLevel(level) {
+                return Math.floor(100 * Math.pow(1.5, level - 1));
+            },
+            
+            getTotalXpForLevel(level) {
+                let total = 0;
+                for (let i = 1; i < level; i++) {
+                    total += this.getXpForLevel(i);
+                }
+                return total;
+            },
+
+            getLevelFromXp(totalXp) {
+                let level = 1;
+                let xpNeeded = 0;
+                while (totalXp >= xpNeeded + this.getXpForLevel(level)) {
+                    xpNeeded += this.getXpForLevel(level);
+                    level++;
+                    if (level > 99) break;
+                }
+                return { level, currentXp: totalXp - xpNeeded, neededXp: this.getXpForLevel(level) };
+            },
+
+            // Stat bonuses per level
+            getStatBonus(level, stat) {
+                const bonuses = {
+                    attack: level * 3,
+                    health: level * 10,
+                    healAmount: level * 2,
+                    speed: Math.min(level * 0.1, 3)
+                };
+                return bonuses[stat] || 0;
+            }
+        };
+
+        // ================ GAME CONFIG ================
         const CONFIG = {
-            canvas: { width: 1000, height: 500 },
+            canvas: { width: 1280, height: 720 },
             physics: {
-                gravity: 0.45,  // Lower gravity for floatier jumps (Mario-like)
+                gravity: 0.5,
                 friction: 0.89,
-                groundY: 420,
+                groundY: 620,
                 airResistance: 0.98
             },
             player: {
-                width: 60,
-                height: 90,
-                walkSpeed: 3.5,
-                runSpeed: 6.5,
-                maxSpeed: 8,
-                acceleration: 0.4,
-                deceleration: 0.3,
-                jumpForce: -13,
-                jumpHoldForce: -0.4, // Variable jump height (Mario-style)
-                maxJumpHoldTime: 180, // ms to hold jump for max height
+                width: 70,
+                height: 100,
+                walkSpeed: 4,
+                runSpeed: 7,
+                maxSpeed: 9,
+                acceleration: 0.45,
+                deceleration: 0.35,
+                jumpForce: -14,
+                jumpHoldForce: -0.5,
+                maxJumpHoldTime: 200,
                 attackDuration: 300,
                 attackCooldown: 400,
                 damageCooldown: 1000,
-                attackRange: 80,
-                attackHeight: 60,
-                maxHealth: 100
+                attackRange: 90,
+                attackHeight: 70,
+                baseHealth: 100,
+                baseAttack: 20
             },
             melody: {
-                width: 55,
-                height: 80,
-                healAmount: 30,
-                healCooldown: 8000,
-                healRadius: 150
-            },
-            enemy: {
-                width: 50,
-                height: 70,
-                baseSpeed: 1.8,
-                health: 50,
-                damage: 12,
-                attackRange: 65,
-                attackCooldown: 1200,
-                maxCount: 6
+                width: 60,
+                height: 85,
+                baseHealAmount: 25,
+                healCooldown: 10000,
+                healRadius: 180
             },
             scoring: {
                 killBase: 100,
                 comboMultiplier: 1.5,
-                comboTimeout: 2000,
-                stageBonus: 500
-            },
-            stages: {
-                killsToComplete: [5, 8, 12, 15, 20, 25, 30, 35, 40, 50], // Kills needed per stage
-                melodyUnlockStage: 5
+                comboTimeout: 2000
             }
         };
 
-        // DOM Elements
+        // ================ GAME STATE ================
+        const gameState = {
+            // Player progress (saved)
+            totalXp: 0,
+            playerLevel: 1,
+            currentXp: 0,
+            xpToNextLevel: 100,
+            highestStage: 1,
+            stageStars: {}, // { stageId: stars }
+            melodyUnlocked: false,
+            totalScore: 0,
+            
+            // Current session
+            currentStage: null,
+            selectedCharacters: ['lia'],
+            melodyInTeam: false,
+            
+            // Runtime
+            running: false,
+            paused: false,
+            stageComplete: false,
+            stageKills: 0,
+            stageScore: 0,
+            stageDamageTaken: 0,
+            stageMaxCombo: 0,
+            stageStartTime: 0,
+            combo: 0,
+            lastComboTime: 0,
+            lastSpawnTime: 0,
+            lastHealTime: 0,
+            backgroundOffset: 0,
+            particles: [],
+            damageIndicators: [],
+            screenShake: { x: 0, y: 0, intensity: 0 },
+            keys: {}
+        };
+
+        // ================ SAVE/LOAD ================
+        function saveProgress() {
+            const saveData = {
+                totalXp: gameState.totalXp,
+                highestStage: gameState.highestStage,
+                stageStars: gameState.stageStars,
+                melodyUnlocked: gameState.melodyUnlocked,
+                totalScore: gameState.totalScore
+            };
+            localStorage.setItem('liaAdventureSave', JSON.stringify(saveData));
+        }
+
+        function loadProgress() {
+            const saved = localStorage.getItem('liaAdventureSave');
+            if (saved) {
+                const data = JSON.parse(saved);
+                gameState.totalXp = data.totalXp || 0;
+                gameState.highestStage = data.highestStage || 1;
+                gameState.stageStars = data.stageStars || {};
+                gameState.melodyUnlocked = data.melodyUnlocked || false;
+                gameState.totalScore = data.totalScore || 0;
+                
+                const levelInfo = XP_SYSTEM.getLevelFromXp(gameState.totalXp);
+                gameState.playerLevel = levelInfo.level;
+                gameState.currentXp = levelInfo.currentXp;
+                gameState.xpToNextLevel = levelInfo.neededXp;
+            }
+        }
+
+        // ================ DOM ELEMENTS ================
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-
+        
         const elements = {
             loadingScreen: document.getElementById('loadingScreen'),
-            startScreen: document.getElementById('startScreen'),
-            gameOverScreen: document.getElementById('gameOverScreen'),
+            titleScreen: document.getElementById('titleScreen'),
+            mainMenuScreen: document.getElementById('mainMenuScreen'),
+            stageSelectScreen: document.getElementById('stageSelectScreen'),
             stageCompleteScreen: document.getElementById('stageCompleteScreen'),
+            gameOverScreen: document.getElementById('gameOverScreen'),
             hudOverlay: document.getElementById('hudOverlay'),
             stageIndicator: document.getElementById('stageIndicator'),
+            missionIndicator: document.getElementById('missionIndicator'),
             healthBar: document.getElementById('healthBar'),
-            scoreDisplay: document.getElementById('scoreDisplay'),
+            xpBar: document.getElementById('xpBar'),
+            levelDisplay: document.getElementById('levelDisplay'),
             killsDisplay: document.getElementById('killsDisplay'),
+            scoreDisplay: document.getElementById('scoreDisplay'),
+            supportCooldown: document.getElementById('supportCooldown'),
             comboDisplay: document.getElementById('comboDisplay'),
             levelUpDisplay: document.getElementById('levelUpDisplay'),
             unlockDisplay: document.getElementById('unlockDisplay'),
             pauseOverlay: document.getElementById('pauseOverlay'),
-            supportCooldown: document.getElementById('supportCooldown'),
-            startBtn: document.getElementById('startBtn'),
-            restartBtn: document.getElementById('restartBtn'),
-            nextStageBtn: document.getElementById('nextStageBtn'),
-            finalScore: document.getElementById('finalScore'),
+            controlsPanel: document.getElementById('controlsPanel'),
+            mobileControls: document.getElementById('mobileControls'),
+            worldTabs: document.getElementById('worldTabs'),
+            stageGrid: document.getElementById('stageGrid'),
+            stageInfoPanel: document.getElementById('stageInfoPanel'),
+            stageInfoTitle: document.getElementById('stageInfoTitle'),
+            stageInfoMission: document.getElementById('stageInfoMission'),
+            stageXpReward: document.getElementById('stageXpReward'),
+            stageScoreReward: document.getElementById('stageScoreReward'),
+            teamSelectMini: document.getElementById('teamSelectMini'),
+            playerLevelStat: document.getElementById('playerLevelStat'),
+            playerXpStat: document.getElementById('playerXpStat'),
+            playerStarsStat: document.getElementById('playerStarsStat'),
+            completeScore: document.getElementById('completeScore'),
+            completeKills: document.getElementById('completeKills'),
+            xpGainDisplay: document.getElementById('xpGainDisplay'),
+            levelUpNotice: document.getElementById('levelUpNotice'),
             finalStage: document.getElementById('finalStage'),
             finalKills: document.getElementById('finalKills'),
-            finalTime: document.getElementById('finalTime'),
-            stageScore: document.getElementById('stageScore'),
-            stageMessage: document.getElementById('stageMessage'),
-            characterSelect: document.getElementById('characterSelect'),
-            teamDisplay: document.getElementById('teamDisplay'),
-            melodyCard: document.getElementById('melodyCard'),
-            mobileControls: document.getElementById('mobileControls'),
+            finalScore: document.getElementById('finalScore'),
             mobileLeft: document.getElementById('mobileLeft'),
             mobileRight: document.getElementById('mobileRight'),
             mobileJump: document.getElementById('mobileJump'),
@@ -1050,110 +1495,73 @@
             mobileSupport: document.getElementById('mobileSupport')
         };
 
-        // Game State
-        const game = {
-            running: false,
-            paused: false,
-            score: 0,
-            stage: 1,
-            stageKills: 0,
-            totalKills: 0,
-            combo: 0,
-            lastComboTime: 0,
-            lastSpawnTime: 0,
-            startTime: 0,
-            backgroundOffset: 0,
-            cameraX: 0,
-            keys: {},
-            particles: [],
-            damageIndicators: [],
-            screenShake: { x: 0, y: 0, intensity: 0 },
-            melodyUnlocked: false,
-            melodyInTeam: false,
-            lastHealTime: 0,
-            selectedCharacters: ['lia'],
-            stageEnemiesSpawned: 0,
-            stageComplete: false
-        };
-
-        // Load saved progress
-        function loadProgress() {
-            const saved = localStorage.getItem('liaAdventureSave');
-            if (saved) {
-                const data = JSON.parse(saved);
-                game.melodyUnlocked = data.melodyUnlocked || false;
-                if (game.melodyUnlocked) {
-                    elements.melodyCard.classList.remove('locked');
-                    elements.melodyCard.querySelector('.lock-badge').style.display = 'none';
-                }
+        // ================ CANVAS RESIZE ================
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            const containerWidth = container.clientWidth;
+            const containerHeight = container.clientHeight;
+            
+            const aspectRatio = CONFIG.canvas.width / CONFIG.canvas.height;
+            let width = containerWidth;
+            let height = containerWidth / aspectRatio;
+            
+            if (height > containerHeight) {
+                height = containerHeight;
+                width = containerHeight * aspectRatio;
             }
+            
+            canvas.width = CONFIG.canvas.width;
+            canvas.height = CONFIG.canvas.height;
+            canvas.style.width = `${width}px`;
+            canvas.style.height = `${height}px`;
         }
 
-        function saveProgress() {
-            localStorage.setItem('liaAdventureSave', JSON.stringify({
-                melodyUnlocked: game.melodyUnlocked
-            }));
-        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
 
-        // Audio Context
-        let audioContext = null;
+        // ================ AUDIO ================
+        let audioCtx = null;
 
         function initAudio() {
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
         }
 
-        function playSound(frequency, duration, type = 'sine', volume = 0.3) {
-            if (!audioContext) return;
-            try {
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                oscillator.frequency.value = frequency;
-                oscillator.type = type;
-                gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + duration);
-            } catch (e) {}
+        function playTone(freq, duration, type = 'square', volume = 0.1) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.value = freq;
+            gain.gain.value = volume;
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
         }
 
         const sounds = {
-            jump: () => playSound(523, 0.15, 'sine', 0.2),
-            attack: () => playSound(200, 0.1, 'sawtooth', 0.15),
-            hit: () => playSound(150, 0.2, 'square', 0.1),
-            damage: () => playSound(180, 0.3, 'sawtooth', 0.2),
-            kill: () => playSound(880, 0.3, 'sine', 0.2),
-            heal: () => {
-                playSound(660, 0.1, 'sine', 0.2);
-                setTimeout(() => playSound(880, 0.15, 'sine', 0.2), 100);
-            },
-            stageComplete: () => {
-                playSound(523, 0.15, 'sine', 0.2);
-                setTimeout(() => playSound(659, 0.15, 'sine', 0.2), 150);
-                setTimeout(() => playSound(784, 0.15, 'sine', 0.2), 300);
-                setTimeout(() => playSound(1047, 0.3, 'sine', 0.25), 450);
-            },
-            unlock: () => {
-                playSound(523, 0.1, 'sine', 0.2);
-                setTimeout(() => playSound(784, 0.1, 'sine', 0.2), 100);
-                setTimeout(() => playSound(1047, 0.2, 'sine', 0.25), 200);
-            },
-            combo: () => playSound(1047, 0.15, 'sine', 0.15)
+            jump: () => playTone(400, 0.1, 'square', 0.08),
+            attack: () => playTone(200, 0.15, 'sawtooth', 0.1),
+            hit: () => playTone(150, 0.1, 'square', 0.12),
+            damage: () => playTone(100, 0.2, 'sawtooth', 0.15),
+            heal: () => { playTone(523, 0.1); setTimeout(() => playTone(659, 0.1), 100); setTimeout(() => playTone(784, 0.15), 200); },
+            combo: () => playTone(800, 0.1, 'sine', 0.1),
+            stageComplete: () => { playTone(523, 0.15); setTimeout(() => playTone(659, 0.15), 150); setTimeout(() => playTone(784, 0.2), 300); setTimeout(() => playTone(1047, 0.3), 450); },
+            unlock: () => { for(let i = 0; i < 5; i++) setTimeout(() => playTone(400 + i * 100, 0.1, 'sine', 0.12), i * 80); },
+            levelUp: () => { playTone(523, 0.1); setTimeout(() => playTone(784, 0.1), 100); setTimeout(() => playTone(1047, 0.2), 200); }
         };
 
-        // Image Loading
+        // ================ IMAGES ================
         const images = {
-            // Player sprites
             playerIdle: new Image(),
             playerWalk: new Image(),
             playerRun: new Image(),
             playerJump: new Image(),
             playerAttack: new Image(),
             playerDamage: new Image(),
-            // My Melody sprites
             melodyIdle: new Image(),
             melodyWalkR: new Image(),
             melodyWalkL: new Image(),
@@ -1163,23 +1571,22 @@
             melodyJumpL: new Image(),
             melodyAttack: new Image(),
             melodyDamage: new Image(),
-            // Enemy sprites
-            skeletonIdle: new Image(),
-            skeletonAttack: new Image(),
-            skeletonDamage: new Image(),
-            skeletonKO: new Image(),
-            // Background
+            enemyIdle: new Image(),
+            enemyWalkL: new Image(),
+            enemyWalkR: new Image(),
+            enemyAttack: new Image(),
+            enemyDamage: new Image(),
+            enemyDead: new Image(),
             background: new Image()
         };
 
-        // Set image sources
         images.playerIdle.src = 'lia.png';
         images.playerWalk.src = 'liawalk.png';
         images.playerRun.src = 'liarun.png';
         images.playerJump.src = 'liajump.png';
         images.playerAttack.src = 'liaattacking.png';
         images.playerDamage.src = 'liadamage.png';
-        images.melodyIdle.src = 'mymelody.png';
+        images.melodyIdle.src = 'mymelodyrun.png';
         images.melodyWalkR.src = 'mymelodywalkr.png';
         images.melodyWalkL.src = 'mymelodywalkl.png';
         images.melodyRunR.src = 'mymelodyrun.png';
@@ -1188,10 +1595,12 @@
         images.melodyJumpL.src = 'mymelodyjumpl.png';
         images.melodyAttack.src = 'mymelodyattack.png';
         images.melodyDamage.src = 'mymelodydamage.png';
-        images.skeletonIdle.src = 'skeleton.png';
-        images.skeletonAttack.src = 'skeletonattack.png';
-        images.skeletonDamage.src = 'skeletondamage.png';
-        images.skeletonKO.src = 'skeletonko.png';
+        images.enemyIdle.src = 'skeleton.png';
+        images.enemyWalkL.src = 'skeletonwalkl.png';
+        images.enemyWalkR.src = 'skeletonwalkr.png';
+        images.enemyAttack.src = 'skeletonattack.png';
+        images.enemyDamage.src = 'skeletondamage.png';
+        images.enemyDead.src = 'skeletonko.png';
         images.background.src = 'mapa.png';
 
         let imagesLoaded = 0;
@@ -1205,20 +1614,15 @@
             }
         }
 
-        function onImageError(e) {
-            imagesLoaded++;
-            if (imagesLoaded >= totalImages) {
-                elements.loadingScreen.style.display = 'none';
-                loadProgress();
-            }
-        }
-
         Object.values(images).forEach(img => {
             img.onload = onImageLoad;
-            img.onerror = onImageError;
+            img.onerror = onImageLoad;
         });
 
-        // Player Object - Mario-style physics
+        // ================ ENTITIES ================
+        let enemies = [];
+
+        // Player
         const player = {
             x: 100,
             y: CONFIG.physics.groundY - CONFIG.player.height,
@@ -1226,7 +1630,9 @@
             height: CONFIG.player.height,
             velocityX: 0,
             velocityY: 0,
-            health: CONFIG.player.maxHealth,
+            health: CONFIG.player.baseHealth,
+            maxHealth: CONFIG.player.baseHealth,
+            attackPower: CONFIG.player.baseAttack,
             isGrounded: false,
             isJumping: false,
             isAttacking: false,
@@ -1239,11 +1645,17 @@
             jumpPressed: false,
 
             reset() {
+                const healthBonus = XP_SYSTEM.getStatBonus(gameState.playerLevel, 'health');
+                const attackBonus = XP_SYSTEM.getStatBonus(gameState.playerLevel, 'attack');
+                
+                this.maxHealth = CONFIG.player.baseHealth + healthBonus;
+                this.health = this.maxHealth;
+                this.attackPower = CONFIG.player.baseAttack + attackBonus;
+                
                 this.x = 100;
                 this.y = CONFIG.physics.groundY - this.height;
                 this.velocityX = 0;
                 this.velocityY = 0;
-                this.health = CONFIG.player.maxHealth;
                 this.isGrounded = false;
                 this.isJumping = false;
                 this.isAttacking = false;
@@ -1258,22 +1670,21 @@
 
             update(deltaTime) {
                 const now = Date.now();
+                const speedBonus = XP_SYSTEM.getStatBonus(gameState.playerLevel, 'speed');
 
-                // Mario-style movement with acceleration
-                this.isRunning = game.keys['shift'];
-                const targetSpeed = this.isRunning ? CONFIG.player.runSpeed : CONFIG.player.walkSpeed;
+                this.isRunning = gameState.keys['shift'];
+                const baseSpeed = this.isRunning ? CONFIG.player.runSpeed : CONFIG.player.walkSpeed;
+                const targetSpeed = baseSpeed + speedBonus;
                 const accel = CONFIG.player.acceleration;
                 const decel = CONFIG.player.deceleration;
 
-                // Horizontal input
-                if (game.keys['a'] || game.keys['arrowleft']) {
+                if (gameState.keys['a'] || gameState.keys['arrowleft']) {
                     this.velocityX = Math.max(this.velocityX - accel, -targetSpeed);
                     this.facingRight = false;
-                } else if (game.keys['d'] || game.keys['arrowright']) {
+                } else if (gameState.keys['d'] || gameState.keys['arrowright']) {
                     this.velocityX = Math.min(this.velocityX + accel, targetSpeed);
                     this.facingRight = true;
                 } else {
-                    // Deceleration when no input
                     if (Math.abs(this.velocityX) < decel) {
                         this.velocityX = 0;
                     } else if (this.velocityX > 0) {
@@ -1283,25 +1694,19 @@
                     }
                 }
 
-                // Air resistance
                 if (!this.isGrounded) {
                     this.velocityX *= CONFIG.physics.airResistance;
                 }
 
-                // Variable jump height (Mario-style - hold to jump higher)
                 if (this.isJumping && this.jumpPressed && this.jumpHoldTime < CONFIG.player.maxJumpHoldTime) {
                     this.velocityY += CONFIG.player.jumpHoldForce;
                     this.jumpHoldTime += deltaTime;
                 }
 
-                // Apply gravity
                 this.velocityY += CONFIG.physics.gravity;
-
-                // Apply velocities
                 this.x += this.velocityX;
                 this.y += this.velocityY;
 
-                // Ground collision
                 if (this.y >= CONFIG.physics.groundY - this.height) {
                     this.y = CONFIG.physics.groundY - this.height;
                     this.velocityY = 0;
@@ -1311,10 +1716,8 @@
                     this.isGrounded = false;
                 }
 
-                // Keep player in bounds
                 this.x = Math.max(0, Math.min(CONFIG.canvas.width - this.width, this.x));
 
-                // Update states
                 if (this.isAttacking && now - this.lastAttackTime > CONFIG.player.attackDuration) {
                     this.isAttacking = false;
                 }
@@ -1347,7 +1750,6 @@
                 this.lastAttackTime = now;
                 sounds.attack();
 
-                // Hit detection
                 const attackBox = {
                     x: this.facingRight ? this.x + this.width - 10 : this.x - CONFIG.player.attackRange + 10,
                     y: this.y + 20,
@@ -1358,16 +1760,19 @@
                 let hitEnemy = false;
                 enemies.forEach(enemy => {
                     if (!enemy.isDead && checkCollision(attackBox, enemy)) {
-                        enemy.takeDamage(25 + game.stage * 2);
+                        enemy.takeDamage(this.attackPower);
                         hitEnemy = true;
                     }
                 });
 
                 if (hitEnemy) {
-                    game.combo++;
-                    game.lastComboTime = now;
-                    if (game.combo > 1) {
-                        showCombo(game.combo);
+                    gameState.combo++;
+                    gameState.lastComboTime = now;
+                    if (gameState.combo > gameState.stageMaxCombo) {
+                        gameState.stageMaxCombo = gameState.combo;
+                    }
+                    if (gameState.combo > 1) {
+                        showCombo(gameState.combo);
                         sounds.combo();
                     }
                     createParticles(
@@ -1386,10 +1791,11 @@
                 this.health -= amount;
                 this.isDamaged = true;
                 this.lastDamageTime = now;
+                gameState.stageDamageTaken += amount;
                 sounds.damage();
 
-                game.screenShake.intensity = 8;
-                game.combo = 0;
+                gameState.screenShake.intensity = 8;
+                gameState.combo = 0;
 
                 createDamageIndicator(this.x + this.width / 2, this.y, amount);
                 createParticles(this.x + this.width / 2, this.y + this.height / 2, '#ff6b6b', 8);
@@ -1404,7 +1810,6 @@
             draw() {
                 ctx.save();
 
-                // Get current sprite
                 let sprite = images.playerIdle;
                 if (this.isDamaged) {
                     sprite = images.playerDamage;
@@ -1416,19 +1821,11 @@
                     sprite = this.isRunning ? images.playerRun : images.playerWalk;
                 }
 
-                // Draw shadow
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
                 ctx.beginPath();
-                ctx.ellipse(
-                    this.x + this.width / 2,
-                    CONFIG.physics.groundY + 5,
-                    this.width / 2,
-                    8,
-                    0, 0, Math.PI * 2
-                );
+                ctx.ellipse(this.x + this.width / 2, CONFIG.physics.groundY + 5, this.width / 2, 10, 0, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Flip if facing left
                 if (!this.facingRight) {
                     ctx.scale(-1, 1);
                     ctx.drawImage(sprite, -this.x - this.width, this.y, this.width, this.height);
@@ -1440,7 +1837,7 @@
             }
         };
 
-        // My Melody companion
+        // My Melody
         const melody = {
             x: 160,
             y: CONFIG.physics.groundY - CONFIG.melody.height,
@@ -1465,24 +1862,21 @@
             },
 
             update(deltaTime) {
-                if (!game.melodyInTeam) return;
+                if (!gameState.melodyInTeam) return;
 
-                // Follow player with some distance
-                const targetX = player.x + (player.facingRight ? -70 : 70);
+                const targetX = player.x + (player.facingRight ? -80 : 80);
                 const dx = targetX - this.x;
 
-                // Smooth follow
-                if (Math.abs(dx) > 20) {
-                    this.velocityX += Math.sign(dx) * 0.3;
-                    this.velocityX = Math.max(-4, Math.min(4, this.velocityX));
+                if (Math.abs(dx) > 30) {
+                    this.velocityX += Math.sign(dx) * 0.35;
+                    this.velocityX = Math.max(-5, Math.min(5, this.velocityX));
                     this.facingRight = dx > 0;
                 } else {
                     this.velocityX *= 0.8;
                 }
 
-                // Jump if player jumps and we're close
-                if (player.isJumping && this.y >= CONFIG.physics.groundY - this.height - 5 && Math.abs(dx) < 150) {
-                    this.velocityY = -10;
+                if (player.isJumping && this.y >= CONFIG.physics.groundY - this.height - 5 && Math.abs(dx) < 180) {
+                    this.velocityY = -11;
                     this.isJumping = true;
                 }
 
@@ -1498,7 +1892,6 @@
 
                 this.x = Math.max(0, Math.min(CONFIG.canvas.width - this.width, this.x));
 
-                // Heal animation timer
                 if (this.isHealing) {
                     this.healAnimTime += deltaTime;
                     if (this.healAnimTime > 500) {
@@ -1509,66 +1902,54 @@
             },
 
             heal() {
-                if (!game.melodyInTeam) return;
+                if (!gameState.melodyInTeam) return;
                 const now = Date.now();
-                if (now - game.lastHealTime < CONFIG.melody.healCooldown) return;
+                if (now - gameState.lastHealTime < CONFIG.melody.healCooldown) return;
 
-                game.lastHealTime = now;
+                gameState.lastHealTime = now;
                 this.isHealing = true;
                 this.healAnimTime = 0;
                 sounds.heal();
 
-                // Heal player
-                const healAmount = CONFIG.melody.healAmount;
-                player.health = Math.min(CONFIG.player.maxHealth, player.health + healAmount);
+                const healBonus = XP_SYSTEM.getStatBonus(gameState.playerLevel, 'healAmount');
+                const healAmount = CONFIG.melody.baseHealAmount + healBonus;
+                player.health = Math.min(player.maxHealth, player.health + healAmount);
                 
-                // Visual effect
                 createParticles(this.x + this.width / 2, this.y + this.height / 2, '#ff9cc2', 15);
                 createParticles(player.x + player.width / 2, player.y + player.height / 2, '#ff9cc2', 10);
-                
-                // Heal indicator
                 createHealIndicator(player.x + player.width / 2, player.y, healAmount);
                 
                 updateHUD();
             },
 
             draw() {
-                if (!game.melodyInTeam) return;
+                if (!gameState.melodyInTeam) return;
 
                 ctx.save();
 
-                // Get sprite
                 let sprite = images.melodyIdle;
                 if (this.isHealing) {
                     sprite = images.melodyAttack;
                 } else if (this.isJumping) {
                     sprite = this.facingRight ? images.melodyJumpR : images.melodyJumpL;
                 } else if (Math.abs(this.velocityX) > 0.5) {
-                    if (Math.abs(this.velocityX) > 2.5) {
+                    if (Math.abs(this.velocityX) > 3) {
                         sprite = this.facingRight ? images.melodyRunR : images.melodyRunL;
                     } else {
                         sprite = this.facingRight ? images.melodyWalkR : images.melodyWalkL;
                     }
                 }
 
-                // Draw shadow
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
                 ctx.beginPath();
-                ctx.ellipse(
-                    this.x + this.width / 2,
-                    CONFIG.physics.groundY + 3,
-                    this.width / 2.5,
-                    6,
-                    0, 0, Math.PI * 2
-                );
+                ctx.ellipse(this.x + this.width / 2, CONFIG.physics.groundY + 3, this.width / 2.5, 8, 0, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Draw heal aura when healing
                 if (this.isHealing) {
                     ctx.globalAlpha = 0.3 + Math.sin(this.healAnimTime * 0.02) * 0.2;
                     ctx.fillStyle = '#ff9cc2';
                     ctx.beginPath();
-                    ctx.arc(this.x + this.width / 2, this.y + this.height / 2, 60 + Math.sin(this.healAnimTime * 0.03) * 10, 0, Math.PI * 2);
+                    ctx.arc(this.x + this.width / 2, this.y + this.height / 2, 70 + Math.sin(this.healAnimTime * 0.03) * 10, 0, Math.PI * 2);
                     ctx.fill();
                     ctx.globalAlpha = 1;
                 }
@@ -1580,21 +1961,23 @@
 
         // Enemy Class
         class Enemy {
-            constructor(x) {
+            constructor(x, stageData) {
                 this.x = x;
-                this.y = CONFIG.physics.groundY - CONFIG.enemy.height;
-                this.width = CONFIG.enemy.width;
-                this.height = CONFIG.enemy.height;
+                this.y = CONFIG.physics.groundY - 80;
+                this.width = 60;
+                this.height = 80;
                 this.velocityX = 0;
-                this.health = CONFIG.enemy.health + game.stage * 10;
-                this.maxHealth = this.health;
-                this.speed = CONFIG.enemy.baseSpeed + game.stage * 0.15;
+                this.health = stageData.enemyHealth;
+                this.maxHealth = stageData.enemyHealth;
+                this.speed = stageData.enemySpeed;
+                this.damage = stageData.enemyDamage;
                 this.isAttacking = false;
                 this.isDamaged = false;
                 this.isDead = false;
                 this.lastAttackTime = 0;
                 this.lastDamageTime = 0;
                 this.deathTime = 0;
+                this.facingLeft = true;
             }
 
             update(deltaTime) {
@@ -1608,13 +1991,14 @@
 
                 const now = Date.now();
                 const direction = player.x > this.x ? 1 : -1;
+                this.facingLeft = direction < 0;
                 const distanceToPlayer = Math.abs(player.x - this.x);
 
-                if (distanceToPlayer > CONFIG.enemy.attackRange) {
+                if (distanceToPlayer > 70) {
                     this.velocityX = direction * this.speed;
                 } else {
                     this.velocityX = 0;
-                    if (now - this.lastAttackTime > CONFIG.enemy.attackCooldown) {
+                    if (now - this.lastAttackTime > 1200) {
                         this.attack();
                     }
                 }
@@ -1640,8 +2024,8 @@
                 this.lastAttackTime = Date.now();
 
                 const distanceToPlayer = Math.abs(player.x - this.x);
-                if (distanceToPlayer < CONFIG.enemy.attackRange) {
-                    player.takeDamage(CONFIG.enemy.damage);
+                if (distanceToPlayer < 80) {
+                    player.takeDamage(this.damage);
                 }
             }
 
@@ -1663,16 +2047,13 @@
             die() {
                 this.isDead = true;
                 this.deathTime = Date.now();
-                game.stageKills++;
-                game.totalKills++;
+                gameState.stageKills++;
 
-                const comboMultiplier = Math.pow(CONFIG.scoring.comboMultiplier, game.combo - 1);
-                const score = Math.floor(CONFIG.scoring.killBase * game.stage * comboMultiplier);
-                game.score += score;
+                const comboBonus = Math.floor(gameState.combo * CONFIG.scoring.comboMultiplier);
+                const points = CONFIG.scoring.killBase + comboBonus;
+                gameState.stageScore += points;
 
-                sounds.kill();
-                createParticles(this.x + this.width / 2, this.y + this.height / 2, '#cccccc', 10);
-
+                createParticles(this.x + this.width / 2, this.y + this.height / 2, '#7cb342', 12);
                 updateHUD();
                 checkStageComplete();
             }
@@ -1680,128 +2061,109 @@
             draw() {
                 ctx.save();
 
-                let sprite = images.skeletonIdle;
+                let sprite = images.enemyIdle;
                 if (this.isDead) {
-                    sprite = images.skeletonKO;
+                    sprite = images.enemyDead;
                 } else if (this.isDamaged) {
-                    sprite = images.skeletonDamage;
+                    sprite = images.enemyDamage;
                 } else if (this.isAttacking) {
-                    sprite = images.skeletonAttack;
+                    sprite = images.enemyAttack;
+                } else if (Math.abs(this.velocityX) > 0.1) {
+                    sprite = this.facingLeft ? images.enemyWalkL : images.enemyWalkR;
                 }
 
-                if (this.isDead) {
-                    const fadeProgress = (Date.now() - this.deathTime) / 600;
-                    ctx.globalAlpha = 1 - fadeProgress;
-                }
-
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
                 ctx.beginPath();
-                ctx.ellipse(this.x + this.width / 2, CONFIG.physics.groundY + 5, this.width / 2, 6, 0, 0, Math.PI * 2);
+                ctx.ellipse(this.x + this.width / 2, CONFIG.physics.groundY + 3, this.width / 2.5, 8, 0, 0, Math.PI * 2);
                 ctx.fill();
 
-                const facingRight = player.x > this.x;
-                if (!facingRight) {
-                    ctx.scale(-1, 1);
-                    ctx.drawImage(sprite, -this.x - this.width, this.y, this.width, this.height);
-                } else {
-                    ctx.drawImage(sprite, this.x, this.y, this.width, this.height);
+                ctx.drawImage(sprite, this.x, this.y, this.width, this.height);
+
+                // Health bar
+                if (!this.isDead && this.health < this.maxHealth) {
+                    const barWidth = 50;
+                    const barHeight = 5;
+                    const barX = this.x + (this.width - barWidth) / 2;
+                    const barY = this.y - 10;
+                    
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                    ctx.fillRect(barX, barY, barWidth, barHeight);
+                    
+                    const healthPercent = this.health / this.maxHealth;
+                    ctx.fillStyle = healthPercent > 0.5 ? '#4caf50' : healthPercent > 0.25 ? '#ff9800' : '#f44336';
+                    ctx.fillRect(barX, barY, barWidth * healthPercent, barHeight);
                 }
 
                 ctx.restore();
-
-                if (!this.isDead) {
-                    const barWidth = 35;
-                    const barHeight = 4;
-                    const barX = this.x + (this.width - barWidth) / 2;
-                    const barY = this.y - 8;
-                    const healthPercent = this.health / this.maxHealth;
-
-                    ctx.fillStyle = '#222';
-                    ctx.fillRect(barX, barY, barWidth, barHeight);
-                    ctx.fillStyle = healthPercent > 0.5 ? '#ff6b6b' : '#ffb347';
-                    ctx.fillRect(barX, barY, barWidth * healthPercent, barHeight);
-                }
             }
         }
 
-        let enemies = [];
-
-        // Utility Functions
-        function checkCollision(rect1, rect2) {
-            return rect1.x < rect2.x + rect2.width &&
-                   rect1.x + rect1.width > rect2.x &&
-                   rect1.y < rect2.y + rect2.height &&
-                   rect1.y + rect1.height > rect2.y;
+        // ================ UTILITIES ================
+        function checkCollision(a, b) {
+            return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
         }
 
         function createParticles(x, y, color, count) {
             for (let i = 0; i < count; i++) {
-                game.particles.push({
-                    x: x,
-                    y: y,
-                    velocityX: (Math.random() - 0.5) * 8,
-                    velocityY: (Math.random() - 0.5) * 8,
-                    size: Math.random() * 5 + 2,
-                    color: color,
+                gameState.particles.push({
+                    x, y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8 - 2,
+                    size: Math.random() * 6 + 2,
+                    color,
                     life: 1
                 });
             }
         }
 
         function updateParticles() {
-            game.particles = game.particles.filter(p => {
-                p.x += p.velocityX;
-                p.y += p.velocityY;
-                p.velocityY += 0.2;
+            gameState.particles = gameState.particles.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.15;
                 p.life -= 0.03;
+                p.size *= 0.97;
                 return p.life > 0;
             });
         }
 
         function drawParticles() {
-            game.particles.forEach(p => {
+            gameState.particles.forEach(p => {
+                ctx.save();
                 ctx.globalAlpha = p.life;
                 ctx.fillStyle = p.color;
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
                 ctx.fill();
+                ctx.restore();
             });
-            ctx.globalAlpha = 1;
         }
 
         function createDamageIndicator(x, y, amount) {
-            game.damageIndicators.push({
-                x: x,
-                y: y,
-                text: `-${amount}`,
-                color: '#ff6b6b',
-                life: 1
+            gameState.damageIndicators.push({
+                x, y, text: `-${amount}`, color: '#ff6b6b', life: 1, vy: -2
             });
         }
 
         function createHealIndicator(x, y, amount) {
-            game.damageIndicators.push({
-                x: x,
-                y: y,
-                text: `+${amount}`,
-                color: '#4dccbd',
-                life: 1
+            gameState.damageIndicators.push({
+                x, y, text: `+${amount}`, color: '#4caf50', life: 1, vy: -2
             });
         }
 
         function updateDamageIndicators() {
-            game.damageIndicators = game.damageIndicators.filter(d => {
-                d.y -= 1.5;
-                d.life -= 0.025;
+            gameState.damageIndicators = gameState.damageIndicators.filter(d => {
+                d.y += d.vy;
+                d.life -= 0.02;
                 return d.life > 0;
             });
         }
 
         function drawDamageIndicators() {
-            game.damageIndicators.forEach(d => {
+            gameState.damageIndicators.forEach(d => {
                 ctx.save();
                 ctx.globalAlpha = d.life;
-                ctx.font = 'bold 14px "Press Start 2P"';
+                ctx.font = 'bold 16px "Press Start 2P"';
                 ctx.fillStyle = d.color;
                 ctx.textAlign = 'center';
                 ctx.fillText(d.text, d.x, d.y);
@@ -1817,7 +2179,7 @@
         }
 
         function showStageComplete() {
-            elements.levelUpDisplay.textContent = `FASE ${game.stage} COMPLETA!`;
+            elements.levelUpDisplay.textContent = `FASE ${gameState.currentStage.name} COMPLETA!`;
             elements.levelUpDisplay.classList.remove('active');
             void elements.levelUpDisplay.offsetWidth;
             elements.levelUpDisplay.classList.add('active');
@@ -1830,91 +2192,113 @@
         }
 
         function updateScreenShake() {
-            if (game.screenShake.intensity > 0) {
-                game.screenShake.x = (Math.random() - 0.5) * game.screenShake.intensity;
-                game.screenShake.y = (Math.random() - 0.5) * game.screenShake.intensity;
-                game.screenShake.intensity *= 0.9;
-                if (game.screenShake.intensity < 0.5) game.screenShake.intensity = 0;
+            if (gameState.screenShake.intensity > 0) {
+                gameState.screenShake.x = (Math.random() - 0.5) * gameState.screenShake.intensity;
+                gameState.screenShake.y = (Math.random() - 0.5) * gameState.screenShake.intensity;
+                gameState.screenShake.intensity *= 0.9;
+                if (gameState.screenShake.intensity < 0.5) gameState.screenShake.intensity = 0;
             }
         }
 
-        // Spawning
+        // ================ SPAWNING ================
         function spawnEnemy() {
-            const killsNeeded = CONFIG.stages.killsToComplete[game.stage - 1] || 50;
-            const maxEnemies = Math.min(CONFIG.enemy.maxCount + Math.floor(game.stage / 2), 10);
+            const stage = gameState.currentStage;
+            if (!stage) return;
             
-            if (enemies.length >= maxEnemies) return;
-            if (game.stageKills >= killsNeeded) return; // Don't spawn more if stage is complete
+            if (enemies.length >= stage.maxEnemies) return;
+            if (gameState.stageKills >= stage.mission.target) return;
 
             const side = Math.random() > 0.5 ? 1 : -1;
-            const x = side === 1 ? CONFIG.canvas.width + 50 : -50;
-            enemies.push(new Enemy(x));
-            game.stageEnemiesSpawned++;
+            const x = side === 1 ? CONFIG.canvas.width + 50 : -60;
+            enemies.push(new Enemy(x, stage));
         }
 
-        // Stage System
+        // ================ STAGE SYSTEM ================
         function checkStageComplete() {
-            const killsNeeded = CONFIG.stages.killsToComplete[game.stage - 1] || 50;
-            
-            if (game.stageKills >= killsNeeded && enemies.length === 0) {
-                game.stageComplete = true;
-                game.paused = true;
+            const stage = gameState.currentStage;
+            if (!stage) return;
 
-                // Check for My Melody unlock
-                if (game.stage === CONFIG.stages.melodyUnlockStage && !game.melodyUnlocked) {
-                    game.melodyUnlocked = true;
-                    saveProgress();
+            if (gameState.stageKills >= stage.mission.target && enemies.length === 0) {
+                gameState.stageComplete = true;
+                gameState.paused = true;
+
+                // Calculate XP and rewards
+                let xpGained = stage.xpReward;
+                if (gameState.stageDamageTaken === 0) xpGained += 50; // Perfect bonus
+                if (gameState.stageMaxCombo >= 5) xpGained += 30; // Combo bonus
+
+                const previousLevel = gameState.playerLevel;
+                gameState.totalXp += xpGained;
+                gameState.totalScore += gameState.stageScore;
+                
+                const levelInfo = XP_SYSTEM.getLevelFromXp(gameState.totalXp);
+                gameState.playerLevel = levelInfo.level;
+                gameState.currentXp = levelInfo.currentXp;
+                gameState.xpToNextLevel = levelInfo.neededXp;
+
+                const leveledUp = gameState.playerLevel > previousLevel;
+
+                // Update highest stage
+                if (stage.id >= gameState.highestStage) {
+                    gameState.highestStage = stage.id + 1;
+                }
+
+                // Award stars
+                let stars = 1;
+                if (gameState.stageDamageTaken === 0) stars = 3;
+                else if (gameState.stageDamageTaken < 30) stars = 2;
+                
+                if (!gameState.stageStars[stage.id] || gameState.stageStars[stage.id] < stars) {
+                    gameState.stageStars[stage.id] = stars;
+                }
+
+                // Check for melody unlock
+                if (stage.unlockMelody && !gameState.melodyUnlocked) {
+                    gameState.melodyUnlocked = true;
                     showUnlock();
                     sounds.unlock();
                 }
 
+                saveProgress();
                 sounds.stageComplete();
                 showStageComplete();
 
-                // Add stage bonus
-                const bonus = CONFIG.scoring.stageBonus * game.stage;
-                game.score += bonus;
-
-                elements.stageScore.textContent = `+${bonus} pontos`;
-                elements.stageMessage.textContent = game.stage < 10 
-                    ? `Prepare-se para a Fase ${game.stage + 1}!` 
-                    : 'Você é incrível! Continue!';
+                // Show complete screen
+                elements.completeScore.textContent = `+${gameState.stageScore}`;
+                elements.completeKills.textContent = gameState.stageKills;
+                elements.xpGainDisplay.textContent = `+${xpGained} XP`;
                 
+                if (leveledUp) {
+                    elements.levelUpNotice.style.display = 'block';
+                    sounds.levelUp();
+                } else {
+                    elements.levelUpNotice.style.display = 'none';
+                }
+
                 setTimeout(() => {
                     elements.stageCompleteScreen.classList.add('active');
                 }, 1500);
             }
         }
 
-        function nextStage() {
-            game.stage++;
-            game.stageKills = 0;
-            game.stageEnemiesSpawned = 0;
-            game.stageComplete = false;
-            game.paused = false;
-            
-            // Heal player a bit between stages
-            player.health = Math.min(CONFIG.player.maxHealth, player.health + 25);
-            
-            elements.stageCompleteScreen.classList.remove('active');
-            elements.stageIndicator.textContent = `FASE ${game.stage}`;
-            
-            updateHUD();
-        }
-
-        // HUD Update
+        // ================ HUD ================
         function updateHUD() {
-            const healthPercent = (player.health / CONFIG.player.maxHealth) * 100;
+            const healthPercent = (player.health / player.maxHealth) * 100;
             elements.healthBar.style.width = `${healthPercent}%`;
-            elements.scoreDisplay.textContent = game.score.toLocaleString();
             
-            const killsNeeded = CONFIG.stages.killsToComplete[game.stage - 1] || 50;
-            elements.killsDisplay.textContent = `${game.stageKills}/${killsNeeded}`;
+            const xpPercent = (gameState.currentXp / gameState.xpToNextLevel) * 100;
+            elements.xpBar.style.width = `${xpPercent}%`;
+            elements.levelDisplay.textContent = `Lv.${gameState.playerLevel}`;
             
-            // Update support cooldown display
-            if (game.melodyInTeam) {
+            const stage = gameState.currentStage;
+            if (stage) {
+                elements.killsDisplay.textContent = `${gameState.stageKills}/${stage.mission.target}`;
+            }
+            elements.scoreDisplay.textContent = gameState.stageScore.toLocaleString();
+            
+            if (gameState.melodyInTeam) {
                 const now = Date.now();
-                const cooldownRemaining = Math.max(0, CONFIG.melody.healCooldown - (now - game.lastHealTime));
+                const cooldownRemaining = Math.max(0, CONFIG.melody.healCooldown - (now - gameState.lastHealTime));
                 if (cooldownRemaining > 0) {
                     elements.supportCooldown.textContent = `💕 HEAL: ${Math.ceil(cooldownRemaining / 1000)}s`;
                     elements.supportCooldown.style.color = '#888';
@@ -1925,7 +2309,7 @@
             }
         }
 
-        // Drawing
+        // ================ DRAWING ================
         function drawBackground() {
             const gradient = ctx.createLinearGradient(0, 0, 0, CONFIG.physics.groundY);
             gradient.addColorStop(0, '#1a2c4a');
@@ -1936,16 +2320,10 @@
 
             if (images.background.complete && images.background.naturalWidth > 0) {
                 const bgWidth = images.background.width || CONFIG.canvas.width;
-                const offset = game.backgroundOffset % bgWidth;
+                const offset = gameState.backgroundOffset % bgWidth;
 
                 for (let i = -1; i <= Math.ceil(CONFIG.canvas.width / bgWidth) + 1; i++) {
-                    ctx.drawImage(
-                        images.background,
-                        offset + i * bgWidth,
-                        0,
-                        bgWidth,
-                        CONFIG.physics.groundY
-                    );
+                    ctx.drawImage(images.background, offset + i * bgWidth, 0, bgWidth, CONFIG.physics.groundY);
                 }
             }
 
@@ -1953,8 +2331,8 @@
             ctx.fillRect(0, CONFIG.physics.groundY, CONFIG.canvas.width, CONFIG.canvas.height - CONFIG.physics.groundY);
 
             ctx.fillStyle = '#588157';
-            for (let i = 0; i < 25; i++) {
-                const x = ((i * 45 + game.backgroundOffset * 0.5) % (CONFIG.canvas.width + 50)) - 25;
+            for (let i = 0; i < 35; i++) {
+                const x = ((i * 40 + gameState.backgroundOffset * 0.5) % (CONFIG.canvas.width + 50)) - 25;
                 ctx.fillRect(x, CONFIG.physics.groundY - 3, 25, 8);
             }
 
@@ -1966,21 +2344,16 @@
             ctx.stroke();
         }
 
-        // Game Loop
+        // ================ GAME LOOP ================
         let lastTime = 0;
 
         function gameLoop(timestamp) {
-            if (!game.running) return;
+            if (!gameState.running) return;
 
             const deltaTime = timestamp - lastTime;
             lastTime = timestamp;
 
-            if (game.paused && !game.stageComplete) {
-                requestAnimationFrame(gameLoop);
-                return;
-            }
-
-            if (game.stageComplete) {
+            if (gameState.paused || gameState.stageComplete) {
                 requestAnimationFrame(gameLoop);
                 return;
             }
@@ -1988,7 +2361,7 @@
             ctx.clearRect(0, 0, CONFIG.canvas.width, CONFIG.canvas.height);
 
             ctx.save();
-            ctx.translate(game.screenShake.x, game.screenShake.y);
+            ctx.translate(gameState.screenShake.x, gameState.screenShake.y);
 
             player.update(deltaTime);
             melody.update(deltaTime);
@@ -1997,22 +2370,21 @@
             updateDamageIndicators();
             updateScreenShake();
 
-            game.backgroundOffset -= player.velocityX * 0.3;
+            gameState.backgroundOffset -= player.velocityX * 0.3;
 
             // Spawn enemies
             const now = Date.now();
-            const spawnRate = Math.max(1200, 2500 - game.stage * 150);
-            if (now - game.lastSpawnTime > spawnRate) {
+            const stage = gameState.currentStage;
+            if (stage && now - gameState.lastSpawnTime > stage.spawnRate) {
                 spawnEnemy();
-                game.lastSpawnTime = now;
+                gameState.lastSpawnTime = now;
             }
 
-            // Reset combo if timeout
-            if (now - game.lastComboTime > CONFIG.scoring.comboTimeout && game.combo > 0) {
-                game.combo = 0;
+            // Reset combo
+            if (now - gameState.lastComboTime > CONFIG.scoring.comboTimeout && gameState.combo > 0) {
+                gameState.combo = 0;
             }
 
-            // Update support cooldown display
             updateHUD();
 
             drawBackground();
@@ -2027,43 +2399,52 @@
             requestAnimationFrame(gameLoop);
         }
 
-        // Game State Functions
-        function startGame() {
+        // ================ GAME STATES ================
+        function startStage(stageId) {
             initAudio();
 
-            game.running = true;
-            game.paused = false;
-            game.score = 0;
-            game.stage = 1;
-            game.stageKills = 0;
-            game.totalKills = 0;
-            game.combo = 0;
-            game.lastComboTime = 0;
-            game.lastSpawnTime = Date.now();
-            game.startTime = Date.now();
-            game.lastHealTime = 0;
-            game.backgroundOffset = 0;
-            game.particles = [];
-            game.damageIndicators = [];
-            game.screenShake = { x: 0, y: 0, intensity: 0 };
-            game.stageEnemiesSpawned = 0;
-            game.stageComplete = false;
+            const stage = STAGES_DATA.find(s => s.id === stageId);
+            if (!stage) return;
+            if (stageId > gameState.highestStage) return;
 
-            // Check if melody is in team
-            game.melodyInTeam = game.selectedCharacters.includes('melody');
+            gameState.currentStage = stage;
+            gameState.running = true;
+            gameState.paused = false;
+            gameState.stageComplete = false;
+            gameState.stageKills = 0;
+            gameState.stageScore = 0;
+            gameState.stageDamageTaken = 0;
+            gameState.stageMaxCombo = 0;
+            gameState.combo = 0;
+            gameState.lastComboTime = 0;
+            gameState.lastSpawnTime = Date.now();
+            gameState.lastHealTime = 0;
+            gameState.stageStartTime = Date.now();
+            gameState.backgroundOffset = 0;
+            gameState.particles = [];
+            gameState.damageIndicators = [];
+            gameState.screenShake = { x: 0, y: 0, intensity: 0 };
+
+            gameState.melodyInTeam = gameState.selectedCharacters.includes('melody');
 
             player.reset();
             melody.reset();
             enemies = [];
 
-            elements.startScreen.classList.remove('active');
-            elements.gameOverScreen.classList.remove('active');
+            // Hide menus
+            elements.stageSelectScreen.classList.remove('active');
             elements.stageCompleteScreen.classList.remove('active');
+            elements.gameOverScreen.classList.remove('active');
+            
+            // Show game UI
             elements.hudOverlay.style.display = 'flex';
             elements.stageIndicator.style.display = 'block';
-            elements.stageIndicator.textContent = 'FASE 1';
+            elements.stageIndicator.textContent = `FASE ${stage.name}`;
+            elements.missionIndicator.style.display = 'block';
+            elements.missionIndicator.textContent = stage.mission.text;
+            elements.controlsPanel.style.display = window.innerWidth > 768 ? 'grid' : 'none';
             
-            if (game.melodyInTeam) {
+            if (gameState.melodyInTeam) {
                 elements.supportCooldown.style.display = 'block';
             } else {
                 elements.supportCooldown.style.display = 'none';
@@ -2075,99 +2456,167 @@
         }
 
         function gameOver() {
-            game.running = false;
+            gameState.running = false;
 
-            const playTime = Math.floor((Date.now() - game.startTime) / 1000);
-            const minutes = Math.floor(playTime / 60);
-            const seconds = playTime % 60;
-
-            elements.finalScore.textContent = game.score.toLocaleString();
-            elements.finalStage.textContent = game.stage;
-            elements.finalKills.textContent = game.totalKills;
-            elements.finalTime.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            elements.finalStage.textContent = gameState.currentStage.name;
+            elements.finalKills.textContent = gameState.stageKills;
+            elements.finalScore.textContent = gameState.stageScore.toLocaleString();
 
             elements.hudOverlay.style.display = 'none';
             elements.stageIndicator.style.display = 'none';
+            elements.missionIndicator.style.display = 'none';
             elements.supportCooldown.style.display = 'none';
+            elements.controlsPanel.style.display = 'none';
             elements.gameOverScreen.classList.add('active');
         }
 
         function togglePause() {
-            if (!game.running || game.stageComplete) return;
-            game.paused = !game.paused;
-            elements.pauseOverlay.classList.toggle('active', game.paused);
+            if (!gameState.running || gameState.stageComplete) return;
+            gameState.paused = !gameState.paused;
+            elements.pauseOverlay.classList.toggle('active', gameState.paused);
         }
 
-        // Character Selection
-        function setupCharacterSelection() {
-            const cards = document.querySelectorAll('.character-card');
-            
-            cards.forEach(card => {
-                card.addEventListener('click', () => {
-                    const character = card.dataset.character;
-                    
-                    // Check if locked
-                    if (card.classList.contains('locked')) return;
-                    
-                    // Toggle selection
-                    if (card.classList.contains('selected')) {
-                        // Can't deselect Lia
-                        if (character === 'lia') return;
-                        card.classList.remove('selected');
-                        game.selectedCharacters = game.selectedCharacters.filter(c => c !== character);
-                    } else {
-                        // Max 3 characters
-                        if (game.selectedCharacters.length >= 3) return;
-                        card.classList.add('selected');
-                        game.selectedCharacters.push(character);
-                    }
-                    
-                    updateTeamDisplay();
+        // ================ STAGE SELECT UI ================
+        let currentWorld = 1;
+        let selectedStageId = 1;
+
+        function renderWorldTabs() {
+            elements.worldTabs.innerHTML = '';
+            WORLDS.forEach((world, idx) => {
+                const tab = document.createElement('button');
+                tab.className = `world-tab ${idx + 1 === currentWorld ? 'active' : ''}`;
+                tab.textContent = `${idx + 1}. ${world}`;
+                tab.addEventListener('click', () => {
+                    currentWorld = idx + 1;
+                    renderWorldTabs();
+                    renderStageGrid();
                 });
+                elements.worldTabs.appendChild(tab);
             });
         }
 
-        function updateTeamDisplay() {
-            const slots = [
-                document.getElementById('teamSlot1'),
-                document.getElementById('teamSlot2'),
-                document.getElementById('teamSlot3')
-            ];
+        function renderStageGrid() {
+            elements.stageGrid.innerHTML = '';
             
-            slots.forEach((slot, i) => {
-                slot.innerHTML = '';
-                if (game.selectedCharacters[i]) {
-                    const img = document.createElement('img');
-                    img.src = game.selectedCharacters[i] === 'lia' ? 'lia.png' : 'mymelody.png';
-                    slot.appendChild(img);
+            const worldStages = STAGES_DATA.filter(s => s.world === currentWorld);
+            
+            worldStages.forEach(stage => {
+                const node = document.createElement('div');
+                node.className = 'stage-node';
+                
+                const isUnlocked = stage.id <= gameState.highestStage;
+                const isCompleted = gameState.stageStars[stage.id] > 0;
+                const isCurrent = stage.id === gameState.highestStage;
+                
+                if (isCompleted) {
+                    node.classList.add('completed');
+                } else if (isUnlocked) {
+                    node.classList.add('unlocked');
+                    if (isCurrent) node.classList.add('current');
+                } else {
+                    node.classList.add('locked');
                 }
+                
+                node.innerHTML = `
+                    <div class="stage-number">${stage.stageInWorld}</div>
+                    <div class="stage-stars">${'⭐'.repeat(gameState.stageStars[stage.id] || 0)}</div>
+                `;
+                
+                if (isUnlocked) {
+                    node.addEventListener('click', () => selectStage(stage.id));
+                }
+                
+                elements.stageGrid.appendChild(node);
             });
         }
 
-        // Input Handling
+        function selectStage(stageId) {
+            selectedStageId = stageId;
+            const stage = STAGES_DATA.find(s => s.id === stageId);
+            if (!stage) return;
+
+            elements.stageInfoPanel.style.display = 'block';
+            elements.stageInfoTitle.textContent = `FASE ${stage.name} - ${stage.worldName}`;
+            elements.stageInfoMission.textContent = stage.mission.text;
+            elements.stageXpReward.textContent = stage.xpReward;
+            elements.stageScoreReward.textContent = stage.scoreReward;
+
+            renderTeamSelect();
+        }
+
+        function renderTeamSelect() {
+            elements.teamSelectMini.innerHTML = '';
+            
+            // Lia always selected
+            const liaDiv = document.createElement('div');
+            liaDiv.className = 'team-char-mini selected';
+            liaDiv.innerHTML = '<img src="lia.png" alt="Lia">';
+            elements.teamSelectMini.appendChild(liaDiv);
+            
+            // My Melody
+            const melodyDiv = document.createElement('div');
+            melodyDiv.className = `team-char-mini ${gameState.melodyUnlocked ? '' : 'locked'} ${gameState.selectedCharacters.includes('melody') ? 'selected' : ''}`;
+            melodyDiv.innerHTML = '<img src="mymelody.png" alt="My Melody">';
+            
+            if (gameState.melodyUnlocked) {
+                melodyDiv.addEventListener('click', () => {
+                    if (gameState.selectedCharacters.includes('melody')) {
+                        gameState.selectedCharacters = gameState.selectedCharacters.filter(c => c !== 'melody');
+                    } else {
+                        if (!gameState.selectedCharacters.includes('melody')) {
+                            gameState.selectedCharacters.push('melody');
+                        }
+                    }
+                    renderTeamSelect();
+                });
+            }
+            
+            elements.teamSelectMini.appendChild(melodyDiv);
+        }
+
+        function updatePlayerStats() {
+            elements.playerLevelStat.textContent = `Lv. ${gameState.playerLevel}`;
+            elements.playerXpStat.textContent = gameState.totalXp.toLocaleString();
+            
+            let totalStars = 0;
+            Object.values(gameState.stageStars).forEach(s => totalStars += s);
+            elements.playerStarsStat.textContent = totalStars;
+        }
+
+        function showStageSelect() {
+            updatePlayerStats();
+            renderWorldTabs();
+            renderStageGrid();
+            
+            elements.mainMenuScreen.classList.remove('active');
+            elements.stageCompleteScreen.classList.remove('active');
+            elements.gameOverScreen.classList.remove('active');
+            elements.stageSelectScreen.classList.add('active');
+            
+            // Auto-select first available stage
+            selectStage(Math.min(gameState.highestStage, 30));
+        }
+
+        // ================ INPUT ================
         document.addEventListener('keydown', (e) => {
             const key = e.key.toLowerCase();
-            game.keys[key] = true;
+            gameState.keys[key] = true;
 
-            if (!game.running) return;
+            if (!gameState.running) return;
 
-            // Jump
-            if ((key === 'w' || key === ' ' || key === 'arrowup') && !game.paused) {
+            if ((key === 'w' || key === ' ' || key === 'arrowup') && !gameState.paused) {
                 player.jump();
                 e.preventDefault();
             }
 
-            // Attack
-            if (key === 'j' && !game.paused) {
+            if (key === 'j' && !gameState.paused) {
                 player.attack();
             }
 
-            // Heal (My Melody support ability)
-            if (key === 'k' && !game.paused) {
+            if (key === 'k' && !gameState.paused) {
                 melody.heal();
             }
 
-            // Pause
             if (key === 'escape' || key === 'p') {
                 togglePause();
             }
@@ -2179,9 +2628,8 @@
 
         document.addEventListener('keyup', (e) => {
             const key = e.key.toLowerCase();
-            game.keys[key] = false;
+            gameState.keys[key] = false;
 
-            // Release jump for variable height
             if (key === 'w' || key === ' ' || key === 'arrowup') {
                 player.releaseJump();
             }
@@ -2191,13 +2639,13 @@
         function setupMobileControls() {
             const handleTouchStart = (key, action) => (e) => {
                 e.preventDefault();
-                game.keys[key] = true;
+                gameState.keys[key] = true;
                 if (action) action();
             };
 
             const handleTouchEnd = (key, action) => (e) => {
                 e.preventDefault();
-                game.keys[key] = false;
+                gameState.keys[key] = false;
                 if (action) action();
             };
 
@@ -2213,26 +2661,64 @@
             elements.mobileSupport.addEventListener('touchend', handleTouchEnd('support'));
         }
 
-        // Event Listeners
-        elements.startBtn.addEventListener('click', startGame);
-        elements.restartBtn.addEventListener('click', () => {
-            elements.gameOverScreen.classList.remove('active');
-            elements.startScreen.classList.add('active');
-            
-            // Refresh character selection based on unlocks
-            if (game.melodyUnlocked) {
-                elements.melodyCard.classList.remove('locked');
-                elements.melodyCard.querySelector('.lock-badge').style.display = 'none';
+        // ================ EVENT LISTENERS ================
+        document.getElementById('titleStartBtn').addEventListener('click', () => {
+            initAudio();
+            elements.titleScreen.classList.remove('active');
+            elements.mainMenuScreen.classList.add('active');
+        });
+
+        document.getElementById('playGameBtn').addEventListener('click', showStageSelect);
+
+        document.getElementById('googleLoginBtn').addEventListener('click', () => {
+            alert('Login com Google será implementado em breve! Por enquanto, seus dados são salvos localmente.');
+        });
+
+        document.getElementById('backToMenuBtn').addEventListener('click', () => {
+            elements.stageSelectScreen.classList.remove('active');
+            elements.mainMenuScreen.classList.add('active');
+        });
+
+        document.getElementById('playStageBtn').addEventListener('click', () => {
+            startStage(selectedStageId);
+        });
+
+        document.getElementById('nextStageBtn').addEventListener('click', () => {
+            elements.stageCompleteScreen.classList.remove('active');
+            const nextId = gameState.currentStage.id + 1;
+            if (nextId <= 30) {
+                startStage(nextId);
+            } else {
+                showStageSelect();
             }
         });
-        elements.nextStageBtn.addEventListener('click', nextStage);
+
+        document.getElementById('backToMapBtn').addEventListener('click', () => {
+            elements.stageCompleteScreen.classList.remove('active');
+            elements.hudOverlay.style.display = 'none';
+            elements.stageIndicator.style.display = 'none';
+            elements.missionIndicator.style.display = 'none';
+            elements.supportCooldown.style.display = 'none';
+            elements.controlsPanel.style.display = 'none';
+            showStageSelect();
+        });
+
+        document.getElementById('retryStageBtn').addEventListener('click', () => {
+            elements.gameOverScreen.classList.remove('active');
+            if (gameState.currentStage) {
+                startStage(gameState.currentStage.id);
+            }
+        });
+
+        document.getElementById('backToMapFromOverBtn').addEventListener('click', () => {
+            elements.gameOverScreen.classList.remove('active');
+            showStageSelect();
+        });
 
         // Initialize
-        setupCharacterSelection();
         setupMobileControls();
-        updateTeamDisplay();
-
-        // Touch handling for mobile
+        gameState.selectedCharacters = ['lia'];
+        
         if ('ontouchstart' in window) {
             elements.mobileControls.style.display = 'flex';
         }
