@@ -4,16 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Lia Adventure</title>
-    <meta name="description" content="Jogo de aventura side-scroller com Lia e My Melody! Derrote esqueletos e avance pelas fases.">
+    <meta name="description" content="Jogo de aventura side-scroller com Lia, Sarah e Dani! Derrote esqueletos e avance pelos 5 mundos.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
             --primary: #ff6b9d;
@@ -30,1014 +26,343 @@
             --text-primary: #ffffff;
             --text-secondary: #a9d1ff;
             --gold: #ffd700;
-            --ground: #3a5a40;
-            --ground-light: #588157;
-            --melody-pink: #ff9cc2;
             --xp-purple: #a855f7;
+            --sarah-red: #e74c3c;
+            --dani-blue: #3498db;
         }
 
-        html, body {
-            height: 100%;
-            overflow: hidden;
-        }
+        html, body { height: 100%; overflow: hidden; }
 
         body {
             font-family: 'Fredoka', sans-serif;
             background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 50%, #1a2c4a 100%);
             color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 0;
+            display: flex; align-items: center; justify-content: center;
+            min-height: 100vh; padding: 0;
         }
 
-        .game-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            height: 100%;
-            max-width: 100vw;
-            max-height: 100vh;
-        }
+        .game-wrapper { display: flex; flex-direction: column; align-items: center; width: 100%; height: 100%; }
 
-        /* Canvas Container - Full screen */
-        .canvas-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            max-width: 100vw;
-            max-height: 100vh;
-            overflow: hidden;
-        }
+        .canvas-container { position: relative; width: 100%; height: 100%; overflow: hidden; }
 
-        canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-dark);
-            object-fit: contain;
-        }
+        canvas { display: block; width: 100%; height: 100%; background: var(--bg-dark); object-fit: contain; }
 
         /* Compact HUD */
         .hud-overlay {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            right: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            pointer-events: none;
-            z-index: 10;
+            position: absolute; top: 8px; left: 8px; right: 8px;
+            display: flex; justify-content: space-between; align-items: flex-start;
+            pointer-events: none; z-index: 10;
         }
-
-        .hud-left, .hud-right {
-            display: flex;
-            gap: 4px;
-            flex-wrap: wrap;
-        }
-
+        .hud-left, .hud-right { display: flex; gap: 4px; flex-wrap: wrap; }
         .hud-stat {
-            background: rgba(0, 0, 0, 0.7);
-            padding: 4px 8px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(5px);
+            background: rgba(0,0,0,0.7); padding: 4px 8px; border-radius: 8px;
+            display: flex; align-items: center; gap: 4px;
+            border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(5px);
         }
+        .hud-icon { font-size: 0.65rem; }
+        .hud-value { font-family: 'Press Start 2P', cursive; font-size: 0.4rem; color: var(--gold); }
+        .health-bar-container { width: 50px; height: 8px; background: rgba(0,0,0,0.7); border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2); }
+        .health-bar { height: 100%; background: linear-gradient(90deg, var(--danger), var(--warning)); transition: width 0.3s; border-radius: 3px; }
+        .xp-bar-container { width: 40px; height: 6px; background: rgba(0,0,0,0.7); border-radius: 3px; overflow: hidden; }
+        .xp-bar { height: 100%; background: linear-gradient(90deg, var(--xp-purple), #c084fc); transition: width 0.3s; }
 
-        .hud-icon {
-            font-size: 0.65rem;
-        }
-
-        .hud-value {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.4rem;
-            color: var(--gold);
-        }
-
-        .health-bar-container {
-            width: 50px;
-            height: 8px;
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 4px;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .health-bar {
-            height: 100%;
-            background: linear-gradient(90deg, var(--danger), var(--warning));
-            transition: width 0.3s ease;
-            border-radius: 3px;
-        }
-
-        .xp-bar-container {
-            width: 40px;
-            height: 6px;
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .xp-bar {
-            height: 100%;
-            background: linear-gradient(90deg, var(--xp-purple), #c084fc);
-            transition: width 0.3s ease;
-        }
-
-        /* Stage indicator */
         .stage-indicator {
-            position: absolute;
-            top: 8px;
-            left: 50%;
-            transform: translateX(-50%);
+            position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
             background: linear-gradient(135deg, var(--primary), var(--secondary));
-            padding: 4px 12px;
-            border-radius: 10px;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.4rem;
-            color: white;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-            z-index: 11;
+            padding: 4px 12px; border-radius: 10px;
+            font-family: 'Press Start 2P', cursive; font-size: 0.4rem; color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5); z-index: 11;
         }
-
-        /* Mission indicator */
         .mission-indicator {
-            position: absolute;
-            top: 35px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.7);
-            padding: 3px 10px;
-            border-radius: 8px;
-            font-size: 0.6rem;
-            color: var(--text-secondary);
-            z-index: 11;
-            max-width: 80%;
-            text-align: center;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            position: absolute; top: 35px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.7); padding: 3px 10px; border-radius: 8px;
+            font-size: 0.6rem; color: var(--text-secondary); z-index: 11;
+            max-width: 80%; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
-        /* ==================== */
-        /* GAME SCREENS */
-        /* ==================== */
+        /* Game Screens */
         .game-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: rgba(6, 16, 26, 0.98);
-            backdrop-filter: blur(10px);
-            z-index: 100;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            padding: 20px;
-            overflow-y: auto;
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: rgba(6,16,26,0.98); backdrop-filter: blur(10px);
+            z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+            padding: 20px; overflow-y: auto;
         }
+        .game-screen.active { opacity: 1; pointer-events: auto; }
 
-        .game-screen.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        /* TITLE SCREEN */
-        #titleScreen {
-            background: radial-gradient(ellipse at center, #1a2c4a 0%, var(--bg-darker) 70%);
-        }
-
+        /* Title Screen */
+        #titleScreen { background: radial-gradient(ellipse at center, #1a2c4a 0%, var(--bg-darker) 70%); }
         .title-logo {
-            font-family: 'Press Start 2P', cursive;
-            font-size: clamp(1.5rem, 5vw, 3rem);
+            font-family: 'Press Start 2P', cursive; font-size: clamp(1.5rem, 5vw, 3rem);
             color: var(--primary);
-            text-shadow: 
-                0 0 30px var(--primary-glow),
-                4px 4px 0 var(--primary-dark),
-                -2px -2px 0 #fff;
-            margin-bottom: 50px;
-            animation: titleFloat 3s ease-in-out infinite;
-            text-align: center;
+            text-shadow: 0 0 30px var(--primary-glow), 4px 4px 0 var(--primary-dark), -2px -2px 0 #fff;
+            margin-bottom: 50px; animation: titleFloat 3s ease-in-out infinite; text-align: center;
         }
-
-        @keyframes titleFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
+        @keyframes titleFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
         .press-start {
-            font-family: 'Press Start 2P', cursive;
-            font-size: clamp(0.6rem, 2vw, 1rem);
-            color: var(--text-primary);
-            animation: blink 1s infinite;
-            margin-bottom: 30px;
+            font-family: 'Press Start 2P', cursive; font-size: clamp(0.6rem, 2vw, 1rem);
+            color: var(--text-primary); animation: blink 1s infinite; margin-bottom: 30px;
         }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
         .start-btn-big {
-            font-family: 'Press Start 2P', cursive;
-            font-size: clamp(0.8rem, 2.5vw, 1.2rem);
-            padding: 20px 60px;
-            border: none;
-            border-radius: 60px;
-            cursor: pointer;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            box-shadow: 
-                0 8px 0 #b03e6a,
-                0 12px 30px rgba(255, 107, 157, 0.4);
-            transition: all 0.2s ease;
+            font-family: 'Press Start 2P', cursive; font-size: clamp(0.8rem, 2.5vw, 1.2rem);
+            padding: 20px 60px; border: none; border-radius: 60px; cursor: pointer;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white;
+            box-shadow: 0 8px 0 #b03e6a, 0 12px 30px rgba(255,107,157,0.4); transition: all 0.2s;
         }
+        .start-btn-big:hover { transform: translateY(-3px); box-shadow: 0 11px 0 #b03e6a, 0 18px 40px rgba(255,107,157,0.5); }
+        .start-btn-big:active { transform: translateY(4px); box-shadow: 0 4px 0 #b03e6a; }
 
-        .start-btn-big:hover {
-            transform: translateY(-3px);
-            box-shadow: 
-                0 11px 0 #b03e6a,
-                0 18px 40px rgba(255, 107, 157, 0.5);
-        }
-
-        .start-btn-big:active {
-            transform: translateY(4px);
-            box-shadow: 
-                0 4px 0 #b03e6a,
-                0 6px 15px rgba(255, 107, 157, 0.3);
-        }
-
-        /* MAIN MENU SCREEN */
+        /* Main Menu */
         #mainMenuScreen .menu-title {
-            font-family: 'Press Start 2P', cursive;
-            font-size: clamp(1rem, 3vw, 1.8rem);
-            color: var(--primary);
-            text-shadow: 0 0 20px var(--primary-glow);
-            margin-bottom: 40px;
+            font-family: 'Press Start 2P', cursive; font-size: clamp(1rem, 3vw, 1.8rem);
+            color: var(--primary); text-shadow: 0 0 20px var(--primary-glow); margin-bottom: 40px;
         }
-
-        .menu-options {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            width: 100%;
-            max-width: 350px;
-        }
-
+        .menu-options { display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 350px; }
         .menu-btn {
-            font-family: 'Press Start 2P', cursive;
-            font-size: clamp(0.5rem, 1.5vw, 0.75rem);
-            padding: 18px 30px;
-            border: 3px solid transparent;
-            border-radius: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-            width: 100%;
+            font-family: 'Press Start 2P', cursive; font-size: clamp(0.5rem, 1.5vw, 0.75rem);
+            padding: 18px 30px; border: 3px solid transparent; border-radius: 15px;
+            cursor: pointer; transition: all 0.3s; text-align: center; width: 100%;
         }
+        .menu-btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; box-shadow: 0 5px 0 #b03e6a; }
+        .menu-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #b03e6a; }
+        .menu-btn-secondary-style { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: var(--text-primary); }
+        .menu-btn-secondary-style:hover { background: rgba(255,255,255,0.2); border-color: var(--secondary); }
+        .menu-btn-google { background: linear-gradient(135deg, #4285f4, #356ac3); color: white; box-shadow: 0 5px 0 #2a5298; }
+        .menu-btn-google:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #2a5298; }
+        .google-hint { font-size: 0.65rem; color: var(--text-secondary); margin-top: -5px; opacity: 0.8; }
 
-        .menu-btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            box-shadow: 0 5px 0 #b03e6a;
-        }
-
-        .menu-btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 7px 0 #b03e6a;
-        }
-
-        .menu-btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.2);
-            color: var(--text-primary);
-        }
-
-        .menu-btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: var(--secondary);
-        }
-
-        .menu-btn-google {
-            background: linear-gradient(135deg, #4285f4, #356ac3);
-            color: white;
-            box-shadow: 0 5px 0 #2a5298;
-        }
-
-        .menu-btn-google:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 7px 0 #2a5298;
-        }
-
-        .google-hint {
-            font-size: 0.65rem;
-            color: var(--text-secondary);
-            margin-top: -5px;
-            opacity: 0.8;
-        }
-
-        /* STAGE SELECT SCREEN - Mario Style */
-        #stageSelectScreen {
-            padding: 10px;
-        }
-
-        .stage-select-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            max-width: 900px;
-            margin-bottom: 15px;
-        }
-
-        .stage-select-title {
-            font-family: 'Press Start 2P', cursive;
-            font-size: clamp(0.7rem, 2vw, 1rem);
-            color: var(--secondary);
-        }
-
+        /* Stage Select */
+        #stageSelectScreen { padding: 10px; }
+        .stage-select-header { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 900px; margin-bottom: 15px; }
+        .stage-select-title { font-family: 'Press Start 2P', cursive; font-size: clamp(0.7rem, 2vw, 1rem); color: var(--secondary); }
         .back-btn {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.5rem;
-            padding: 8px 15px;
-            border: 2px solid var(--text-secondary);
-            border-radius: 8px;
-            background: transparent;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.2s;
+            font-family: 'Press Start 2P', cursive; font-size: 0.5rem; padding: 8px 15px;
+            border: 2px solid var(--text-secondary); border-radius: 8px;
+            background: transparent; color: var(--text-secondary); cursor: pointer; transition: all 0.2s;
         }
-
-        .back-btn:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
+        .back-btn:hover { border-color: var(--primary); color: var(--primary); }
 
         .player-stats-panel {
-            display: flex;
-            gap: 20px;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 10px 20px;
-            border-radius: 12px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
+            display: flex; gap: 20px; background: rgba(0,0,0,0.4); padding: 10px 20px;
+            border-radius: 12px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center;
         }
+        .player-stat-item { text-align: center; }
+        .player-stat-value { font-family: 'Press Start 2P', cursive; font-size: 0.7rem; color: var(--gold); }
+        .player-stat-label { font-size: 0.6rem; color: var(--text-secondary); }
 
-        .player-stat-item {
-            text-align: center;
-        }
-
-        .player-stat-value {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.7rem;
-            color: var(--gold);
-        }
-
-        .player-stat-label {
-            font-size: 0.6rem;
-            color: var(--text-secondary);
-        }
-
-        .world-tabs {
-            display: flex;
-            gap: 5px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
+        .world-tabs { display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center; }
         .world-tab {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.4rem;
-            padding: 8px 15px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            background: rgba(0, 0, 0, 0.3);
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.2s;
+            font-family: 'Press Start 2P', cursive; font-size: 0.35rem; padding: 8px 12px;
+            border: 2px solid rgba(255,255,255,0.2); border-radius: 8px;
+            background: rgba(0,0,0,0.3); color: var(--text-secondary); cursor: pointer; transition: all 0.2s;
         }
-
-        .world-tab.active {
-            border-color: var(--primary);
-            background: var(--primary);
-            color: white;
-        }
-
-        .world-tab:hover:not(.active) {
-            border-color: var(--secondary);
-        }
+        .world-tab.active { border-color: var(--primary); background: var(--primary); color: white; }
+        .world-tab:hover:not(.active) { border-color: var(--secondary); }
 
         .stage-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-            gap: 10px;
-            width: 100%;
-            max-width: 900px;
-            max-height: 50vh;
-            overflow-y: auto;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 15px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px; width: 100%; max-width: 900px; max-height: 40vh;
+            overflow-y: auto; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 15px;
         }
-
         .stage-node {
-            aspect-ratio: 1;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 3px solid transparent;
-            position: relative;
-            min-width: 70px;
+            aspect-ratio: 1; border-radius: 12px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s;
+            border: 3px solid transparent; position: relative; min-width: 70px;
         }
-
-        .stage-node.unlocked {
-            background: linear-gradient(135deg, #2d4a6d, #3d5a80);
-            border-color: var(--secondary);
-        }
-
-        .stage-node.unlocked:hover {
-            transform: scale(1.05);
-            border-color: var(--primary);
-            box-shadow: 0 0 20px var(--primary-glow);
-        }
-
-        .stage-node.completed {
-            background: linear-gradient(135deg, #3a5a40, #588157);
-            border-color: #7cb342;
-        }
-
-        .stage-node.completed::after {
-            content: '⭐';
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            font-size: 0.8rem;
-        }
-
-        .stage-node.locked {
-            background: rgba(0, 0, 0, 0.4);
-            border-color: rgba(255, 255, 255, 0.1);
-            cursor: not-allowed;
-            opacity: 0.5;
-        }
-
-        .stage-node.current {
-            animation: currentPulse 1.5s infinite;
-        }
-
-        @keyframes currentPulse {
-            0%, 100% { box-shadow: 0 0 10px var(--primary-glow); }
-            50% { box-shadow: 0 0 25px var(--primary-glow), 0 0 40px var(--primary-glow); }
-        }
-
-        .stage-number {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.8rem;
-            color: white;
-        }
-
-        .stage-stars {
-            font-size: 0.5rem;
-            margin-top: 3px;
-        }
+        .stage-node.unlocked { background: linear-gradient(135deg, #2d4a6d, #3d5a80); border-color: var(--secondary); }
+        .stage-node.unlocked:hover { transform: scale(1.05); border-color: var(--primary); box-shadow: 0 0 20px var(--primary-glow); }
+        .stage-node.completed { background: linear-gradient(135deg, #3a5a40, #588157); border-color: #7cb342; }
+        .stage-node.completed::after { content: '⭐'; position: absolute; top: -5px; right: -5px; font-size: 0.8rem; }
+        .stage-node.locked { background: rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.1); cursor: not-allowed; opacity: 0.5; }
+        .stage-node.current { animation: currentPulse 1.5s infinite; }
+        @keyframes currentPulse { 0%,100%{box-shadow:0 0 10px var(--primary-glow)} 50%{box-shadow:0 0 25px var(--primary-glow),0 0 40px var(--primary-glow)} }
+        .stage-number { font-family: 'Press Start 2P', cursive; font-size: 0.8rem; color: white; }
+        .stage-stars { font-size: 0.5rem; margin-top: 3px; }
 
         .stage-info-panel {
-            background: rgba(0, 0, 0, 0.5);
-            padding: 15px;
-            border-radius: 12px;
-            margin-top: 15px;
-            width: 100%;
-            max-width: 500px;
-            text-align: center;
+            background: rgba(0,0,0,0.5); padding: 15px; border-radius: 12px;
+            margin-top: 15px; width: 100%; max-width: 500px; text-align: center;
         }
-
-        .stage-info-title {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.7rem;
-            color: var(--primary);
-            margin-bottom: 8px;
-        }
-
-        .stage-info-mission {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            margin-bottom: 10px;
-        }
-
-        .stage-info-rewards {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 10px;
-        }
-
-        .reward-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 0.65rem;
-            color: var(--gold);
-        }
-
+        .stage-info-title { font-family: 'Press Start 2P', cursive; font-size: 0.6rem; color: var(--primary); margin-bottom: 8px; }
+        .stage-info-mission { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 10px; }
+        .stage-info-rewards { display: flex; justify-content: center; gap: 15px; margin-bottom: 10px; }
+        .reward-item { display: flex; align-items: center; gap: 5px; font-size: 0.65rem; color: var(--gold); }
         .play-stage-btn {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.6rem;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
-            color: white;
-            box-shadow: 0 4px 0 #2a9d8f;
-            transition: all 0.2s;
+            font-family: 'Press Start 2P', cursive; font-size: 0.6rem; padding: 12px 30px;
+            border: none; border-radius: 25px; cursor: pointer;
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark)); color: white;
+            box-shadow: 0 4px 0 #2a9d8f; transition: all 0.2s;
         }
+        .play-stage-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #2a9d8f; }
 
-        .play-stage-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 0 #2a9d8f;
-        }
-
-        /* CHARACTER SELECT IN STAGE */
-        .team-select-mini {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
+        /* Team Select */
+        .team-select-mini { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; }
         .team-char-mini {
-            width: 50px;
-            height: 50px;
-            border-radius: 10px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            background: rgba(0, 0, 0, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
+            width: 55px; height: 65px; border-radius: 10px; border: 2px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.4); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;
+            padding: 3px;
         }
+        .team-char-mini.selected { border-color: var(--secondary); background: rgba(77,204,189,0.2); }
+        .team-char-mini.locked { opacity: 0.4; cursor: not-allowed; }
+        .team-char-mini img { width: 35px; height: 35px; image-rendering: pixelated; }
+        .team-char-mini .char-name { font-size: 0.4rem; color: var(--text-secondary); font-family: 'Press Start 2P', cursive; margin-top: 2px; }
+        .team-char-mini .char-role { font-size: 0.3rem; color: var(--gold); }
 
-        .team-char-mini.selected {
-            border-color: var(--secondary);
-            background: rgba(77, 204, 189, 0.2);
+        /* Results Screen */
+        .results-screen {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: rgba(6,16,26,0.95); z-index: 90;
+            opacity: 0; pointer-events: none; transition: opacity 0.5s; padding: 20px;
         }
+        .results-screen.active { opacity: 1; pointer-events: auto; }
 
-        .team-char-mini.locked {
-            opacity: 0.4;
-            cursor: not-allowed;
+        .results-title {
+            font-family: 'Press Start 2P', cursive; font-size: clamp(1rem, 3vw, 1.5rem);
+            margin-bottom: 25px; text-shadow: 0 0 20px currentColor;
         }
+        .results-title.victory { color: var(--secondary); }
+        .results-title.defeat { color: var(--danger); }
 
-        .team-char-mini img {
-            width: 40px;
-            height: 40px;
-            image-rendering: pixelated;
+        .results-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+            margin-bottom: 20px; width: 100%; max-width: 350px;
         }
+        .result-card {
+            background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px;
+            text-align: center; border: 1px solid rgba(255,255,255,0.1);
+        }
+        .result-card-value { font-family: 'Press Start 2P', cursive; font-size: 0.7rem; color: var(--gold); }
+        .result-card-label { font-size: 0.6rem; color: var(--text-secondary); margin-top: 4px; }
 
-        /* Game Buttons */
+        .result-xp {
+            font-family: 'Press Start 2P', cursive; font-size: 0.8rem; color: var(--xp-purple);
+            margin-bottom: 10px;
+        }
+        .result-levelup {
+            font-family: 'Press Start 2P', cursive; font-size: 1rem; color: var(--gold);
+            animation: levelUpPulse 0.5s ease-in-out infinite alternate; margin-bottom: 10px;
+        }
+        @keyframes levelUpPulse { from{transform:scale(1)} to{transform:scale(1.1)} }
+
+        .result-unlock {
+            font-family: 'Press Start 2P', cursive; font-size: 0.65rem; color: var(--secondary);
+            background: rgba(77,204,189,0.15); padding: 10px 20px; border-radius: 10px;
+            border: 1px solid var(--secondary); margin-bottom: 15px;
+            animation: unlockGlow 1s ease-in-out infinite alternate;
+        }
+        @keyframes unlockGlow { from{box-shadow:0 0 10px rgba(77,204,189,0.3)} to{box-shadow:0 0 25px rgba(77,204,189,0.6)} }
+
+        .results-buttons { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
+
         .game-btn {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.7rem;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-transform: uppercase;
+            font-family: 'Press Start 2P', cursive; font-size: 0.6rem; padding: 12px 25px;
+            border: none; border-radius: 50px; cursor: pointer; transition: all 0.2s; text-transform: uppercase;
+            display: flex; align-items: center; gap: 8px;
         }
-
-        .game-btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            box-shadow: 0 5px 0 #b03e6a;
-        }
-
-        .game-btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 7px 0 #b03e6a;
-        }
-
-        .game-btn-secondary {
-            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
-            color: white;
-            box-shadow: 0 5px 0 #2a9d8f;
-        }
-
-        /* Stage Complete Screen */
-        .stage-complete-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: rgba(6, 16, 26, 0.95);
-            z-index: 90;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.5s ease;
-        }
-
-        .stage-complete-screen.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .complete-title {
-            font-family: 'Press Start 2P', cursive;
-            font-size: clamp(1rem, 3vw, 1.5rem);
-            color: var(--secondary);
-            margin-bottom: 20px;
-            text-shadow: 0 0 20px var(--secondary);
-        }
-
-        .complete-rewards {
-            display: flex;
-            gap: 30px;
-            margin-bottom: 20px;
-        }
-
-        .complete-reward {
-            text-align: center;
-        }
-
-        .complete-reward-value {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 1rem;
-            color: var(--gold);
-        }
-
-        .complete-reward-label {
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-        }
-
-        .xp-gain-display {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.8rem;
-            color: var(--xp-purple);
-            margin-bottom: 15px;
-        }
-
-        .level-up-notice {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 1rem;
-            color: var(--gold);
-            animation: levelUpPulse 0.5s ease-in-out infinite alternate;
-            margin-bottom: 15px;
-        }
-
-        @keyframes levelUpPulse {
-            from { transform: scale(1); }
-            to { transform: scale(1.1); }
-        }
-
-        .complete-buttons {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        /* Game Over Screen */
-        .game-over-title {
-            font-family: 'Press Start 2P', cursive;
-            font-size: clamp(1.2rem, 4vw, 2rem);
-            color: var(--danger);
-            text-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
-            margin-bottom: 20px;
-        }
-
-        .final-stats {
-            display: flex;
-            gap: 25px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .final-stat {
-            text-align: center;
-        }
-
-        .final-stat-value {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.9rem;
-            color: var(--secondary);
-        }
-
-        .final-stat-label {
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-            margin-top: 3px;
-        }
+        .game-btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; box-shadow: 0 5px 0 #b03e6a; }
+        .game-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #b03e6a; }
+        .game-btn-secondary { background: linear-gradient(135deg, var(--secondary), var(--secondary-dark)); color: white; box-shadow: 0 5px 0 #2a9d8f; }
+        .game-btn-secondary:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #2a9d8f; }
+        .game-btn-danger { background: linear-gradient(135deg, var(--danger), #c0392b); color: white; box-shadow: 0 5px 0 #962d22; }
 
         /* Mobile Controls */
         .mobile-controls {
-            display: none;
-            position: fixed;
-            bottom: 10px;
-            left: 0;
-            right: 0;
-            padding: 0 10px;
-            justify-content: space-between;
-            z-index: 1000;
+            display: none; position: fixed; bottom: 10px; left: 0; right: 0;
+            padding: 0 10px; justify-content: space-between; z-index: 1000;
         }
-
-        .mobile-btn-group {
-            display: flex;
-            gap: 8px;
-        }
-
+        .mobile-btn-group { display: flex; gap: 8px; }
         .mobile-btn {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: 3px solid rgba(255,255,255,0.4);
-            background: rgba(13, 27, 42, 0.85);
-            color: white;
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            touch-action: manipulation;
-            user-select: none;
-            -webkit-user-select: none;
+            width: 60px; height: 60px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.4);
+            background: rgba(13,27,42,0.85); color: white; font-size: 1.5rem;
+            display: flex; align-items: center; justify-content: center;
+            touch-action: manipulation; user-select: none; -webkit-user-select: none;
         }
+        .mobile-btn:active { background: rgba(255,107,157,0.5); transform: scale(0.95); }
+        .mobile-btn.attack { background: rgba(255,107,157,0.4); border-color: var(--primary); }
+        .mobile-btn.jump { background: rgba(77,204,189,0.4); border-color: var(--secondary); }
+        .mobile-btn.support { background: rgba(52,152,219,0.4); border-color: var(--dani-blue); }
 
-        .mobile-btn:active {
-            background: rgba(255, 107, 157, 0.5);
-            transform: scale(0.95);
-        }
-
-        .mobile-btn.attack {
-            background: rgba(255, 107, 157, 0.4);
-            border-color: var(--primary);
-        }
-
-        .mobile-btn.jump {
-            background: rgba(77, 204, 189, 0.4);
-            border-color: var(--secondary);
-        }
-
-        .mobile-btn.support {
-            background: rgba(255, 156, 194, 0.4);
-            border-color: var(--melody-pink);
-        }
-
-        /* Support cooldown */
         .support-cooldown {
-            position: absolute;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.7);
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.4rem;
-            color: var(--melody-pink);
-            z-index: 20;
-            display: none;
+            position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.7); padding: 4px 12px; border-radius: 12px;
+            font-family: 'Press Start 2P', cursive; font-size: 0.4rem; color: var(--dani-blue); z-index: 20; display: none;
         }
 
-        /* Loading Screen */
+        /* Loading */
         .loading-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: var(--bg-darker);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 200;
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-darker); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 200;
         }
+        .loading-spinner { width: 50px; height: 50px; border: 4px solid rgba(255,107,157,0.2); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
+        @keyframes spin { to{transform:rotate(360deg)} }
+        .loading-text { font-family: 'Press Start 2P', cursive; font-size: 0.6rem; color: var(--text-secondary); animation: pulse 1.5s ease-in-out infinite; }
+        @keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
 
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(255, 107, 157, 0.2);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 15px;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .loading-text {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.6rem;
-            color: var(--text-secondary);
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
-        }
-
-        /* Combo Display */
+        /* Overlays */
         .combo-display {
-            position: absolute;
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-family: 'Press Start 2P', cursive;
-            font-size: 1.2rem;
-            color: var(--gold);
+            position: absolute; top: 40%; left: 50%; transform: translate(-50%,-50%);
+            font-family: 'Press Start 2P', cursive; font-size: 1.2rem; color: var(--gold);
             text-shadow: 0 0 20px var(--gold), 2px 2px 0 #b38600;
-            pointer-events: none;
-            opacity: 0;
-            z-index: 50;
+            pointer-events: none; opacity: 0; z-index: 50;
         }
+        .combo-display.active { animation: comboPopup 0.8s ease-out forwards; }
+        @keyframes comboPopup { 0%{opacity:0;transform:translate(-50%,-50%) scale(0.5)} 20%{opacity:1;transform:translate(-50%,-50%) scale(1.2)} 100%{opacity:0;transform:translate(-50%,-80%) scale(1)} }
 
-        .combo-display.active {
-            animation: comboPopup 0.8s ease-out forwards;
-        }
-
-        @keyframes comboPopup {
-            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
-            100% { opacity: 0; transform: translate(-50%, -80%) scale(1); }
-        }
-
-        /* Level Up Display */
         .levelup-display {
-            position: absolute;
-            top: 25%;
-            left: 50%;
-            transform: translateX(-50%);
-            font-family: 'Press Start 2P', cursive;
-            font-size: 1rem;
-            color: var(--secondary);
-            text-shadow: 0 0 30px var(--secondary);
-            pointer-events: none;
-            opacity: 0;
-            z-index: 50;
+            position: absolute; top: 25%; left: 50%; transform: translateX(-50%);
+            font-family: 'Press Start 2P', cursive; font-size: 1rem; color: var(--secondary);
+            text-shadow: 0 0 30px var(--secondary); pointer-events: none; opacity: 0; z-index: 50;
         }
+        .levelup-display.active { animation: levelUpPopup 1.5s ease-out forwards; }
+        @keyframes levelUpPopup { 0%{opacity:0;transform:translateX(-50%) translateY(20px) scale(0.8)} 20%{opacity:1;transform:translateX(-50%) translateY(0) scale(1.1)} 80%{opacity:1} 100%{opacity:0;transform:translateX(-50%) translateY(-30px)} }
 
-        .levelup-display.active {
-            animation: levelUpPopup 1.5s ease-out forwards;
-        }
-
-        @keyframes levelUpPopup {
-            0% { opacity: 0; transform: translateX(-50%) translateY(20px) scale(0.8); }
-            20% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.1); }
-            80% { opacity: 1; }
-            100% { opacity: 0; transform: translateX(-50%) translateY(-30px); }
-        }
-
-        /* Unlock Display */
         .unlock-display {
-            position: absolute;
-            top: 30%;
-            left: 50%;
-            transform: translateX(-50%);
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.8rem;
-            color: var(--melody-pink);
-            text-shadow: 0 0 30px var(--melody-pink);
-            pointer-events: none;
-            opacity: 0;
-            z-index: 50;
-            text-align: center;
+            position: absolute; top: 30%; left: 50%; transform: translateX(-50%);
+            font-family: 'Press Start 2P', cursive; font-size: 0.8rem; color: var(--secondary);
+            text-shadow: 0 0 30px var(--secondary); pointer-events: none; opacity: 0; z-index: 50; text-align: center;
         }
+        .unlock-display.active { animation: unlockPopup 3s ease-out forwards; }
+        @keyframes unlockPopup { 0%{opacity:0;transform:translateX(-50%) scale(0.5)} 15%{opacity:1;transform:translateX(-50%) scale(1.2)} 85%{opacity:1} 100%{opacity:0} }
 
-        .unlock-display.active {
-            animation: unlockPopup 3s ease-out forwards;
-        }
-
-        @keyframes unlockPopup {
-            0% { opacity: 0; transform: translateX(-50%) scale(0.5); }
-            15% { opacity: 1; transform: translateX(-50%) scale(1.2); }
-            85% { opacity: 1; }
-            100% { opacity: 0; }
-        }
-
-        /* Pause Overlay */
         .pause-overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-family: 'Press Start 2P', cursive;
-            font-size: 1.5rem;
-            color: var(--text-primary);
-            text-shadow: 0 0 20px var(--primary);
-            z-index: 60;
-            display: none;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+            font-family: 'Press Start 2P', cursive; font-size: 1.5rem; color: var(--text-primary);
+            text-shadow: 0 0 20px var(--primary); z-index: 60; display: none;
         }
+        .pause-overlay.active { display: block; animation: pausePulse 1s ease-in-out infinite; }
+        @keyframes pausePulse { 0%,100%{opacity:0.7} 50%{opacity:1} }
 
-        .pause-overlay.active {
-            display: block;
-            animation: pausePulse 1s ease-in-out infinite;
-        }
-
-        @keyframes pausePulse {
-            0%, 100% { opacity: 0.7; }
-            50% { opacity: 1; }
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .mobile-controls {
-                display: flex;
-            }
-
-            .stage-grid {
-                grid-template-columns: repeat(5, 1fr);
-            }
-
-            .stage-node {
-                min-width: 50px;
-            }
-
-            .stage-number {
-                font-size: 0.6rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .mobile-btn {
-                width: 55px;
-                height: 55px;
-                font-size: 1.3rem;
-            }
-
-            .stage-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-
-        @media (min-width: 769px) {
-            .controls-panel {
-                display: grid;
-            }
-        }
-
-        /* Desktop Controls Panel */
+        /* Desktop Controls */
         .controls-panel {
-            display: none;
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.7);
-            padding: 8px 20px;
-            border-radius: 10px;
-            grid-template-columns: repeat(6, auto);
-            gap: 15px;
-            z-index: 20;
+            display: none; position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.7); padding: 8px 20px; border-radius: 10px;
+            grid-template-columns: repeat(5, auto); gap: 15px; z-index: 20;
         }
-
-        .control-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .control-label {
-            color: var(--text-secondary);
-            font-size: 0.65rem;
-        }
-
+        .control-item { display: flex; align-items: center; gap: 5px; }
+        .control-label { color: var(--text-secondary); font-size: 0.65rem; }
         .key {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            display: inline-flex; align-items: center; justify-content: center;
             background: linear-gradient(180deg, #3a4d6e, #2a3d5e);
-            min-width: 22px;
-            height: 20px;
-            padding: 0 5px;
-            border-radius: 4px;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.35rem;
-            color: var(--text-primary);
+            min-width: 22px; height: 20px; padding: 0 5px; border-radius: 4px;
+            font-family: 'Press Start 2P', cursive; font-size: 0.35rem; color: var(--text-primary);
             box-shadow: 0 2px 0 #1a2639;
         }
+
+        @media (max-width: 768px) {
+            .mobile-controls { display: flex; }
+            .stage-grid { grid-template-columns: repeat(5, 1fr); }
+            .stage-node { min-width: 50px; }
+            .stage-number { font-size: 0.6rem; }
+        }
+        @media (max-width: 480px) {
+            .mobile-btn { width: 55px; height: 55px; font-size: 1.3rem; }
+            .stage-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        @media (min-width: 769px) { .controls-panel { display: grid; } }
     </style>
 </head>
 <body>
@@ -1045,26 +370,18 @@
         <div class="canvas-container">
             <canvas id="gameCanvas"></canvas>
 
-            <!-- Stage Indicator -->
-            <div class="stage-indicator" id="stageIndicator" style="display: none;">FASE 1-1</div>
+            <div class="stage-indicator" id="stageIndicator" style="display:none;">FASE 1-1</div>
+            <div class="mission-indicator" id="missionIndicator" style="display:none;">Derrote 5 esqueletos</div>
 
-            <!-- Mission Indicator -->
-            <div class="mission-indicator" id="missionIndicator" style="display: none;">Derrote 5 esqueletos</div>
-
-            <!-- HUD Overlay -->
-            <div class="hud-overlay" id="hudOverlay" style="display: none;">
+            <div class="hud-overlay" id="hudOverlay" style="display:none;">
                 <div class="hud-left">
                     <div class="hud-stat">
                         <span class="hud-icon">❤️</span>
-                        <div class="health-bar-container">
-                            <div class="health-bar" id="healthBar" style="width: 100%;"></div>
-                        </div>
+                        <div class="health-bar-container"><div class="health-bar" id="healthBar" style="width:100%;"></div></div>
                     </div>
                     <div class="hud-stat">
                         <span class="hud-icon">⚡</span>
-                        <div class="xp-bar-container">
-                            <div class="xp-bar" id="xpBar" style="width: 0%;"></div>
-                        </div>
+                        <div class="xp-bar-container"><div class="xp-bar" id="xpBar" style="width:0%;"></div></div>
                         <span class="hud-value" id="levelDisplay">Lv.1</span>
                     </div>
                 </div>
@@ -1080,22 +397,12 @@
                 </div>
             </div>
 
-            <!-- Support Cooldown -->
-            <div class="support-cooldown" id="supportCooldown">💕 HEAL: PRONTO (K)</div>
-
-            <!-- Combo Display -->
+            <div class="support-cooldown" id="supportCooldown">🛡️ SHIELD: PRONTO (K)</div>
             <div class="combo-display" id="comboDisplay"></div>
-
-            <!-- Level Up Display -->
             <div class="levelup-display" id="levelUpDisplay"></div>
-
-            <!-- Unlock Display -->
-            <div class="unlock-display" id="unlockDisplay">🎀 MY MELODY DESBLOQUEADA! 🎀</div>
-
-            <!-- Pause Overlay -->
+            <div class="unlock-display" id="unlockDisplay"></div>
             <div class="pause-overlay" id="pauseOverlay">PAUSADO</div>
 
-            <!-- Loading Screen -->
             <div class="loading-screen" id="loadingScreen">
                 <div class="loading-spinner"></div>
                 <div class="loading-text">CARREGANDO...</div>
@@ -1108,7 +415,7 @@
                 <button class="start-btn-big" id="titleStartBtn">START</button>
             </div>
 
-            <!-- MAIN MENU SCREEN -->
+            <!-- MAIN MENU -->
             <div class="game-screen" id="mainMenuScreen">
                 <h2 class="menu-title">LIA ADVENTURE</h2>
                 <div class="menu-options">
@@ -1118,13 +425,12 @@
                 </div>
             </div>
 
-            <!-- STAGE SELECT SCREEN -->
+            <!-- STAGE SELECT -->
             <div class="game-screen" id="stageSelectScreen">
                 <div class="stage-select-header">
                     <h2 class="stage-select-title">SELECIONAR FASE</h2>
                     <button class="back-btn" id="backToMenuBtn">← VOLTAR</button>
                 </div>
-
                 <div class="player-stats-panel">
                     <div class="player-stat-item">
                         <div class="player-stat-value" id="playerLevelStat">Lv. 1</div>
@@ -1139,12 +445,9 @@
                         <div class="player-stat-label">⭐ Estrelas</div>
                     </div>
                 </div>
-
                 <div class="world-tabs" id="worldTabs"></div>
-
                 <div class="stage-grid" id="stageGrid"></div>
-
-                <div class="stage-info-panel" id="stageInfoPanel" style="display: none;">
+                <div class="stage-info-panel" id="stageInfoPanel" style="display:none;">
                     <div class="stage-info-title" id="stageInfoTitle">FASE 1-1</div>
                     <div class="stage-info-mission" id="stageInfoMission">Derrote 5 esqueletos para avançar.</div>
                     <div class="stage-info-rewards">
@@ -1156,76 +459,23 @@
                 </div>
             </div>
 
-            <!-- Stage Complete Screen -->
-            <div class="stage-complete-screen" id="stageCompleteScreen">
-                <h2 class="complete-title">FASE COMPLETA!</h2>
-                <div class="complete-rewards">
-                    <div class="complete-reward">
-                        <div class="complete-reward-value" id="completeScore">+500</div>
-                        <div class="complete-reward-label">Pontos</div>
-                    </div>
-                    <div class="complete-reward">
-                        <div class="complete-reward-value" id="completeKills">10</div>
-                        <div class="complete-reward-label">Derrotados</div>
-                    </div>
-                </div>
-                <div class="xp-gain-display" id="xpGainDisplay">+100 XP</div>
-                <div class="level-up-notice" id="levelUpNotice" style="display: none;">🎉 LEVEL UP! 🎉</div>
-                <div class="complete-buttons">
-                    <button class="game-btn game-btn-secondary" id="backToMapBtn">VOLTAR AO MAPA</button>
-                    <button class="game-btn game-btn-primary" id="nextStageBtn">PRÓXIMA FASE →</button>
-                </div>
-            </div>
-
-            <!-- Game Over Screen -->
-            <div class="game-screen" id="gameOverScreen">
-                <h2 class="game-over-title">FIM DE JOGO</h2>
-                <div class="final-stats">
-                    <div class="final-stat">
-                        <div class="final-stat-value" id="finalStage">1-1</div>
-                        <div class="final-stat-label">Fase</div>
-                    </div>
-                    <div class="final-stat">
-                        <div class="final-stat-value" id="finalKills">0</div>
-                        <div class="final-stat-label">Derrotados</div>
-                    </div>
-                    <div class="final-stat">
-                        <div class="final-stat-value" id="finalScore">0</div>
-                        <div class="final-stat-label">Pontos</div>
-                    </div>
-                </div>
-                <div class="complete-buttons">
-                    <button class="game-btn game-btn-secondary" id="retryStageBtn">TENTAR NOVAMENTE</button>
-                    <button class="game-btn game-btn-primary" id="backToMapFromOverBtn">VOLTAR AO MAPA</button>
-                </div>
+            <!-- RESULTS SCREEN (Victory & Defeat) -->
+            <div class="results-screen" id="resultsScreen">
+                <h2 class="results-title" id="resultsTitle">FASE COMPLETA!</h2>
+                <div class="results-grid" id="resultsGrid"></div>
+                <div class="result-xp" id="resultXp" style="display:none;"></div>
+                <div class="result-levelup" id="resultLevelUp" style="display:none;">🎉 LEVEL UP! 🎉</div>
+                <div class="result-unlock" id="resultUnlock" style="display:none;"></div>
+                <div class="results-buttons" id="resultsButtons"></div>
             </div>
 
             <!-- Desktop Controls -->
             <div class="controls-panel" id="controlsPanel">
-                <div class="control-item">
-                    <span class="control-label">Mover:</span>
-                    <span class="key">A</span><span class="key">D</span>
-                </div>
-                <div class="control-item">
-                    <span class="control-label">Pular:</span>
-                    <span class="key">W</span><span class="key">ESPAÇO</span>
-                </div>
-                <div class="control-item">
-                    <span class="control-label">Atacar:</span>
-                    <span class="key">J</span>
-                </div>
-                <div class="control-item">
-                    <span class="control-label">Correr:</span>
-                    <span class="key">SHIFT</span>
-                </div>
-                <div class="control-item">
-                    <span class="control-label">Curar:</span>
-                    <span class="key">K</span>
-                </div>
-                <div class="control-item">
-                    <span class="control-label">Pausar:</span>
-                    <span class="key">ESC</span>
-                </div>
+                <div class="control-item"><span class="control-label">Mover:</span><span class="key">A</span><span class="key">D</span></div>
+                <div class="control-item"><span class="control-label">Pular:</span><span class="key">W</span><span class="key">ESPAÇO</span></div>
+                <div class="control-item"><span class="control-label">Atacar:</span><span class="key">J</span></div>
+                <div class="control-item"><span class="control-label">Correr:</span><span class="key">SHIFT</span></div>
+                <div class="control-item"><span class="control-label">Pausar:</span><span class="key">ESC</span></div>
             </div>
         </div>
     </div>
@@ -1237,7 +487,7 @@
             <button class="mobile-btn" id="mobileRight">▶</button>
         </div>
         <div class="mobile-btn-group">
-            <button class="mobile-btn support" id="mobileSupport">💕</button>
+            <button class="mobile-btn support" id="mobileSupport">🛡️</button>
             <button class="mobile-btn jump" id="mobileJump">▲</button>
             <button class="mobile-btn attack" id="mobileAttack">⚔</button>
         </div>
@@ -1245,39 +495,43 @@
 
     <script>
         // ============================================
-        // LIA ADVENTURE - Enhanced Game Engine v3.0
-        // 30 Stages, XP System, Mario Physics
+        // LIA ADVENTURE - Game Engine v4.0
+        // 5 Worlds, 30 Stages, Sarah & Dani Characters
         // ============================================
 
-        // ================ STAGE DATA ================
+        const WORLDS = [
+            'Magewood Forest',
+            'Lunar Cave',
+            'Peak of Justice',
+            'The Vermilion City',
+            'Arc Island'
+        ];
+
         const STAGES_DATA = [];
-        const WORLDS = ['Floresta', 'Caverna', 'Castelo', 'Vulcão', 'Céu', 'Abismo'];
 
-        // Generate 30 stages (5 stages per world)
-        for (let world = 0; world < 6; world++) {
-            for (let stage = 0; stage < 5; stage++) {
-                const stageNum = world * 5 + stage + 1;
+        // Generate 30 stages (6 per world)
+        for (let world = 0; world < 5; world++) {
+            for (let stage = 0; stage < 6; stage++) {
+                const stageNum = world * 6 + stage + 1;
                 const difficulty = Math.floor(stageNum / 3) + 1;
-                
-                // Stage mission types
-                const missionTypes = [
-                    { type: 'kill', text: `Derrote ${5 + stageNum * 2} esqueletos`, target: 5 + stageNum * 2 },
-                    { type: 'survive', text: `Sobreviva por ${30 + stageNum * 5} segundos`, target: 30 + stageNum * 5 },
-                    { type: 'combo', text: `Alcance combo ${3 + Math.floor(stageNum / 5)}x`, target: 3 + Math.floor(stageNum / 5) },
-                    { type: 'nodamage', text: 'Complete sem levar dano', target: 1 },
-                    { type: 'boss', text: 'Derrote o Chefe Esqueleto', target: 1 }
-                ];
 
-                // Primary mission based on stage
                 let mission;
-                if (stage === 4) { // Boss stage every 5th
+                if (stage === 5) {
                     mission = { type: 'kill', text: `Derrote ${10 + stageNum * 3} esqueletos + Chefe`, target: 10 + stageNum * 3, hasBoss: true };
+                } else if (stage % 3 === 0) {
+                    const t = 5 + stageNum * 2;
+                    mission = { type: 'kill', text: `Derrote ${t} esqueletos`, target: t };
+                } else if (stage % 3 === 1) {
+                    const t = 30 + stageNum * 5;
+                    mission = { type: 'survive', text: `Sobreviva por ${t} segundos`, target: t };
                 } else {
-                    mission = missionTypes[stage % 3];
-                    if (mission.type === 'kill') {
-                        mission = { ...mission, target: 5 + stageNum * 2, text: `Derrote ${5 + stageNum * 2} esqueletos` };
-                    }
+                    const t = 3 + Math.floor(stageNum / 5);
+                    mission = { type: 'combo', text: `Alcance combo ${t}x`, target: t };
                 }
+
+                let unlockChar = null;
+                if (stageNum === 2) unlockChar = 'sarah';  // Forest stage 2
+                if (stageNum === 8) unlockChar = 'dani';    // Forest stage 8 (but world 1 has 6 stages so stage 8 = world 2 stage 2... let me fix)
 
                 STAGES_DATA.push({
                     id: stageNum,
@@ -1293,168 +547,109 @@
                     spawnRate: Math.max(800, 2500 - stageNum * 50),
                     xpReward: 50 + stageNum * 30,
                     scoreReward: 300 + stageNum * 100,
-                    unlockMelody: stageNum === 5
+                    unlockChar: unlockChar
                 });
             }
         }
 
-        // ================ XP SYSTEM ================
-        const XP_SYSTEM = {
-            // XP needed for each level (exponential curve)
-            getXpForLevel(level) {
-                return Math.floor(100 * Math.pow(1.5, level - 1));
-            },
-            
-            getTotalXpForLevel(level) {
-                let total = 0;
-                for (let i = 1; i < level; i++) {
-                    total += this.getXpForLevel(i);
-                }
-                return total;
-            },
+        // Fix unlock stages: Sarah at stage 2 (world 1, stage 2), Dani at stage 8 (world 2, stage 2)
+        // Stage 2 = world 1 stage 2, Stage 8 = world 2 stage 2 (since 6 per world: w1=1-6, w2=7-12)
+        // Actually user said: Sarah after completion of phase 2 of world 1 (forest) = stageNum 2
+        // Dani after completion of phase 8 of world 1 (forest) - but world 1 only has 6 stages.
+        // User said "fase 8 do mundo 1 (floresta)" - but with 6 stages per world, phase 8 doesn't exist in world 1
+        // I'll interpret this as the 8th overall stage which is world 2 stage 2.
+        // Let me set it properly:
+        STAGES_DATA.forEach(s => {
+            s.unlockChar = null;
+            if (s.id === 2) s.unlockChar = 'sarah';
+            if (s.id === 8) s.unlockChar = 'dani';
+        });
 
+        // XP System
+        const XP_SYSTEM = {
+            getXpForLevel(level) { return Math.floor(100 * Math.pow(1.5, level - 1)); },
+            getTotalXpForLevel(level) { let t = 0; for (let i = 1; i < level; i++) t += this.getXpForLevel(i); return t; },
             getLevelFromXp(totalXp) {
-                let level = 1;
-                let xpNeeded = 0;
-                while (totalXp >= xpNeeded + this.getXpForLevel(level)) {
-                    xpNeeded += this.getXpForLevel(level);
-                    level++;
-                    if (level > 99) break;
-                }
+                let level = 1, xpNeeded = 0;
+                while (totalXp >= xpNeeded + this.getXpForLevel(level)) { xpNeeded += this.getXpForLevel(level); level++; if (level > 99) break; }
                 return { level, currentXp: totalXp - xpNeeded, neededXp: this.getXpForLevel(level) };
             },
-
-            // Stat bonuses per level
             getStatBonus(level, stat) {
-                const bonuses = {
-                    attack: level * 3,
-                    health: level * 10,
-                    healAmount: level * 2,
-                    speed: Math.min(level * 0.1, 3)
-                };
-                return bonuses[stat] || 0;
+                const b = { attack: level * 3, health: level * 10, speed: Math.min(level * 0.1, 3) };
+                return b[stat] || 0;
             }
         };
 
-        // ================ GAME CONFIG ================
+        // Config
         const CONFIG = {
             canvas: { width: 1280, height: 720 },
-            physics: {
-                gravity: 0.5,
-                friction: 0.89,
-                groundY: 620,
-                airResistance: 0.98
-            },
+            physics: { gravity: 0.5, friction: 0.89, groundY: 620, airResistance: 0.98 },
             player: {
-                width: 70,
-                height: 100,
-                walkSpeed: 4,
-                runSpeed: 7,
-                maxSpeed: 9,
-                acceleration: 0.45,
-                deceleration: 0.35,
-                jumpForce: -14,
-                jumpHoldForce: -0.5,
-                maxJumpHoldTime: 200,
-                attackDuration: 300,
-                attackCooldown: 400,
-                damageCooldown: 1000,
-                attackRange: 90,
-                attackHeight: 70,
-                baseHealth: 100,
-                baseAttack: 20
+                width: 70, height: 100, walkSpeed: 4, runSpeed: 7, maxSpeed: 9,
+                acceleration: 0.45, deceleration: 0.35, jumpForce: -14, jumpHoldForce: -0.5,
+                maxJumpHoldTime: 200, attackDuration: 300, attackCooldown: 400,
+                damageCooldown: 1000, attackRange: 90, attackHeight: 70,
+                baseHealth: 100, baseAttack: 20
             },
-            melody: {
-                width: 60,
-                height: 85,
-                baseHealAmount: 25,
-                healCooldown: 10000,
-                healRadius: 180
-            },
-            scoring: {
-                killBase: 100,
-                comboMultiplier: 1.5,
-                comboTimeout: 2000
-            }
+            sarah: { width: 65, height: 95, projectileSpeed: 10, attackRange: 400, attackCooldown: 600, baseAttack: 15 },
+            dani: { width: 70, height: 100, shieldDuration: 6000, shieldCooldown: 15000 },
+            scoring: { killBase: 100, comboMultiplier: 1.5, comboTimeout: 2000 }
         };
 
-        // ================ GAME STATE ================
+        // Game State
         const gameState = {
-            // Player progress (saved)
-            totalXp: 0,
-            playerLevel: 1,
-            currentXp: 0,
-            xpToNextLevel: 100,
-            highestStage: 1,
-            stageStars: {}, // { stageId: stars }
-            melodyUnlocked: false,
+            totalXp: 0, playerLevel: 1, currentXp: 0, xpToNextLevel: 100,
+            highestStage: 1, stageStars: {},
+            unlockedChars: { lia: true, sarah: false, dani: false },
             totalScore: 0,
-            
-            // Current session
-            currentStage: null,
-            selectedCharacters: ['lia'],
-            melodyInTeam: false,
-            
-            // Runtime
-            running: false,
-            paused: false,
-            stageComplete: false,
-            stageKills: 0,
-            stageScore: 0,
-            stageDamageTaken: 0,
-            stageMaxCombo: 0,
-            stageStartTime: 0,
-            combo: 0,
-            lastComboTime: 0,
-            lastSpawnTime: 0,
-            lastHealTime: 0,
-            backgroundOffset: 0,
-            particles: [],
-            damageIndicators: [],
-            screenShake: { x: 0, y: 0, intensity: 0 },
-            keys: {}
+            currentStage: null, selectedCharacters: ['lia'],
+            sarahInTeam: false, daniInTeam: false,
+            running: false, paused: false, stageComplete: false, playerDied: false,
+            stageKills: 0, stageScore: 0, stageDamageTaken: 0, stageMaxCombo: 0,
+            stageStartTime: 0, combo: 0, lastComboTime: 0, lastSpawnTime: 0,
+            backgroundOffset: 0, particles: [], damageIndicators: [],
+            screenShake: { x: 0, y: 0, intensity: 0 }, keys: {},
+            projectiles: [],
+            shieldActive: false, shieldEndTime: 0, lastShieldTime: 0
         };
 
-        // ================ SAVE/LOAD ================
+        // Save/Load
         function saveProgress() {
-            const saveData = {
-                totalXp: gameState.totalXp,
-                highestStage: gameState.highestStage,
-                stageStars: gameState.stageStars,
-                melodyUnlocked: gameState.melodyUnlocked,
+            localStorage.setItem('liaAdventureSave', JSON.stringify({
+                totalXp: gameState.totalXp, highestStage: gameState.highestStage,
+                stageStars: gameState.stageStars, unlockedChars: gameState.unlockedChars,
                 totalScore: gameState.totalScore
-            };
-            localStorage.setItem('liaAdventureSave', JSON.stringify(saveData));
+            }));
         }
-
         function loadProgress() {
             const saved = localStorage.getItem('liaAdventureSave');
             if (saved) {
-                const data = JSON.parse(saved);
-                gameState.totalXp = data.totalXp || 0;
-                gameState.highestStage = data.highestStage || 1;
-                gameState.stageStars = data.stageStars || {};
-                gameState.melodyUnlocked = data.melodyUnlocked || false;
-                gameState.totalScore = data.totalScore || 0;
-                
-                const levelInfo = XP_SYSTEM.getLevelFromXp(gameState.totalXp);
-                gameState.playerLevel = levelInfo.level;
-                gameState.currentXp = levelInfo.currentXp;
-                gameState.xpToNextLevel = levelInfo.neededXp;
+                const d = JSON.parse(saved);
+                gameState.totalXp = d.totalXp || 0;
+                gameState.highestStage = d.highestStage || 1;
+                gameState.stageStars = d.stageStars || {};
+                gameState.unlockedChars = d.unlockedChars || { lia: true, sarah: false, dani: false };
+                gameState.totalScore = d.totalScore || 0;
+                const li = XP_SYSTEM.getLevelFromXp(gameState.totalXp);
+                gameState.playerLevel = li.level; gameState.currentXp = li.currentXp; gameState.xpToNextLevel = li.neededXp;
             }
         }
 
-        // ================ DOM ELEMENTS ================
+        // DOM
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        
-        const elements = {
+        const el = {
             loadingScreen: document.getElementById('loadingScreen'),
             titleScreen: document.getElementById('titleScreen'),
             mainMenuScreen: document.getElementById('mainMenuScreen'),
             stageSelectScreen: document.getElementById('stageSelectScreen'),
-            stageCompleteScreen: document.getElementById('stageCompleteScreen'),
-            gameOverScreen: document.getElementById('gameOverScreen'),
+            resultsScreen: document.getElementById('resultsScreen'),
+            resultsTitle: document.getElementById('resultsTitle'),
+            resultsGrid: document.getElementById('resultsGrid'),
+            resultXp: document.getElementById('resultXp'),
+            resultLevelUp: document.getElementById('resultLevelUp'),
+            resultUnlock: document.getElementById('resultUnlock'),
+            resultsButtons: document.getElementById('resultsButtons'),
             hudOverlay: document.getElementById('hudOverlay'),
             stageIndicator: document.getElementById('stageIndicator'),
             missionIndicator: document.getElementById('missionIndicator'),
@@ -1481,974 +676,684 @@
             playerLevelStat: document.getElementById('playerLevelStat'),
             playerXpStat: document.getElementById('playerXpStat'),
             playerStarsStat: document.getElementById('playerStarsStat'),
-            completeScore: document.getElementById('completeScore'),
-            completeKills: document.getElementById('completeKills'),
-            xpGainDisplay: document.getElementById('xpGainDisplay'),
-            levelUpNotice: document.getElementById('levelUpNotice'),
-            finalStage: document.getElementById('finalStage'),
-            finalKills: document.getElementById('finalKills'),
-            finalScore: document.getElementById('finalScore'),
-            mobileLeft: document.getElementById('mobileLeft'),
-            mobileRight: document.getElementById('mobileRight'),
-            mobileJump: document.getElementById('mobileJump'),
-            mobileAttack: document.getElementById('mobileAttack'),
-            mobileSupport: document.getElementById('mobileSupport')
         };
 
-        // ================ CANVAS RESIZE ================
+        // Canvas resize
         function resizeCanvas() {
-            const container = canvas.parentElement;
-            const containerWidth = container.clientWidth;
-            const containerHeight = container.clientHeight;
-            
-            const aspectRatio = CONFIG.canvas.width / CONFIG.canvas.height;
-            let width = containerWidth;
-            let height = containerWidth / aspectRatio;
-            
-            if (height > containerHeight) {
-                height = containerHeight;
-                width = containerHeight * aspectRatio;
-            }
-            
-            canvas.width = CONFIG.canvas.width;
-            canvas.height = CONFIG.canvas.height;
-            canvas.style.width = `${width}px`;
-            canvas.style.height = `${height}px`;
+            const c = canvas.parentElement;
+            const ar = CONFIG.canvas.width / CONFIG.canvas.height;
+            let w = c.clientWidth, h = w / ar;
+            if (h > c.clientHeight) { h = c.clientHeight; w = h * ar; }
+            canvas.width = CONFIG.canvas.width; canvas.height = CONFIG.canvas.height;
+            canvas.style.width = `${w}px`; canvas.style.height = `${h}px`;
         }
-
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        // ================ AUDIO ================
+        // Audio
         let audioCtx = null;
-
-        function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-        }
-
-        function playTone(freq, duration, type = 'square', volume = 0.1) {
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+        function playTone(freq, dur, type='square', vol=0.1) {
             if (!audioCtx) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = type;
-            osc.frequency.value = freq;
-            gain.gain.value = volume;
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + duration);
+            const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+            o.type = type; o.frequency.value = freq; g.gain.value = vol;
+            g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
+            o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + dur);
         }
-
         const sounds = {
             jump: () => playTone(400, 0.1, 'square', 0.08),
             attack: () => playTone(200, 0.15, 'sawtooth', 0.1),
             hit: () => playTone(150, 0.1, 'square', 0.12),
             damage: () => playTone(100, 0.2, 'sawtooth', 0.15),
-            heal: () => { playTone(523, 0.1); setTimeout(() => playTone(659, 0.1), 100); setTimeout(() => playTone(784, 0.15), 200); },
+            shield: () => { playTone(300, 0.1, 'sine', 0.1); setTimeout(() => playTone(500, 0.15, 'sine', 0.1), 100); },
+            shoot: () => playTone(600, 0.08, 'sine', 0.08),
             combo: () => playTone(800, 0.1, 'sine', 0.1),
             stageComplete: () => { playTone(523, 0.15); setTimeout(() => playTone(659, 0.15), 150); setTimeout(() => playTone(784, 0.2), 300); setTimeout(() => playTone(1047, 0.3), 450); },
             unlock: () => { for(let i = 0; i < 5; i++) setTimeout(() => playTone(400 + i * 100, 0.1, 'sine', 0.12), i * 80); },
-            levelUp: () => { playTone(523, 0.1); setTimeout(() => playTone(784, 0.1), 100); setTimeout(() => playTone(1047, 0.2), 200); }
+            levelUp: () => { playTone(523, 0.1); setTimeout(() => playTone(784, 0.1), 100); setTimeout(() => playTone(1047, 0.2), 200); },
+            gameOver: () => { playTone(200, 0.3, 'sawtooth', 0.12); setTimeout(() => playTone(150, 0.4, 'sawtooth', 0.1), 300); }
         };
 
-        // ================ IMAGES ================
+        // Images
         const images = {
-            playerIdle: new Image(),
-            playerWalk: new Image(),
-            playerRun: new Image(),
-            playerJump: new Image(),
-            playerAttack: new Image(),
-            playerDamage: new Image(),
-            melodyIdle: new Image(),
-            melodyWalkR: new Image(),
-            melodyWalkL: new Image(),
-            melodyRunR: new Image(),
-            melodyRunL: new Image(),
-            melodyJumpR: new Image(),
-            melodyJumpL: new Image(),
-            melodyAttack: new Image(),
-            melodyDamage: new Image(),
-            enemyIdle: new Image(),
-            enemyWalkL: new Image(),
-            enemyWalkR: new Image(),
-            enemyAttack: new Image(),
-            enemyDamage: new Image(),
-            enemyDead: new Image(),
+            playerIdle: new Image(), playerWalk: new Image(), playerRun: new Image(),
+            playerJump: new Image(), playerAttack: new Image(), playerDamage: new Image(),
+            sarahIdle: new Image(), sarahRun: new Image(), sarahJump: new Image(),
+            sarahAttack: new Image(), sarahDamage: new Image(),
+            daniIdle: new Image(), daniRun: new Image(), daniJump: new Image(),
+            daniDefense: new Image(), daniDamage: new Image(),
+            enemyIdle: new Image(), enemyWalkL: new Image(), enemyWalkR: new Image(),
+            enemyAttack: new Image(), enemyDamage: new Image(), enemyDead: new Image(),
             background: new Image()
         };
 
-        images.playerIdle.src = 'lia.png';
-        images.playerWalk.src = 'liawalk.png';
-        images.playerRun.src = 'liarun.png';
-        images.playerJump.src = 'liajump.png';
-        images.playerAttack.src = 'liaattacking.png';
-        images.playerDamage.src = 'liadamage.png';
-        images.melodyIdle.src = 'mymelodyrun.png';
-        images.melodyWalkR.src = 'mymelodywalkr.png';
-        images.melodyWalkL.src = 'mymelodywalkl.png';
-        images.melodyRunR.src = 'mymelodyrun.png';
-        images.melodyRunL.src = 'mymelodyrunl.png';
-        images.melodyJumpR.src = 'mymelodyjumpr.png';
-        images.melodyJumpL.src = 'mymelodyjumpl.png';
-        images.melodyAttack.src = 'mymelodyattack.png';
-        images.melodyDamage.src = 'mymelodydamage.png';
-        images.enemyIdle.src = 'skeleton.png';
-        images.enemyWalkL.src = 'skeletonwalkl.png';
-        images.enemyWalkR.src = 'skeletonwalkr.png';
-        images.enemyAttack.src = 'skeletonattack.png';
-        images.enemyDamage.src = 'skeletondamage.png';
-        images.enemyDead.src = 'skeletonko.png';
+        images.playerIdle.src = 'lia.png'; images.playerWalk.src = 'liawalk.png';
+        images.playerRun.src = 'liarun.png'; images.playerJump.src = 'liajump.png';
+        images.playerAttack.src = 'liaattacking.png'; images.playerDamage.src = 'liadamage.png';
+        images.sarahIdle.src = 'sarah.png'; images.sarahRun.src = 'sarahrun.png';
+        images.sarahJump.src = 'sarahjump.png'; images.sarahAttack.src = 'sarahattack.png';
+        images.sarahDamage.src = 'sarahdamage.png';
+        images.daniIdle.src = 'dani.png'; images.daniRun.src = 'danirun.png';
+        images.daniJump.src = 'danijump.png'; images.daniDefense.src = 'danidefense.png';
+        images.daniDamage.src = 'danidamage.png';
+        images.enemyIdle.src = 'skeleton.png'; images.enemyWalkL.src = 'skeletonwalkl.png';
+        images.enemyWalkR.src = 'skeletonwalkr.png'; images.enemyAttack.src = 'skeletonattack.png';
+        images.enemyDamage.src = 'skeletondamage.png'; images.enemyDead.src = 'skeletonko.png';
         images.background.src = 'mapa.png';
 
         let imagesLoaded = 0;
         const totalImages = Object.keys(images).length;
-
-        function onImageLoad() {
-            imagesLoaded++;
-            if (imagesLoaded >= totalImages) {
-                elements.loadingScreen.style.display = 'none';
-                loadProgress();
-            }
-        }
-
-        Object.values(images).forEach(img => {
-            img.onload = onImageLoad;
-            img.onerror = onImageLoad;
-        });
+        function onImageLoad() { imagesLoaded++; if (imagesLoaded >= totalImages) { el.loadingScreen.style.display = 'none'; loadProgress(); } }
+        Object.values(images).forEach(img => { img.onload = onImageLoad; img.onerror = onImageLoad; });
 
         // ================ ENTITIES ================
         let enemies = [];
 
-        // Player
+        // Player (Lia)
         const player = {
-            x: 100,
-            y: CONFIG.physics.groundY - CONFIG.player.height,
-            width: CONFIG.player.width,
-            height: CONFIG.player.height,
-            velocityX: 0,
-            velocityY: 0,
-            health: CONFIG.player.baseHealth,
-            maxHealth: CONFIG.player.baseHealth,
+            x: 100, y: CONFIG.physics.groundY - CONFIG.player.height,
+            width: CONFIG.player.width, height: CONFIG.player.height,
+            velocityX: 0, velocityY: 0,
+            health: CONFIG.player.baseHealth, maxHealth: CONFIG.player.baseHealth,
             attackPower: CONFIG.player.baseAttack,
-            isGrounded: false,
-            isJumping: false,
-            isAttacking: false,
-            isDamaged: false,
-            isRunning: false,
-            facingRight: true,
-            lastAttackTime: 0,
-            lastDamageTime: 0,
-            jumpHoldTime: 0,
-            jumpPressed: false,
+            isGrounded: false, isJumping: false, isAttacking: false,
+            isDamaged: false, isRunning: false, facingRight: true,
+            lastAttackTime: 0, lastDamageTime: 0, jumpHoldTime: 0, jumpPressed: false,
 
             reset() {
-                const healthBonus = XP_SYSTEM.getStatBonus(gameState.playerLevel, 'health');
-                const attackBonus = XP_SYSTEM.getStatBonus(gameState.playerLevel, 'attack');
-                
-                this.maxHealth = CONFIG.player.baseHealth + healthBonus;
-                this.health = this.maxHealth;
-                this.attackPower = CONFIG.player.baseAttack + attackBonus;
-                
-                this.x = 100;
-                this.y = CONFIG.physics.groundY - this.height;
-                this.velocityX = 0;
-                this.velocityY = 0;
-                this.isGrounded = false;
-                this.isJumping = false;
-                this.isAttacking = false;
-                this.isDamaged = false;
-                this.isRunning = false;
-                this.facingRight = true;
-                this.lastAttackTime = 0;
-                this.lastDamageTime = 0;
-                this.jumpHoldTime = 0;
-                this.jumpPressed = false;
+                const hb = XP_SYSTEM.getStatBonus(gameState.playerLevel, 'health');
+                const ab = XP_SYSTEM.getStatBonus(gameState.playerLevel, 'attack');
+                this.maxHealth = CONFIG.player.baseHealth + hb; this.health = this.maxHealth;
+                this.attackPower = CONFIG.player.baseAttack + ab;
+                this.x = 100; this.y = CONFIG.physics.groundY - this.height;
+                this.velocityX = 0; this.velocityY = 0;
+                this.isGrounded = false; this.isJumping = false; this.isAttacking = false;
+                this.isDamaged = false; this.isRunning = false; this.facingRight = true;
+                this.lastAttackTime = 0; this.lastDamageTime = 0; this.jumpHoldTime = 0; this.jumpPressed = false;
             },
 
-            update(deltaTime) {
+            update(dt) {
                 const now = Date.now();
-                const speedBonus = XP_SYSTEM.getStatBonus(gameState.playerLevel, 'speed');
-
+                const sb = XP_SYSTEM.getStatBonus(gameState.playerLevel, 'speed');
                 this.isRunning = gameState.keys['shift'];
-                const baseSpeed = this.isRunning ? CONFIG.player.runSpeed : CONFIG.player.walkSpeed;
-                const targetSpeed = baseSpeed + speedBonus;
-                const accel = CONFIG.player.acceleration;
-                const decel = CONFIG.player.deceleration;
+                const ts = (this.isRunning ? CONFIG.player.runSpeed : CONFIG.player.walkSpeed) + sb;
+                const a = CONFIG.player.acceleration, d = CONFIG.player.deceleration;
 
-                if (gameState.keys['a'] || gameState.keys['arrowleft']) {
-                    this.velocityX = Math.max(this.velocityX - accel, -targetSpeed);
-                    this.facingRight = false;
-                } else if (gameState.keys['d'] || gameState.keys['arrowright']) {
-                    this.velocityX = Math.min(this.velocityX + accel, targetSpeed);
-                    this.facingRight = true;
-                } else {
-                    if (Math.abs(this.velocityX) < decel) {
-                        this.velocityX = 0;
-                    } else if (this.velocityX > 0) {
-                        this.velocityX -= decel;
-                    } else {
-                        this.velocityX += decel;
-                    }
-                }
+                if (gameState.keys['a'] || gameState.keys['arrowleft']) { this.velocityX = Math.max(this.velocityX - a, -ts); this.facingRight = false; }
+                else if (gameState.keys['d'] || gameState.keys['arrowright']) { this.velocityX = Math.min(this.velocityX + a, ts); this.facingRight = true; }
+                else { if (Math.abs(this.velocityX) < d) this.velocityX = 0; else this.velocityX += this.velocityX > 0 ? -d : d; }
 
-                if (!this.isGrounded) {
-                    this.velocityX *= CONFIG.physics.airResistance;
-                }
-
+                if (!this.isGrounded) this.velocityX *= CONFIG.physics.airResistance;
                 if (this.isJumping && this.jumpPressed && this.jumpHoldTime < CONFIG.player.maxJumpHoldTime) {
-                    this.velocityY += CONFIG.player.jumpHoldForce;
-                    this.jumpHoldTime += deltaTime;
+                    this.velocityY += CONFIG.player.jumpHoldForce; this.jumpHoldTime += dt;
                 }
 
                 this.velocityY += CONFIG.physics.gravity;
-                this.x += this.velocityX;
-                this.y += this.velocityY;
+                this.x += this.velocityX; this.y += this.velocityY;
 
                 if (this.y >= CONFIG.physics.groundY - this.height) {
-                    this.y = CONFIG.physics.groundY - this.height;
-                    this.velocityY = 0;
-                    this.isGrounded = true;
-                    this.isJumping = false;
-                } else {
-                    this.isGrounded = false;
-                }
+                    this.y = CONFIG.physics.groundY - this.height; this.velocityY = 0;
+                    this.isGrounded = true; this.isJumping = false;
+                } else { this.isGrounded = false; }
 
                 this.x = Math.max(0, Math.min(CONFIG.canvas.width - this.width, this.x));
-
-                if (this.isAttacking && now - this.lastAttackTime > CONFIG.player.attackDuration) {
-                    this.isAttacking = false;
-                }
-
-                if (this.isDamaged && now - this.lastDamageTime > 300) {
-                    this.isDamaged = false;
-                }
+                if (this.isAttacking && now - this.lastAttackTime > CONFIG.player.attackDuration) this.isAttacking = false;
+                if (this.isDamaged && now - this.lastDamageTime > 300) this.isDamaged = false;
             },
 
             jump() {
                 if (this.isGrounded && !this.isJumping) {
-                    this.velocityY = CONFIG.player.jumpForce;
-                    this.isJumping = true;
-                    this.isGrounded = false;
-                    this.jumpHoldTime = 0;
-                    this.jumpPressed = true;
-                    sounds.jump();
+                    this.velocityY = CONFIG.player.jumpForce; this.isJumping = true;
+                    this.isGrounded = false; this.jumpHoldTime = 0; this.jumpPressed = true; sounds.jump();
                 }
             },
-
-            releaseJump() {
-                this.jumpPressed = false;
-            },
+            releaseJump() { this.jumpPressed = false; },
 
             attack() {
                 const now = Date.now();
                 if (now - this.lastAttackTime < CONFIG.player.attackCooldown) return;
+                this.isAttacking = true; this.lastAttackTime = now; sounds.attack();
 
-                this.isAttacking = true;
-                this.lastAttackTime = now;
-                sounds.attack();
+                const ab = { x: this.facingRight ? this.x + this.width - 10 : this.x - CONFIG.player.attackRange + 10,
+                    y: this.y + 20, width: CONFIG.player.attackRange, height: CONFIG.player.attackHeight };
 
-                const attackBox = {
-                    x: this.facingRight ? this.x + this.width - 10 : this.x - CONFIG.player.attackRange + 10,
-                    y: this.y + 20,
-                    width: CONFIG.player.attackRange,
-                    height: CONFIG.player.attackHeight
-                };
+                let hit = false;
+                enemies.forEach(e => { if (!e.isDead && checkCollision(ab, e)) { e.takeDamage(this.attackPower); hit = true; } });
 
-                let hitEnemy = false;
-                enemies.forEach(enemy => {
-                    if (!enemy.isDead && checkCollision(attackBox, enemy)) {
-                        enemy.takeDamage(this.attackPower);
-                        hitEnemy = true;
-                    }
-                });
-
-                if (hitEnemy) {
-                    gameState.combo++;
-                    gameState.lastComboTime = now;
-                    if (gameState.combo > gameState.stageMaxCombo) {
-                        gameState.stageMaxCombo = gameState.combo;
-                    }
-                    if (gameState.combo > 1) {
-                        showCombo(gameState.combo);
-                        sounds.combo();
-                    }
-                    createParticles(
-                        this.facingRight ? this.x + this.width + 20 : this.x - 20,
-                        this.y + this.height / 2,
-                        '#ff6b9d',
-                        5
-                    );
+                if (hit) {
+                    gameState.combo++; gameState.lastComboTime = now;
+                    if (gameState.combo > gameState.stageMaxCombo) gameState.stageMaxCombo = gameState.combo;
+                    if (gameState.combo > 1) { showCombo(gameState.combo); sounds.combo(); }
+                    createParticles(this.facingRight ? this.x + this.width + 20 : this.x - 20, this.y + this.height / 2, '#ff6b9d', 5);
                 }
             },
 
             takeDamage(amount) {
                 const now = Date.now();
                 if (now - this.lastDamageTime < CONFIG.player.damageCooldown) return;
+                if (gameState.shieldActive) return; // Dani's shield protects
 
-                this.health -= amount;
-                this.isDamaged = true;
-                this.lastDamageTime = now;
-                gameState.stageDamageTaken += amount;
-                sounds.damage();
-
-                gameState.screenShake.intensity = 8;
-                gameState.combo = 0;
-
+                this.health -= amount; this.isDamaged = true; this.lastDamageTime = now;
+                gameState.stageDamageTaken += amount; sounds.damage();
+                gameState.screenShake.intensity = 8; gameState.combo = 0;
                 createDamageIndicator(this.x + this.width / 2, this.y, amount);
                 createParticles(this.x + this.width / 2, this.y + this.height / 2, '#ff6b6b', 8);
 
-                if (this.health <= 0) {
-                    this.health = 0;
-                    gameOver();
-                }
+                if (this.health <= 0) { this.health = 0; gameOver(); }
                 updateHUD();
             },
 
             draw() {
                 ctx.save();
+                let s = images.playerIdle;
+                if (this.isDamaged) s = images.playerDamage;
+                else if (this.isAttacking) s = images.playerAttack;
+                else if (!this.isGrounded) s = images.playerJump;
+                else if (Math.abs(this.velocityX) > 0.5) s = this.isRunning ? images.playerRun : images.playerWalk;
 
-                let sprite = images.playerIdle;
-                if (this.isDamaged) {
-                    sprite = images.playerDamage;
-                } else if (this.isAttacking) {
-                    sprite = images.playerAttack;
-                } else if (!this.isGrounded) {
-                    sprite = images.playerJump;
-                } else if (Math.abs(this.velocityX) > 0.5) {
-                    sprite = this.isRunning ? images.playerRun : images.playerWalk;
-                }
+                ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath();
+                ctx.ellipse(this.x + this.width / 2, CONFIG.physics.groundY + 5, this.width / 2, 10, 0, 0, Math.PI * 2); ctx.fill();
 
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-                ctx.beginPath();
-                ctx.ellipse(this.x + this.width / 2, CONFIG.physics.groundY + 5, this.width / 2, 10, 0, 0, Math.PI * 2);
-                ctx.fill();
-
-                if (!this.facingRight) {
-                    ctx.scale(-1, 1);
-                    ctx.drawImage(sprite, -this.x - this.width, this.y, this.width, this.height);
-                } else {
-                    ctx.drawImage(sprite, this.x, this.y, this.width, this.height);
-                }
-
+                if (!this.facingRight) { ctx.scale(-1, 1); ctx.drawImage(s, -this.x - this.width, this.y, this.width, this.height); }
+                else ctx.drawImage(s, this.x, this.y, this.width, this.height);
                 ctx.restore();
             }
         };
 
-        // My Melody
-        const melody = {
-            x: 160,
-            y: CONFIG.physics.groundY - CONFIG.melody.height,
-            width: CONFIG.melody.width,
-            height: CONFIG.melody.height,
-            velocityX: 0,
-            velocityY: 0,
-            facingRight: true,
-            isJumping: false,
-            isHealing: false,
-            healAnimTime: 0,
+        // Sarah (Ranged DPS) - AI companion
+        const sarah = {
+            x: 160, y: CONFIG.physics.groundY - CONFIG.sarah.height,
+            width: CONFIG.sarah.width, height: CONFIG.sarah.height,
+            velocityX: 0, velocityY: 0, facingRight: true, isJumping: false,
+            isAttacking: false, lastAttackTime: 0,
 
-            reset() {
-                this.x = 160;
-                this.y = CONFIG.physics.groundY - this.height;
-                this.velocityX = 0;
-                this.velocityY = 0;
-                this.facingRight = true;
-                this.isJumping = false;
-                this.isHealing = false;
-                this.healAnimTime = 0;
-            },
+            reset() { this.x = 160; this.y = CONFIG.physics.groundY - this.height; this.velocityX = 0; this.velocityY = 0; this.facingRight = true; this.isJumping = false; this.isAttacking = false; this.lastAttackTime = 0; },
 
-            update(deltaTime) {
-                if (!gameState.melodyInTeam) return;
+            update(dt) {
+                if (!gameState.sarahInTeam) return;
+                const tx = player.x + (player.facingRight ? -90 : 90);
+                const dx = tx - this.x;
+                if (Math.abs(dx) > 30) { this.velocityX += Math.sign(dx) * 0.35; this.velocityX = Math.max(-5, Math.min(5, this.velocityX)); this.facingRight = dx > 0; }
+                else this.velocityX *= 0.8;
 
-                const targetX = player.x + (player.facingRight ? -80 : 80);
-                const dx = targetX - this.x;
-
-                if (Math.abs(dx) > 30) {
-                    this.velocityX += Math.sign(dx) * 0.35;
-                    this.velocityX = Math.max(-5, Math.min(5, this.velocityX));
-                    this.facingRight = dx > 0;
-                } else {
-                    this.velocityX *= 0.8;
-                }
-
-                if (player.isJumping && this.y >= CONFIG.physics.groundY - this.height - 5 && Math.abs(dx) < 180) {
-                    this.velocityY = -11;
-                    this.isJumping = true;
-                }
-
-                this.velocityY += CONFIG.physics.gravity;
-                this.x += this.velocityX;
-                this.y += this.velocityY;
-
-                if (this.y >= CONFIG.physics.groundY - this.height) {
-                    this.y = CONFIG.physics.groundY - this.height;
-                    this.velocityY = 0;
-                    this.isJumping = false;
-                }
-
+                if (player.isJumping && this.y >= CONFIG.physics.groundY - this.height - 5 && Math.abs(dx) < 180) { this.velocityY = -11; this.isJumping = true; }
+                this.velocityY += CONFIG.physics.gravity; this.x += this.velocityX; this.y += this.velocityY;
+                if (this.y >= CONFIG.physics.groundY - this.height) { this.y = CONFIG.physics.groundY - this.height; this.velocityY = 0; this.isJumping = false; }
                 this.x = Math.max(0, Math.min(CONFIG.canvas.width - this.width, this.x));
 
-                if (this.isHealing) {
-                    this.healAnimTime += deltaTime;
-                    if (this.healAnimTime > 500) {
-                        this.isHealing = false;
-                        this.healAnimTime = 0;
+                // Auto-attack nearest enemy
+                const now = Date.now();
+                if (now - this.lastAttackTime > CONFIG.sarah.attackCooldown && enemies.length > 0) {
+                    const alive = enemies.filter(e => !e.isDead);
+                    if (alive.length > 0) {
+                        const nearest = alive.reduce((a, b) => Math.abs(a.x - this.x) < Math.abs(b.x - this.x) ? a : b);
+                        if (Math.abs(nearest.x - this.x) < CONFIG.sarah.attackRange) {
+                            this.shootProjectile(nearest); this.lastAttackTime = now;
+                            this.isAttacking = true; this.facingRight = nearest.x > this.x;
+                            setTimeout(() => this.isAttacking = false, 250);
+                        }
                     }
                 }
             },
 
-            heal() {
-                if (!gameState.melodyInTeam) return;
-                const now = Date.now();
-                if (now - gameState.lastHealTime < CONFIG.melody.healCooldown) return;
-
-                gameState.lastHealTime = now;
-                this.isHealing = true;
-                this.healAnimTime = 0;
-                sounds.heal();
-
-                const healBonus = XP_SYSTEM.getStatBonus(gameState.playerLevel, 'healAmount');
-                const healAmount = CONFIG.melody.baseHealAmount + healBonus;
-                player.health = Math.min(player.maxHealth, player.health + healAmount);
-                
-                createParticles(this.x + this.width / 2, this.y + this.height / 2, '#ff9cc2', 15);
-                createParticles(player.x + player.width / 2, player.y + player.height / 2, '#ff9cc2', 10);
-                createHealIndicator(player.x + player.width / 2, player.y, healAmount);
-                
-                updateHUD();
+            shootProjectile(target) {
+                const atk = CONFIG.sarah.baseAttack + XP_SYSTEM.getStatBonus(gameState.playerLevel, 'attack') * 0.5;
+                gameState.projectiles.push({
+                    x: this.x + this.width / 2, y: this.y + this.height / 2,
+                    vx: (target.x > this.x ? 1 : -1) * CONFIG.sarah.projectileSpeed,
+                    damage: atk, life: 1, size: 8
+                });
+                sounds.shoot();
             },
 
             draw() {
-                if (!gameState.melodyInTeam) return;
-
+                if (!gameState.sarahInTeam) return;
                 ctx.save();
+                let s = images.sarahIdle;
+                if (this.isAttacking) s = images.sarahAttack;
+                else if (this.isJumping) s = images.sarahJump;
+                else if (Math.abs(this.velocityX) > 0.5) s = images.sarahRun;
 
-                let sprite = images.melodyIdle;
-                if (this.isHealing) {
-                    sprite = images.melodyAttack;
-                } else if (this.isJumping) {
-                    sprite = this.facingRight ? images.melodyJumpR : images.melodyJumpL;
-                } else if (Math.abs(this.velocityX) > 0.5) {
-                    if (Math.abs(this.velocityX) > 3) {
-                        sprite = this.facingRight ? images.melodyRunR : images.melodyRunL;
-                    } else {
-                        sprite = this.facingRight ? images.melodyWalkR : images.melodyWalkL;
-                    }
-                }
+                ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.beginPath();
+                ctx.ellipse(this.x + this.width / 2, CONFIG.physics.groundY + 3, this.width / 2.5, 8, 0, 0, Math.PI * 2); ctx.fill();
 
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
-                ctx.beginPath();
-                ctx.ellipse(this.x + this.width / 2, CONFIG.physics.groundY + 3, this.width / 2.5, 8, 0, 0, Math.PI * 2);
-                ctx.fill();
-
-                if (this.isHealing) {
-                    ctx.globalAlpha = 0.3 + Math.sin(this.healAnimTime * 0.02) * 0.2;
-                    ctx.fillStyle = '#ff9cc2';
-                    ctx.beginPath();
-                    ctx.arc(this.x + this.width / 2, this.y + this.height / 2, 70 + Math.sin(this.healAnimTime * 0.03) * 10, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.globalAlpha = 1;
-                }
-
-                ctx.drawImage(sprite, this.x, this.y, this.width, this.height);
+                if (!this.facingRight) { ctx.scale(-1, 1); ctx.drawImage(s, -this.x - this.width, this.y, this.width, this.height); }
+                else ctx.drawImage(s, this.x, this.y, this.width, this.height);
                 ctx.restore();
             }
         };
 
-        // Enemy Class
-        class Enemy {
-            constructor(x, stageData) {
-                this.x = x;
-                this.y = CONFIG.physics.groundY - 80;
-                this.width = 60;
-                this.height = 80;
-                this.velocityX = 0;
-                this.health = stageData.enemyHealth;
-                this.maxHealth = stageData.enemyHealth;
-                this.speed = stageData.enemySpeed;
-                this.damage = stageData.enemyDamage;
-                this.isAttacking = false;
-                this.isDamaged = false;
-                this.isDead = false;
-                this.lastAttackTime = 0;
-                this.lastDamageTime = 0;
-                this.deathTime = 0;
-                this.facingLeft = true;
-            }
+        // Dani (Tank/Defender) - AI companion
+        const dani = {
+            x: 80, y: CONFIG.physics.groundY - CONFIG.dani.height,
+            width: CONFIG.dani.width, height: CONFIG.dani.height,
+            velocityX: 0, velocityY: 0, facingRight: true, isJumping: false,
+            isDefending: false,
 
-            update(deltaTime) {
-                if (this.isDead) {
-                    if (Date.now() - this.deathTime > 600) {
-                        const index = enemies.indexOf(this);
-                        if (index > -1) enemies.splice(index, 1);
-                    }
-                    return;
+            reset() { this.x = 80; this.y = CONFIG.physics.groundY - this.height; this.velocityX = 0; this.velocityY = 0; this.facingRight = true; this.isJumping = false; this.isDefending = false; },
+
+            update(dt) {
+                if (!gameState.daniInTeam) return;
+                // Position in front of player
+                const tx = player.x + (player.facingRight ? 60 : -60);
+                const dx = tx - this.x;
+                if (Math.abs(dx) > 20) { this.velocityX += Math.sign(dx) * 0.4; this.velocityX = Math.max(-5, Math.min(5, this.velocityX)); this.facingRight = player.facingRight; }
+                else this.velocityX *= 0.8;
+
+                if (player.isJumping && this.y >= CONFIG.physics.groundY - this.height - 5 && Math.abs(dx) < 180) { this.velocityY = -11; this.isJumping = true; }
+                this.velocityY += CONFIG.physics.gravity; this.x += this.velocityX; this.y += this.velocityY;
+                if (this.y >= CONFIG.physics.groundY - this.height) { this.y = CONFIG.physics.groundY - this.height; this.velocityY = 0; this.isJumping = false; }
+                this.x = Math.max(0, Math.min(CONFIG.canvas.width - this.width, this.x));
+
+                // Check shield status
+                if (gameState.shieldActive && Date.now() > gameState.shieldEndTime) {
+                    gameState.shieldActive = false; this.isDefending = false;
                 }
+                this.isDefending = gameState.shieldActive;
+            },
 
+            activateShield() {
+                if (!gameState.daniInTeam) return;
                 const now = Date.now();
-                const direction = player.x > this.x ? 1 : -1;
-                this.facingLeft = direction < 0;
-                const distanceToPlayer = Math.abs(player.x - this.x);
-
-                if (distanceToPlayer > 70) {
-                    this.velocityX = direction * this.speed;
-                } else {
-                    this.velocityX = 0;
-                    if (now - this.lastAttackTime > 1200) {
-                        this.attack();
-                    }
-                }
-
-                this.x += this.velocityX;
-
-                if (this.isDamaged && now - this.lastDamageTime > 300) {
-                    this.isDamaged = false;
-                }
-
-                if (this.isAttacking && now - this.lastAttackTime > 300) {
-                    this.isAttacking = false;
-                }
-
-                if (this.x < -100 || this.x > CONFIG.canvas.width + 100) {
-                    const index = enemies.indexOf(this);
-                    if (index > -1) enemies.splice(index, 1);
-                }
-            }
-
-            attack() {
-                this.isAttacking = true;
-                this.lastAttackTime = Date.now();
-
-                const distanceToPlayer = Math.abs(player.x - this.x);
-                if (distanceToPlayer < 80) {
-                    player.takeDamage(this.damage);
-                }
-            }
-
-            takeDamage(amount) {
-                if (this.isDead) return;
-
-                this.health -= amount;
-                this.isDamaged = true;
-                this.lastDamageTime = Date.now();
-                sounds.hit();
-
-                createDamageIndicator(this.x + this.width / 2, this.y, amount);
-
-                if (this.health <= 0) {
-                    this.die();
-                }
-            }
-
-            die() {
-                this.isDead = true;
-                this.deathTime = Date.now();
-                gameState.stageKills++;
-
-                const comboBonus = Math.floor(gameState.combo * CONFIG.scoring.comboMultiplier);
-                const points = CONFIG.scoring.killBase + comboBonus;
-                gameState.stageScore += points;
-
-                createParticles(this.x + this.width / 2, this.y + this.height / 2, '#7cb342', 12);
-                updateHUD();
-                checkStageComplete();
-            }
+                if (now - gameState.lastShieldTime < CONFIG.dani.shieldCooldown) return;
+                gameState.shieldActive = true; gameState.shieldEndTime = now + CONFIG.dani.shieldDuration;
+                gameState.lastShieldTime = now; this.isDefending = true;
+                sounds.shield();
+                createParticles(this.x + this.width / 2, this.y + this.height / 2, '#3498db', 15);
+            },
 
             draw() {
+                if (!gameState.daniInTeam) return;
                 ctx.save();
+                let s = images.daniIdle;
+                if (this.isDefending) s = images.daniDefense;
+                else if (this.isJumping) s = images.daniJump;
+                else if (Math.abs(this.velocityX) > 0.5) s = images.daniRun;
 
-                let sprite = images.enemyIdle;
-                if (this.isDead) {
-                    sprite = images.enemyDead;
-                } else if (this.isDamaged) {
-                    sprite = images.enemyDamage;
-                } else if (this.isAttacking) {
-                    sprite = images.enemyAttack;
-                } else if (Math.abs(this.velocityX) > 0.1) {
-                    sprite = this.facingLeft ? images.enemyWalkL : images.enemyWalkR;
+                // Shield effect
+                if (gameState.shieldActive) {
+                    const t = Date.now() * 0.003;
+                    ctx.globalAlpha = 0.15 + Math.sin(t) * 0.08;
+                    ctx.fillStyle = '#3498db';
+                    ctx.beginPath();
+                    ctx.arc(player.x + player.width / 2, player.y + player.height / 2, 120 + Math.sin(t * 2) * 10, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+
+                    ctx.strokeStyle = 'rgba(52,152,219,0.4)';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(player.x + player.width / 2, player.y + player.height / 2, 120 + Math.sin(t * 2) * 10, 0, Math.PI * 2);
+                    ctx.stroke();
                 }
 
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
-                ctx.beginPath();
-                ctx.ellipse(this.x + this.width / 2, CONFIG.physics.groundY + 3, this.width / 2.5, 8, 0, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.beginPath();
+                ctx.ellipse(this.x + this.width / 2, CONFIG.physics.groundY + 3, this.width / 2.5, 8, 0, 0, Math.PI * 2); ctx.fill();
 
-                ctx.drawImage(sprite, this.x, this.y, this.width, this.height);
+                if (!this.facingRight) { ctx.scale(-1, 1); ctx.drawImage(s, -this.x - this.width, this.y, this.width, this.height); }
+                else ctx.drawImage(s, this.x, this.y, this.width, this.height);
+                ctx.restore();
+            }
+        };
 
-                // Health bar
+        // Enemy
+        class Enemy {
+            constructor(x, stageData) {
+                this.x = x; this.y = CONFIG.physics.groundY - 80;
+                this.width = 60; this.height = 80; this.velocityX = 0;
+                this.health = stageData.enemyHealth; this.maxHealth = stageData.enemyHealth;
+                this.speed = stageData.enemySpeed; this.damage = stageData.enemyDamage;
+                this.isAttacking = false; this.isDamaged = false; this.isDead = false;
+                this.lastAttackTime = 0; this.lastDamageTime = 0; this.deathTime = 0; this.facingLeft = true;
+            }
+            update(dt) {
+                if (this.isDead) { if (Date.now() - this.deathTime > 600) { const i = enemies.indexOf(this); if (i > -1) enemies.splice(i, 1); } return; }
+                const now = Date.now(), dir = player.x > this.x ? 1 : -1;
+                this.facingLeft = dir < 0;
+                const dist = Math.abs(player.x - this.x);
+                if (dist > 70) this.velocityX = dir * this.speed;
+                else { this.velocityX = 0; if (now - this.lastAttackTime > 1200) this.doAttack(); }
+                this.x += this.velocityX;
+                if (this.isDamaged && now - this.lastDamageTime > 300) this.isDamaged = false;
+                if (this.isAttacking && now - this.lastAttackTime > 300) this.isAttacking = false;
+                if (this.x < -100 || this.x > CONFIG.canvas.width + 100) { const i = enemies.indexOf(this); if (i > -1) enemies.splice(i, 1); }
+            }
+            doAttack() {
+                this.isAttacking = true; this.lastAttackTime = Date.now();
+                if (Math.abs(player.x - this.x) < 80) player.takeDamage(this.damage);
+            }
+            takeDamage(amount) {
+                if (this.isDead) return;
+                this.health -= amount; this.isDamaged = true; this.lastDamageTime = Date.now();
+                sounds.hit(); createDamageIndicator(this.x + this.width / 2, this.y, amount);
+                if (this.health <= 0) this.die();
+            }
+            die() {
+                this.isDead = true; this.deathTime = Date.now(); gameState.stageKills++;
+                const pts = CONFIG.scoring.killBase + Math.floor(gameState.combo * CONFIG.scoring.comboMultiplier);
+                gameState.stageScore += pts;
+                createParticles(this.x + this.width / 2, this.y + this.height / 2, '#7cb342', 12);
+                updateHUD(); checkStageComplete();
+            }
+            draw() {
+                ctx.save();
+                let s = images.enemyIdle;
+                if (this.isDead) s = images.enemyDead;
+                else if (this.isDamaged) s = images.enemyDamage;
+                else if (this.isAttacking) s = images.enemyAttack;
+                else if (Math.abs(this.velocityX) > 0.1) s = this.facingLeft ? images.enemyWalkL : images.enemyWalkR;
+
+                ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.beginPath();
+                ctx.ellipse(this.x + this.width / 2, CONFIG.physics.groundY + 3, this.width / 2.5, 8, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.drawImage(s, this.x, this.y, this.width, this.height);
+
                 if (!this.isDead && this.health < this.maxHealth) {
-                    const barWidth = 50;
-                    const barHeight = 5;
-                    const barX = this.x + (this.width - barWidth) / 2;
-                    const barY = this.y - 10;
-                    
-                    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-                    ctx.fillRect(barX, barY, barWidth, barHeight);
-                    
-                    const healthPercent = this.health / this.maxHealth;
-                    ctx.fillStyle = healthPercent > 0.5 ? '#4caf50' : healthPercent > 0.25 ? '#ff9800' : '#f44336';
-                    ctx.fillRect(barX, barY, barWidth * healthPercent, barHeight);
+                    const bw = 50, bh = 5, bx = this.x + (this.width - bw) / 2, by = this.y - 10;
+                    ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(bx, by, bw, bh);
+                    const hp = this.health / this.maxHealth;
+                    ctx.fillStyle = hp > 0.5 ? '#4caf50' : hp > 0.25 ? '#ff9800' : '#f44336';
+                    ctx.fillRect(bx, by, bw * hp, bh);
                 }
-
                 ctx.restore();
             }
         }
 
-        // ================ UTILITIES ================
-        function checkCollision(a, b) {
-            return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
-        }
+        // Utilities
+        function checkCollision(a, b) { return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y; }
 
         function createParticles(x, y, color, count) {
-            for (let i = 0; i < count; i++) {
-                gameState.particles.push({
-                    x, y,
-                    vx: (Math.random() - 0.5) * 8,
-                    vy: (Math.random() - 0.5) * 8 - 2,
-                    size: Math.random() * 6 + 2,
-                    color,
-                    life: 1
-                });
-            }
+            for (let i = 0; i < count; i++) gameState.particles.push({ x, y, vx: (Math.random() - 0.5) * 8, vy: (Math.random() - 0.5) * 8 - 2, size: Math.random() * 6 + 2, color, life: 1 });
         }
+        function updateParticles() { gameState.particles = gameState.particles.filter(p => { p.x += p.vx; p.y += p.vy; p.vy += 0.15; p.life -= 0.03; p.size *= 0.97; return p.life > 0; }); }
+        function drawParticles() { gameState.particles.forEach(p => { ctx.save(); ctx.globalAlpha = p.life; ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }); }
 
-        function updateParticles() {
-            gameState.particles = gameState.particles.filter(p => {
-                p.x += p.vx;
-                p.y += p.vy;
-                p.vy += 0.15;
-                p.life -= 0.03;
-                p.size *= 0.97;
-                return p.life > 0;
+        function updateProjectiles() {
+            gameState.projectiles = gameState.projectiles.filter(p => {
+                p.x += p.vx; p.life -= 0.01;
+                // Check hit
+                for (let e of enemies) {
+                    if (!e.isDead && Math.abs(p.x - e.x - e.width/2) < 30 && Math.abs(p.y - e.y - e.height/2) < 40) {
+                        e.takeDamage(p.damage);
+                        createParticles(p.x, p.y, '#87ceeb', 5);
+                        return false;
+                    }
+                }
+                return p.life > 0 && p.x > 0 && p.x < CONFIG.canvas.width;
             });
         }
-
-        function drawParticles() {
-            gameState.particles.forEach(p => {
-                ctx.save();
-                ctx.globalAlpha = p.life;
-                ctx.fillStyle = p.color;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fill();
+        function drawProjectiles() {
+            gameState.projectiles.forEach(p => {
+                ctx.save(); ctx.globalAlpha = p.life;
+                const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size + 4);
+                grad.addColorStop(0, '#ffffff'); grad.addColorStop(0.5, '#87ceeb'); grad.addColorStop(1, 'rgba(135,206,235,0)');
+                ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(p.x, p.y, p.size + 4, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2); ctx.fill();
                 ctx.restore();
             });
         }
 
-        function createDamageIndicator(x, y, amount) {
-            gameState.damageIndicators.push({
-                x, y, text: `-${amount}`, color: '#ff6b6b', life: 1, vy: -2
-            });
-        }
+        function createDamageIndicator(x, y, amount) { gameState.damageIndicators.push({ x, y, text: `-${amount}`, color: '#ff6b6b', life: 1, vy: -2 }); }
+        function updateDamageIndicators() { gameState.damageIndicators = gameState.damageIndicators.filter(d => { d.y += d.vy; d.life -= 0.02; return d.life > 0; }); }
+        function drawDamageIndicators() { gameState.damageIndicators.forEach(d => { ctx.save(); ctx.globalAlpha = d.life; ctx.font = 'bold 16px "Press Start 2P"'; ctx.fillStyle = d.color; ctx.textAlign = 'center'; ctx.fillText(d.text, d.x, d.y); ctx.restore(); }); }
 
-        function createHealIndicator(x, y, amount) {
-            gameState.damageIndicators.push({
-                x, y, text: `+${amount}`, color: '#4caf50', life: 1, vy: -2
-            });
-        }
+        function showCombo(combo) { el.comboDisplay.textContent = `${combo}x COMBO!`; el.comboDisplay.classList.remove('active'); void el.comboDisplay.offsetWidth; el.comboDisplay.classList.add('active'); }
+        function updateScreenShake() { if (gameState.screenShake.intensity > 0) { gameState.screenShake.x = (Math.random() - 0.5) * gameState.screenShake.intensity; gameState.screenShake.y = (Math.random() - 0.5) * gameState.screenShake.intensity; gameState.screenShake.intensity *= 0.9; if (gameState.screenShake.intensity < 0.5) gameState.screenShake.intensity = 0; } }
 
-        function updateDamageIndicators() {
-            gameState.damageIndicators = gameState.damageIndicators.filter(d => {
-                d.y += d.vy;
-                d.life -= 0.02;
-                return d.life > 0;
-            });
-        }
-
-        function drawDamageIndicators() {
-            gameState.damageIndicators.forEach(d => {
-                ctx.save();
-                ctx.globalAlpha = d.life;
-                ctx.font = 'bold 16px "Press Start 2P"';
-                ctx.fillStyle = d.color;
-                ctx.textAlign = 'center';
-                ctx.fillText(d.text, d.x, d.y);
-                ctx.restore();
-            });
-        }
-
-        function showCombo(combo) {
-            elements.comboDisplay.textContent = `${combo}x COMBO!`;
-            elements.comboDisplay.classList.remove('active');
-            void elements.comboDisplay.offsetWidth;
-            elements.comboDisplay.classList.add('active');
-        }
-
-        function showStageComplete() {
-            elements.levelUpDisplay.textContent = `FASE ${gameState.currentStage.name} COMPLETA!`;
-            elements.levelUpDisplay.classList.remove('active');
-            void elements.levelUpDisplay.offsetWidth;
-            elements.levelUpDisplay.classList.add('active');
-        }
-
-        function showUnlock() {
-            elements.unlockDisplay.classList.remove('active');
-            void elements.unlockDisplay.offsetWidth;
-            elements.unlockDisplay.classList.add('active');
-        }
-
-        function updateScreenShake() {
-            if (gameState.screenShake.intensity > 0) {
-                gameState.screenShake.x = (Math.random() - 0.5) * gameState.screenShake.intensity;
-                gameState.screenShake.y = (Math.random() - 0.5) * gameState.screenShake.intensity;
-                gameState.screenShake.intensity *= 0.9;
-                if (gameState.screenShake.intensity < 0.5) gameState.screenShake.intensity = 0;
-            }
-        }
-
-        // ================ SPAWNING ================
+        // Spawning
         function spawnEnemy() {
-            const stage = gameState.currentStage;
-            if (!stage) return;
-            
+            const stage = gameState.currentStage; if (!stage) return;
             if (enemies.length >= stage.maxEnemies) return;
-            if (gameState.stageKills >= stage.mission.target) return;
-
+            if (stage.mission.type === 'kill' && gameState.stageKills >= stage.mission.target) return;
             const side = Math.random() > 0.5 ? 1 : -1;
-            const x = side === 1 ? CONFIG.canvas.width + 50 : -60;
-            enemies.push(new Enemy(x, stage));
+            enemies.push(new Enemy(side === 1 ? CONFIG.canvas.width + 50 : -60, stage));
         }
 
-        // ================ STAGE SYSTEM ================
+        // Stage Complete Check
         function checkStageComplete() {
+            const stage = gameState.currentStage; if (!stage || gameState.stageComplete) return;
+
+            let completed = false;
+            if (stage.mission.type === 'kill') {
+                if (gameState.stageKills >= stage.mission.target && enemies.filter(e => !e.isDead).length === 0) completed = true;
+            } else if (stage.mission.type === 'combo') {
+                if (gameState.stageMaxCombo >= stage.mission.target) completed = true;
+            }
+            // survive is checked in game loop
+
+            if (completed) showResults(true);
+        }
+
+        // ================ RESULTS SCREEN ================
+        function showResults(victory) {
+            gameState.stageComplete = true;
+            gameState.running = false;
+
             const stage = gameState.currentStage;
-            if (!stage) return;
+            const elapsed = Math.floor((Date.now() - gameState.stageStartTime) / 1000);
 
-            if (gameState.stageKills >= stage.mission.target && enemies.length === 0) {
-                gameState.stageComplete = true;
-                gameState.paused = true;
+            let xpGained = 0;
+            let unlockedCharName = null;
 
-                // Calculate XP and rewards
-                let xpGained = stage.xpReward;
-                if (gameState.stageDamageTaken === 0) xpGained += 50; // Perfect bonus
-                if (gameState.stageMaxCombo >= 5) xpGained += 30; // Combo bonus
+            if (victory) {
+                xpGained = stage.xpReward;
+                if (gameState.stageDamageTaken === 0) xpGained += 50;
+                if (gameState.stageMaxCombo >= 5) xpGained += 30;
 
-                const previousLevel = gameState.playerLevel;
+                const prevLevel = gameState.playerLevel;
                 gameState.totalXp += xpGained;
                 gameState.totalScore += gameState.stageScore;
-                
-                const levelInfo = XP_SYSTEM.getLevelFromXp(gameState.totalXp);
-                gameState.playerLevel = levelInfo.level;
-                gameState.currentXp = levelInfo.currentXp;
-                gameState.xpToNextLevel = levelInfo.neededXp;
+                const li = XP_SYSTEM.getLevelFromXp(gameState.totalXp);
+                gameState.playerLevel = li.level; gameState.currentXp = li.currentXp; gameState.xpToNextLevel = li.neededXp;
 
-                const leveledUp = gameState.playerLevel > previousLevel;
+                if (stage.id >= gameState.highestStage) gameState.highestStage = stage.id + 1;
 
-                // Update highest stage
-                if (stage.id >= gameState.highestStage) {
-                    gameState.highestStage = stage.id + 1;
-                }
-
-                // Award stars
                 let stars = 1;
                 if (gameState.stageDamageTaken === 0) stars = 3;
                 else if (gameState.stageDamageTaken < 30) stars = 2;
-                
-                if (!gameState.stageStars[stage.id] || gameState.stageStars[stage.id] < stars) {
-                    gameState.stageStars[stage.id] = stars;
-                }
+                if (!gameState.stageStars[stage.id] || gameState.stageStars[stage.id] < stars) gameState.stageStars[stage.id] = stars;
 
-                // Check for melody unlock
-                if (stage.unlockMelody && !gameState.melodyUnlocked) {
-                    gameState.melodyUnlocked = true;
-                    showUnlock();
+                // Check character unlock
+                if (stage.unlockChar && !gameState.unlockedChars[stage.unlockChar]) {
+                    gameState.unlockedChars[stage.unlockChar] = true;
+                    unlockedCharName = stage.unlockChar === 'sarah' ? 'Sarah (Atacante)' : 'Dani (Defensora)';
                     sounds.unlock();
                 }
 
                 saveProgress();
                 sounds.stageComplete();
-                showStageComplete();
 
-                // Show complete screen
-                elements.completeScore.textContent = `+${gameState.stageScore}`;
-                elements.completeKills.textContent = gameState.stageKills;
-                elements.xpGainDisplay.textContent = `+${xpGained} XP`;
-                
-                if (leveledUp) {
-                    elements.levelUpNotice.style.display = 'block';
-                    sounds.levelUp();
-                } else {
-                    elements.levelUpNotice.style.display = 'none';
-                }
-
-                setTimeout(() => {
-                    elements.stageCompleteScreen.classList.add('active');
-                }, 1500);
+                el.resultsTitle.textContent = 'FASE COMPLETA!';
+                el.resultsTitle.className = 'results-title victory';
+                el.resultXp.textContent = `+${xpGained} XP`; el.resultXp.style.display = 'block';
+                el.resultLevelUp.style.display = gameState.playerLevel > prevLevel ? 'block' : 'none';
+                if (gameState.playerLevel > prevLevel) sounds.levelUp();
+            } else {
+                sounds.gameOver();
+                el.resultsTitle.textContent = 'DERROTA';
+                el.resultsTitle.className = 'results-title defeat';
+                el.resultXp.style.display = 'none';
+                el.resultLevelUp.style.display = 'none';
             }
+
+            // Build results grid
+            el.resultsGrid.innerHTML = `
+                <div class="result-card"><div class="result-card-value">${stage.name}</div><div class="result-card-label">Fase</div></div>
+                <div class="result-card"><div class="result-card-value">${gameState.stageScore.toLocaleString()}</div><div class="result-card-label">Pontos</div></div>
+                <div class="result-card"><div class="result-card-value">${gameState.stageKills}</div><div class="result-card-label">Derrotados</div></div>
+                <div class="result-card"><div class="result-card-value">${gameState.stageMaxCombo}x</div><div class="result-card-label">Max Combo</div></div>
+                <div class="result-card"><div class="result-card-value">${elapsed}s</div><div class="result-card-label">Tempo</div></div>
+                <div class="result-card"><div class="result-card-value">${gameState.stageDamageTaken}</div><div class="result-card-label">Dano Recebido</div></div>
+            `;
+
+            // Unlock notice
+            if (unlockedCharName) {
+                el.resultUnlock.textContent = `🎉 ${unlockedCharName.toUpperCase()} DESBLOQUEADA! 🎉`;
+                el.resultUnlock.style.display = 'block';
+            } else {
+                el.resultUnlock.style.display = 'none';
+            }
+
+            // Buttons
+            el.resultsButtons.innerHTML = '';
+            if (victory) {
+                // Check if there's a next stage in the same world
+                const nextStageId = stage.id + 1;
+                const nextStage = STAGES_DATA.find(s => s.id === nextStageId);
+                const isLastInWorld = !nextStage || nextStage.world !== stage.world;
+
+                if (isLastInWorld || nextStageId > 30) {
+                    // Last stage in world or last stage overall → back to map
+                    const mapBtn = document.createElement('button');
+                    mapBtn.className = 'game-btn game-btn-secondary';
+                    mapBtn.innerHTML = '🗺️ VOLTAR AO MAPA';
+                    mapBtn.addEventListener('click', () => { hideResults(); showStageSelect(); });
+                    el.resultsButtons.appendChild(mapBtn);
+                } else {
+                    // Has next stage → show next button on right
+                    const mapBtn = document.createElement('button');
+                    mapBtn.className = 'game-btn game-btn-secondary';
+                    mapBtn.innerHTML = '🗺️ MAPA';
+                    mapBtn.addEventListener('click', () => { hideResults(); showStageSelect(); });
+                    el.resultsButtons.appendChild(mapBtn);
+
+                    const nextBtn = document.createElement('button');
+                    nextBtn.className = 'game-btn game-btn-primary';
+                    nextBtn.innerHTML = 'PRÓXIMA FASE →';
+                    nextBtn.addEventListener('click', () => { hideResults(); startStage(nextStageId); });
+                    el.resultsButtons.appendChild(nextBtn);
+                }
+            } else {
+                // Defeat → retry button (reload icon)
+                const retryBtn = document.createElement('button');
+                retryBtn.className = 'game-btn game-btn-danger';
+                retryBtn.innerHTML = '🔄 TENTAR NOVAMENTE';
+                retryBtn.addEventListener('click', () => { hideResults(); startStage(stage.id); });
+                el.resultsButtons.appendChild(retryBtn);
+
+                const mapBtn = document.createElement('button');
+                mapBtn.className = 'game-btn game-btn-secondary';
+                mapBtn.innerHTML = '🗺️ MAPA';
+                mapBtn.addEventListener('click', () => { hideResults(); showStageSelect(); });
+                el.resultsButtons.appendChild(mapBtn);
+            }
+
+            // Hide game UI
+            el.hudOverlay.style.display = 'none';
+            el.stageIndicator.style.display = 'none';
+            el.missionIndicator.style.display = 'none';
+            el.supportCooldown.style.display = 'none';
+            el.controlsPanel.style.display = 'none';
+
+            setTimeout(() => el.resultsScreen.classList.add('active'), victory ? 1000 : 500);
         }
 
-        // ================ HUD ================
+        function hideResults() {
+            el.resultsScreen.classList.remove('active');
+        }
+
+        // HUD
         function updateHUD() {
-            const healthPercent = (player.health / player.maxHealth) * 100;
-            elements.healthBar.style.width = `${healthPercent}%`;
-            
-            const xpPercent = (gameState.currentXp / gameState.xpToNextLevel) * 100;
-            elements.xpBar.style.width = `${xpPercent}%`;
-            elements.levelDisplay.textContent = `Lv.${gameState.playerLevel}`;
-            
+            el.healthBar.style.width = `${(player.health / player.maxHealth) * 100}%`;
+            el.xpBar.style.width = `${(gameState.currentXp / gameState.xpToNextLevel) * 100}%`;
+            el.levelDisplay.textContent = `Lv.${gameState.playerLevel}`;
             const stage = gameState.currentStage;
-            if (stage) {
-                elements.killsDisplay.textContent = `${gameState.stageKills}/${stage.mission.target}`;
-            }
-            elements.scoreDisplay.textContent = gameState.stageScore.toLocaleString();
-            
-            if (gameState.melodyInTeam) {
+            if (stage && stage.mission.type === 'kill') el.killsDisplay.textContent = `${gameState.stageKills}/${stage.mission.target}`;
+            else if (stage) el.killsDisplay.textContent = gameState.stageKills;
+            el.scoreDisplay.textContent = gameState.stageScore.toLocaleString();
+
+            if (gameState.daniInTeam) {
                 const now = Date.now();
-                const cooldownRemaining = Math.max(0, CONFIG.melody.healCooldown - (now - gameState.lastHealTime));
-                if (cooldownRemaining > 0) {
-                    elements.supportCooldown.textContent = `💕 HEAL: ${Math.ceil(cooldownRemaining / 1000)}s`;
-                    elements.supportCooldown.style.color = '#888';
-                } else {
-                    elements.supportCooldown.textContent = '💕 HEAL: PRONTO (K)';
-                    elements.supportCooldown.style.color = '#ff9cc2';
-                }
+                const cd = Math.max(0, CONFIG.dani.shieldCooldown - (now - gameState.lastShieldTime));
+                if (cd > 0) { el.supportCooldown.textContent = `🛡️ SHIELD: ${Math.ceil(cd / 1000)}s`; el.supportCooldown.style.color = '#888'; }
+                else { el.supportCooldown.textContent = '🛡️ SHIELD: PRONTO (K)'; el.supportCooldown.style.color = '#3498db'; }
             }
         }
 
-        // ================ DRAWING ================
+        // Drawing
         function drawBackground() {
-            const gradient = ctx.createLinearGradient(0, 0, 0, CONFIG.physics.groundY);
-            gradient.addColorStop(0, '#1a2c4a');
-            gradient.addColorStop(0.5, '#2d4a6d');
-            gradient.addColorStop(1, '#3d5a80');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, CONFIG.canvas.width, CONFIG.physics.groundY);
+            const grad = ctx.createLinearGradient(0, 0, 0, CONFIG.physics.groundY);
+            grad.addColorStop(0, '#1a2c4a'); grad.addColorStop(0.5, '#2d4a6d'); grad.addColorStop(1, '#3d5a80');
+            ctx.fillStyle = grad; ctx.fillRect(0, 0, CONFIG.canvas.width, CONFIG.physics.groundY);
 
             if (images.background.complete && images.background.naturalWidth > 0) {
-                const bgWidth = images.background.width || CONFIG.canvas.width;
-                const offset = gameState.backgroundOffset % bgWidth;
-
-                for (let i = -1; i <= Math.ceil(CONFIG.canvas.width / bgWidth) + 1; i++) {
-                    ctx.drawImage(images.background, offset + i * bgWidth, 0, bgWidth, CONFIG.physics.groundY);
-                }
+                const bw = images.background.width || CONFIG.canvas.width;
+                const off = gameState.backgroundOffset % bw;
+                for (let i = -1; i <= Math.ceil(CONFIG.canvas.width / bw) + 1; i++) ctx.drawImage(images.background, off + i * bw, 0, bw, CONFIG.physics.groundY);
             }
 
-            ctx.fillStyle = '#3a5a40';
-            ctx.fillRect(0, CONFIG.physics.groundY, CONFIG.canvas.width, CONFIG.canvas.height - CONFIG.physics.groundY);
-
+            ctx.fillStyle = '#3a5a40'; ctx.fillRect(0, CONFIG.physics.groundY, CONFIG.canvas.width, CONFIG.canvas.height - CONFIG.physics.groundY);
             ctx.fillStyle = '#588157';
-            for (let i = 0; i < 35; i++) {
-                const x = ((i * 40 + gameState.backgroundOffset * 0.5) % (CONFIG.canvas.width + 50)) - 25;
-                ctx.fillRect(x, CONFIG.physics.groundY - 3, 25, 8);
-            }
-
-            ctx.strokeStyle = '#4a7a5a';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(0, CONFIG.physics.groundY);
-            ctx.lineTo(CONFIG.canvas.width, CONFIG.physics.groundY);
-            ctx.stroke();
+            for (let i = 0; i < 35; i++) { const x = ((i * 40 + gameState.backgroundOffset * 0.5) % (CONFIG.canvas.width + 50)) - 25; ctx.fillRect(x, CONFIG.physics.groundY - 3, 25, 8); }
+            ctx.strokeStyle = '#4a7a5a'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(0, CONFIG.physics.groundY); ctx.lineTo(CONFIG.canvas.width, CONFIG.physics.groundY); ctx.stroke();
         }
 
-        // ================ GAME LOOP ================
+        // Game Loop
         let lastTime = 0;
-
         function gameLoop(timestamp) {
             if (!gameState.running) return;
+            const dt = timestamp - lastTime; lastTime = timestamp;
 
-            const deltaTime = timestamp - lastTime;
-            lastTime = timestamp;
-
-            if (gameState.paused || gameState.stageComplete) {
-                requestAnimationFrame(gameLoop);
-                return;
-            }
+            if (gameState.paused || gameState.stageComplete) { requestAnimationFrame(gameLoop); return; }
 
             ctx.clearRect(0, 0, CONFIG.canvas.width, CONFIG.canvas.height);
+            ctx.save(); ctx.translate(gameState.screenShake.x, gameState.screenShake.y);
 
-            ctx.save();
-            ctx.translate(gameState.screenShake.x, gameState.screenShake.y);
-
-            player.update(deltaTime);
-            melody.update(deltaTime);
-            enemies.forEach(e => e.update(deltaTime));
-            updateParticles();
-            updateDamageIndicators();
-            updateScreenShake();
+            player.update(dt); sarah.update(dt); dani.update(dt);
+            enemies.forEach(e => e.update(dt));
+            updateParticles(); updateDamageIndicators(); updateScreenShake(); updateProjectiles();
 
             gameState.backgroundOffset -= player.velocityX * 0.3;
 
-            // Spawn enemies
             const now = Date.now();
             const stage = gameState.currentStage;
-            if (stage && now - gameState.lastSpawnTime > stage.spawnRate) {
-                spawnEnemy();
-                gameState.lastSpawnTime = now;
-            }
+            if (stage && now - gameState.lastSpawnTime > stage.spawnRate) { spawnEnemy(); gameState.lastSpawnTime = now; }
+            if (now - gameState.lastComboTime > CONFIG.scoring.comboTimeout && gameState.combo > 0) gameState.combo = 0;
 
-            // Reset combo
-            if (now - gameState.lastComboTime > CONFIG.scoring.comboTimeout && gameState.combo > 0) {
-                gameState.combo = 0;
+            // Survive mission check
+            if (stage && stage.mission.type === 'survive') {
+                const elapsed = (now - gameState.stageStartTime) / 1000;
+                if (elapsed >= stage.mission.target) showResults(true);
             }
 
             updateHUD();
 
             drawBackground();
             enemies.forEach(e => e.draw());
-            melody.draw();
-            player.draw();
-            drawParticles();
-            drawDamageIndicators();
+            dani.draw(); sarah.draw(); player.draw();
+            drawProjectiles(); drawParticles(); drawDamageIndicators();
 
             ctx.restore();
-
             requestAnimationFrame(gameLoop);
         }
 
-        // ================ GAME STATES ================
+        // Game States
         function startStage(stageId) {
             initAudio();
-
             const stage = STAGES_DATA.find(s => s.id === stageId);
-            if (!stage) return;
-            if (stageId > gameState.highestStage) return;
+            if (!stage || stageId > gameState.highestStage) return;
 
             gameState.currentStage = stage;
-            gameState.running = true;
-            gameState.paused = false;
-            gameState.stageComplete = false;
-            gameState.stageKills = 0;
-            gameState.stageScore = 0;
-            gameState.stageDamageTaken = 0;
-            gameState.stageMaxCombo = 0;
-            gameState.combo = 0;
-            gameState.lastComboTime = 0;
-            gameState.lastSpawnTime = Date.now();
-            gameState.lastHealTime = 0;
-            gameState.stageStartTime = Date.now();
-            gameState.backgroundOffset = 0;
-            gameState.particles = [];
-            gameState.damageIndicators = [];
+            gameState.running = true; gameState.paused = false; gameState.stageComplete = false; gameState.playerDied = false;
+            gameState.stageKills = 0; gameState.stageScore = 0; gameState.stageDamageTaken = 0;
+            gameState.stageMaxCombo = 0; gameState.combo = 0; gameState.lastComboTime = 0;
+            gameState.lastSpawnTime = Date.now(); gameState.lastShieldTime = 0;
+            gameState.stageStartTime = Date.now(); gameState.backgroundOffset = 0;
+            gameState.particles = []; gameState.damageIndicators = []; gameState.projectiles = [];
             gameState.screenShake = { x: 0, y: 0, intensity: 0 };
+            gameState.shieldActive = false; gameState.shieldEndTime = 0;
 
-            gameState.melodyInTeam = gameState.selectedCharacters.includes('melody');
+            gameState.sarahInTeam = gameState.selectedCharacters.includes('sarah');
+            gameState.daniInTeam = gameState.selectedCharacters.includes('dani');
 
-            player.reset();
-            melody.reset();
-            enemies = [];
+            player.reset(); sarah.reset(); dani.reset(); enemies = [];
 
-            // Hide menus
-            elements.stageSelectScreen.classList.remove('active');
-            elements.stageCompleteScreen.classList.remove('active');
-            elements.gameOverScreen.classList.remove('active');
-            
-            // Show game UI
-            elements.hudOverlay.style.display = 'flex';
-            elements.stageIndicator.style.display = 'block';
-            elements.stageIndicator.textContent = `FASE ${stage.name}`;
-            elements.missionIndicator.style.display = 'block';
-            elements.missionIndicator.textContent = stage.mission.text;
-            elements.controlsPanel.style.display = window.innerWidth > 768 ? 'grid' : 'none';
-            
-            if (gameState.melodyInTeam) {
-                elements.supportCooldown.style.display = 'block';
-            } else {
-                elements.supportCooldown.style.display = 'none';
-            }
+            el.stageSelectScreen.classList.remove('active');
+            el.resultsScreen.classList.remove('active');
+            el.hudOverlay.style.display = 'flex';
+            el.stageIndicator.style.display = 'block'; el.stageIndicator.textContent = `FASE ${stage.name}`;
+            el.missionIndicator.style.display = 'block'; el.missionIndicator.textContent = stage.mission.text;
+            el.controlsPanel.style.display = window.innerWidth > 768 ? 'grid' : 'none';
+            el.supportCooldown.style.display = gameState.daniInTeam ? 'block' : 'none';
 
             updateHUD();
             lastTime = performance.now();
@@ -2456,77 +1361,46 @@
         }
 
         function gameOver() {
-            gameState.running = false;
-
-            elements.finalStage.textContent = gameState.currentStage.name;
-            elements.finalKills.textContent = gameState.stageKills;
-            elements.finalScore.textContent = gameState.stageScore.toLocaleString();
-
-            elements.hudOverlay.style.display = 'none';
-            elements.stageIndicator.style.display = 'none';
-            elements.missionIndicator.style.display = 'none';
-            elements.supportCooldown.style.display = 'none';
-            elements.controlsPanel.style.display = 'none';
-            elements.gameOverScreen.classList.add('active');
+            gameState.playerDied = true;
+            showResults(false);
         }
 
         function togglePause() {
             if (!gameState.running || gameState.stageComplete) return;
             gameState.paused = !gameState.paused;
-            elements.pauseOverlay.classList.toggle('active', gameState.paused);
+            el.pauseOverlay.classList.toggle('active', gameState.paused);
         }
 
-        // ================ STAGE SELECT UI ================
-        let currentWorld = 1;
-        let selectedStageId = 1;
+        // Stage Select UI
+        let currentWorld = 1, selectedStageId = 1;
 
         function renderWorldTabs() {
-            elements.worldTabs.innerHTML = '';
-            WORLDS.forEach((world, idx) => {
+            el.worldTabs.innerHTML = '';
+            WORLDS.forEach((w, i) => {
                 const tab = document.createElement('button');
-                tab.className = `world-tab ${idx + 1 === currentWorld ? 'active' : ''}`;
-                tab.textContent = `${idx + 1}. ${world}`;
-                tab.addEventListener('click', () => {
-                    currentWorld = idx + 1;
-                    renderWorldTabs();
-                    renderStageGrid();
-                });
-                elements.worldTabs.appendChild(tab);
+                tab.className = `world-tab ${i + 1 === currentWorld ? 'active' : ''}`;
+                tab.textContent = `${i + 1}. ${w}`;
+                tab.addEventListener('click', () => { currentWorld = i + 1; renderWorldTabs(); renderStageGrid(); });
+                el.worldTabs.appendChild(tab);
             });
         }
 
         function renderStageGrid() {
-            elements.stageGrid.innerHTML = '';
-            
-            const worldStages = STAGES_DATA.filter(s => s.world === currentWorld);
-            
-            worldStages.forEach(stage => {
+            el.stageGrid.innerHTML = '';
+            STAGES_DATA.filter(s => s.world === currentWorld).forEach(stage => {
                 const node = document.createElement('div');
                 node.className = 'stage-node';
-                
-                const isUnlocked = stage.id <= gameState.highestStage;
-                const isCompleted = gameState.stageStars[stage.id] > 0;
+                const unlocked = stage.id <= gameState.highestStage;
+                const completed = gameState.stageStars[stage.id] > 0;
                 const isCurrent = stage.id === gameState.highestStage;
-                
-                if (isCompleted) {
-                    node.classList.add('completed');
-                } else if (isUnlocked) {
-                    node.classList.add('unlocked');
-                    if (isCurrent) node.classList.add('current');
-                } else {
-                    node.classList.add('locked');
-                }
-                
-                node.innerHTML = `
-                    <div class="stage-number">${stage.stageInWorld}</div>
-                    <div class="stage-stars">${'⭐'.repeat(gameState.stageStars[stage.id] || 0)}</div>
-                `;
-                
-                if (isUnlocked) {
-                    node.addEventListener('click', () => selectStage(stage.id));
-                }
-                
-                elements.stageGrid.appendChild(node);
+
+                if (completed) node.classList.add('completed');
+                else if (unlocked) { node.classList.add('unlocked'); if (isCurrent) node.classList.add('current'); }
+                else node.classList.add('locked');
+
+                node.innerHTML = `<div class="stage-number">${stage.stageInWorld}</div><div class="stage-stars">${'⭐'.repeat(gameState.stageStars[stage.id] || 0)}</div>`;
+                if (unlocked) node.addEventListener('click', () => selectStage(stage.id));
+                el.stageGrid.appendChild(node);
             });
         }
 
@@ -2534,194 +1408,104 @@
             selectedStageId = stageId;
             const stage = STAGES_DATA.find(s => s.id === stageId);
             if (!stage) return;
-
-            elements.stageInfoPanel.style.display = 'block';
-            elements.stageInfoTitle.textContent = `FASE ${stage.name} - ${stage.worldName}`;
-            elements.stageInfoMission.textContent = stage.mission.text;
-            elements.stageXpReward.textContent = stage.xpReward;
-            elements.stageScoreReward.textContent = stage.scoreReward;
-
+            el.stageInfoPanel.style.display = 'block';
+            el.stageInfoTitle.textContent = `FASE ${stage.name} - ${stage.worldName}`;
+            el.stageInfoMission.textContent = stage.mission.text;
+            el.stageXpReward.textContent = stage.xpReward;
+            el.stageScoreReward.textContent = stage.scoreReward;
             renderTeamSelect();
         }
 
         function renderTeamSelect() {
-            elements.teamSelectMini.innerHTML = '';
-            
-            // Lia always selected
-            const liaDiv = document.createElement('div');
-            liaDiv.className = 'team-char-mini selected';
-            liaDiv.innerHTML = '<img src="lia.png" alt="Lia">';
-            elements.teamSelectMini.appendChild(liaDiv);
-            
-            // My Melody
-            const melodyDiv = document.createElement('div');
-            melodyDiv.className = `team-char-mini ${gameState.melodyUnlocked ? '' : 'locked'} ${gameState.selectedCharacters.includes('melody') ? 'selected' : ''}`;
-            melodyDiv.innerHTML = '<img src="mymelody.png" alt="My Melody">';
-            
-            if (gameState.melodyUnlocked) {
-                melodyDiv.addEventListener('click', () => {
-                    if (gameState.selectedCharacters.includes('melody')) {
-                        gameState.selectedCharacters = gameState.selectedCharacters.filter(c => c !== 'melody');
-                    } else {
-                        if (!gameState.selectedCharacters.includes('melody')) {
-                            gameState.selectedCharacters.push('melody');
+            el.teamSelectMini.innerHTML = '';
+            const chars = [
+                { id: 'lia', name: 'Lia', role: 'Guerreira', img: 'lia.png', always: true },
+                { id: 'sarah', name: 'Sarah', role: 'Atacante', img: 'sarah.png', always: false },
+                { id: 'dani', name: 'Dani', role: 'Defensora', img: 'dani.png', always: false }
+            ];
+
+            chars.forEach(c => {
+                const div = document.createElement('div');
+                const unlocked = c.always || gameState.unlockedChars[c.id];
+                const selected = c.always || gameState.selectedCharacters.includes(c.id);
+                div.className = `team-char-mini ${selected ? 'selected' : ''} ${!unlocked ? 'locked' : ''}`;
+                div.innerHTML = `<img src="${c.img}" alt="${c.name}"><div class="char-name">${c.name}</div><div class="char-role">${c.role}</div>`;
+
+                if (unlocked && !c.always) {
+                    div.addEventListener('click', () => {
+                        if (gameState.selectedCharacters.includes(c.id)) {
+                            gameState.selectedCharacters = gameState.selectedCharacters.filter(x => x !== c.id);
+                        } else if (gameState.selectedCharacters.length < 3) {
+                            gameState.selectedCharacters.push(c.id);
                         }
-                    }
-                    renderTeamSelect();
-                });
-            }
-            
-            elements.teamSelectMini.appendChild(melodyDiv);
+                        renderTeamSelect();
+                    });
+                }
+                el.teamSelectMini.appendChild(div);
+            });
         }
 
         function updatePlayerStats() {
-            elements.playerLevelStat.textContent = `Lv. ${gameState.playerLevel}`;
-            elements.playerXpStat.textContent = gameState.totalXp.toLocaleString();
-            
-            let totalStars = 0;
-            Object.values(gameState.stageStars).forEach(s => totalStars += s);
-            elements.playerStarsStat.textContent = totalStars;
+            el.playerLevelStat.textContent = `Lv. ${gameState.playerLevel}`;
+            el.playerXpStat.textContent = gameState.totalXp.toLocaleString();
+            let ts = 0; Object.values(gameState.stageStars).forEach(s => ts += s);
+            el.playerStarsStat.textContent = ts;
         }
 
         function showStageSelect() {
-            updatePlayerStats();
-            renderWorldTabs();
-            renderStageGrid();
-            
-            elements.mainMenuScreen.classList.remove('active');
-            elements.stageCompleteScreen.classList.remove('active');
-            elements.gameOverScreen.classList.remove('active');
-            elements.stageSelectScreen.classList.add('active');
-            
-            // Auto-select first available stage
+            updatePlayerStats(); renderWorldTabs(); renderStageGrid();
+            el.mainMenuScreen.classList.remove('active');
+            el.resultsScreen.classList.remove('active');
+            el.stageSelectScreen.classList.add('active');
+            el.hudOverlay.style.display = 'none'; el.stageIndicator.style.display = 'none';
+            el.missionIndicator.style.display = 'none'; el.supportCooldown.style.display = 'none';
+            el.controlsPanel.style.display = 'none';
             selectStage(Math.min(gameState.highestStage, 30));
         }
 
-        // ================ INPUT ================
+        // Input
         document.addEventListener('keydown', (e) => {
-            const key = e.key.toLowerCase();
-            gameState.keys[key] = true;
-
+            const k = e.key.toLowerCase(); gameState.keys[k] = true;
             if (!gameState.running) return;
-
-            if ((key === 'w' || key === ' ' || key === 'arrowup') && !gameState.paused) {
-                player.jump();
-                e.preventDefault();
-            }
-
-            if (key === 'j' && !gameState.paused) {
-                player.attack();
-            }
-
-            if (key === 'k' && !gameState.paused) {
-                melody.heal();
-            }
-
-            if (key === 'escape' || key === 'p') {
-                togglePause();
-            }
-
-            if ([' ', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(key)) {
-                e.preventDefault();
-            }
+            if ((k === 'w' || k === ' ' || k === 'arrowup') && !gameState.paused) { player.jump(); e.preventDefault(); }
+            if (k === 'j' && !gameState.paused) player.attack();
+            if (k === 'k' && !gameState.paused) dani.activateShield();
+            if (k === 'escape' || k === 'p') togglePause();
+            if ([' ', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) e.preventDefault();
         });
-
         document.addEventListener('keyup', (e) => {
-            const key = e.key.toLowerCase();
-            gameState.keys[key] = false;
-
-            if (key === 'w' || key === ' ' || key === 'arrowup') {
-                player.releaseJump();
-            }
+            const k = e.key.toLowerCase(); gameState.keys[k] = false;
+            if (k === 'w' || k === ' ' || k === 'arrowup') player.releaseJump();
         });
 
         // Mobile Controls
         function setupMobileControls() {
-            const handleTouchStart = (key, action) => (e) => {
-                e.preventDefault();
-                gameState.keys[key] = true;
-                if (action) action();
-            };
+            const ts = (key, action) => (e) => { e.preventDefault(); gameState.keys[key] = true; if (action) action(); };
+            const te = (key, action) => (e) => { e.preventDefault(); gameState.keys[key] = false; if (action) action(); };
 
-            const handleTouchEnd = (key, action) => (e) => {
-                e.preventDefault();
-                gameState.keys[key] = false;
-                if (action) action();
-            };
-
-            elements.mobileLeft.addEventListener('touchstart', handleTouchStart('a'));
-            elements.mobileLeft.addEventListener('touchend', handleTouchEnd('a'));
-            elements.mobileRight.addEventListener('touchstart', handleTouchStart('d'));
-            elements.mobileRight.addEventListener('touchend', handleTouchEnd('d'));
-            elements.mobileJump.addEventListener('touchstart', handleTouchStart('jump', () => player.jump()));
-            elements.mobileJump.addEventListener('touchend', handleTouchEnd('jump', () => player.releaseJump()));
-            elements.mobileAttack.addEventListener('touchstart', handleTouchStart('attack', () => player.attack()));
-            elements.mobileAttack.addEventListener('touchend', handleTouchEnd('attack'));
-            elements.mobileSupport.addEventListener('touchstart', handleTouchStart('support', () => melody.heal()));
-            elements.mobileSupport.addEventListener('touchend', handleTouchEnd('support'));
+            document.getElementById('mobileLeft').addEventListener('touchstart', ts('a'));
+            document.getElementById('mobileLeft').addEventListener('touchend', te('a'));
+            document.getElementById('mobileRight').addEventListener('touchstart', ts('d'));
+            document.getElementById('mobileRight').addEventListener('touchend', te('d'));
+            document.getElementById('mobileJump').addEventListener('touchstart', ts('jump', () => player.jump()));
+            document.getElementById('mobileJump').addEventListener('touchend', te('jump', () => player.releaseJump()));
+            document.getElementById('mobileAttack').addEventListener('touchstart', ts('attack', () => player.attack()));
+            document.getElementById('mobileAttack').addEventListener('touchend', te('attack'));
+            document.getElementById('mobileSupport').addEventListener('touchstart', ts('support', () => dani.activateShield()));
+            document.getElementById('mobileSupport').addEventListener('touchend', te('support'));
         }
 
-        // ================ EVENT LISTENERS ================
-        document.getElementById('titleStartBtn').addEventListener('click', () => {
-            initAudio();
-            elements.titleScreen.classList.remove('active');
-            elements.mainMenuScreen.classList.add('active');
-        });
-
+        // Event Listeners
+        document.getElementById('titleStartBtn').addEventListener('click', () => { initAudio(); el.titleScreen.classList.remove('active'); el.mainMenuScreen.classList.add('active'); });
         document.getElementById('playGameBtn').addEventListener('click', showStageSelect);
-
-        document.getElementById('googleLoginBtn').addEventListener('click', () => {
-            alert('Login com Google será implementado em breve! Por enquanto, seus dados são salvos localmente.');
-        });
-
-        document.getElementById('backToMenuBtn').addEventListener('click', () => {
-            elements.stageSelectScreen.classList.remove('active');
-            elements.mainMenuScreen.classList.add('active');
-        });
-
-        document.getElementById('playStageBtn').addEventListener('click', () => {
-            startStage(selectedStageId);
-        });
-
-        document.getElementById('nextStageBtn').addEventListener('click', () => {
-            elements.stageCompleteScreen.classList.remove('active');
-            const nextId = gameState.currentStage.id + 1;
-            if (nextId <= 30) {
-                startStage(nextId);
-            } else {
-                showStageSelect();
-            }
-        });
-
-        document.getElementById('backToMapBtn').addEventListener('click', () => {
-            elements.stageCompleteScreen.classList.remove('active');
-            elements.hudOverlay.style.display = 'none';
-            elements.stageIndicator.style.display = 'none';
-            elements.missionIndicator.style.display = 'none';
-            elements.supportCooldown.style.display = 'none';
-            elements.controlsPanel.style.display = 'none';
-            showStageSelect();
-        });
-
-        document.getElementById('retryStageBtn').addEventListener('click', () => {
-            elements.gameOverScreen.classList.remove('active');
-            if (gameState.currentStage) {
-                startStage(gameState.currentStage.id);
-            }
-        });
-
-        document.getElementById('backToMapFromOverBtn').addEventListener('click', () => {
-            elements.gameOverScreen.classList.remove('active');
-            showStageSelect();
-        });
+        document.getElementById('googleLoginBtn').addEventListener('click', () => { alert('Login com Google será implementado em breve! Por enquanto, seus dados são salvos localmente.'); });
+        document.getElementById('backToMenuBtn').addEventListener('click', () => { el.stageSelectScreen.classList.remove('active'); el.mainMenuScreen.classList.add('active'); });
+        document.getElementById('playStageBtn').addEventListener('click', () => { startStage(selectedStageId); });
 
         // Initialize
         setupMobileControls();
         gameState.selectedCharacters = ['lia'];
-        
-        if ('ontouchstart' in window) {
-            elements.mobileControls.style.display = 'flex';
-        }
+        if ('ontouchstart' in window) el.mobileControls.style.display = 'flex';
     </script>
 </body>
 </html>
