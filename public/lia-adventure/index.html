@@ -164,40 +164,40 @@
         <div class="mobile-btn-group"><button class="mobile-btn jump" id="mobileJump">▲</button><button class="mobile-btn attack-lia" id="mobileAttack">⚔</button></div>
     </div>
 <script>
-const WORLDS=['Magewood Forest','Lunar Cave','Peak of Justice','The Vermilion City','Arc Island'];
+const WORLDS=['Magewood Forest'];
 function getBg(id){if(id<=6)return'background';if(id<=13)return'bg1';if(id<=20)return'bg2';if(id<=26)return'bg3';if(id<=28)return'bg4';return'bg5'}
 
 const SD=[
-{id:1,w:1,wn:'Magewood Forest',sw:1,n:'1-1',m:{type:'kill',text:'Derrote 5 esqueletos',target:5},et:['skeleton'],eh:40,ed:8,es:1.5,me:3,sr:2500,xp:50,sc:300,uc:null},
-{id:2,w:1,wn:'Magewood Forest',sw:2,n:'1-2',m:{type:'kill',text:'Derrote 8 esqueletos',target:8},et:['skeleton'],eh:45,ed:10,es:1.6,me:4,sr:2300,xp:80,sc:400,uc:'sarah'},
-{id:3,w:1,wn:'Magewood Forest',sw:3,n:'1-3',m:{type:'survive',text:'Sobreviva por 45 segundos',target:45},et:['skeleton','dog'],eh:50,ed:10,es:1.7,me:4,sr:2200,xp:100,sc:500,uc:null},
-{id:4,w:1,wn:'Magewood Forest',sw:4,n:'1-4',m:{type:'kill',text:'Derrote 10 inimigos',target:10},et:['skeleton','dog'],eh:55,ed:12,es:1.7,me:5,sr:2100,xp:120,sc:600,uc:null},
-{id:5,w:1,wn:'Magewood Forest',sw:5,n:'1-5',m:{type:'combo',text:'Alcance combo 4x',target:4},et:['skeleton','dog'],eh:50,ed:12,es:1.8,me:5,sr:2000,xp:140,sc:700,uc:null},
-{id:6,w:1,wn:'Magewood Forest',sw:6,n:'1-6',m:{type:'kill',text:'Derrote 15 inimigos + Mini-Boss',target:15,hasBoss:true},et:['skeleton','dog'],eh:60,ed:14,es:1.8,me:5,sr:1900,xp:200,sc:1000,uc:null},
-{id:7,w:1,wn:'Magewood Forest',sw:7,n:'1-7',m:{type:'kill',text:'🌫️ Neblina! Derrote 12',target:12},et:['skeleton','dog'],eh:65,ed:14,es:1.9,me:5,sr:1800,xp:220,sc:1100,uc:null,fog:1},
-{id:8,w:1,wn:'Magewood Forest',sw:8,n:'1-8',m:{type:'survive',text:'🛡️ Defenda 60s! Desbloqueie Dani',target:60},et:['skeleton','dog'],eh:60,ed:16,es:2,me:6,sr:1700,xp:250,sc:1200,uc:'dani'},
-{id:9,w:1,wn:'Magewood Forest',sw:9,n:'1-9',m:{type:'kill',text:'⚔️ Inimigos com escudo! Derrote 14',target:14},et:['skeleton','dog','archer'],eh:80,ed:16,es:1.8,me:5,sr:1800,xp:270,sc:1300,uc:null,se:1},
-{id:10,w:1,wn:'Magewood Forest',sw:10,n:'1-10',m:{type:'kill',text:'💀 Mini-Boss Esqueleto Gigante!',target:10,hasBoss:1},et:['skeleton','dog','bigbone'],eh:70,ed:18,es:1.9,me:5,sr:1700,xp:300,sc:1500,uc:null},
-{id:11,w:1,wn:'Magewood Forest',sw:11,n:'1-11',m:{type:'kill',text:'🌿 Múltiplas rotas! Derrote 16',target:16},et:['skeleton','dog','archer'],eh:75,ed:18,es:2,me:6,sr:1600,xp:320,sc:1600,uc:null},
-{id:12,w:1,wn:'Magewood Forest',sw:12,n:'1-12',m:{type:'kill',text:'🧙 Necromantes! Derrote 18',target:18},et:['skeleton','necromancer','dog'],eh:80,ed:20,es:2,me:6,sr:1500,xp:350,sc:1700,uc:null},
-{id:13,w:1,wn:'Magewood Forest',sw:13,n:'1-13',m:{type:'kill',text:'⚔️ Ondas de ataque! Derrote 20',target:20},et:['skeleton','dog','archer'],eh:85,ed:20,es:2.1,me:7,sr:1400,xp:380,sc:1800,uc:null},
-{id:14,w:2,wn:'Lunar Cave',sw:1,n:'2-1',m:{type:'survive',text:'🧩 Plataformas! Sobreviva 50s',target:50},et:['skeleton','archer'],eh:85,ed:22,es:2.1,me:5,sr:1500,xp:400,sc:1900,uc:null},
-{id:15,w:2,wn:'Lunar Cave',sw:2,n:'2-2',m:{type:'survive',text:'🔥 Proteja Alice! 70s',target:70},et:['skeleton','necromancer','dog'],eh:90,ed:22,es:2.1,me:7,sr:1300,xp:450,sc:2000,uc:'alice'},
-{id:16,w:2,wn:'Lunar Cave',sw:3,n:'2-3',m:{type:'kill',text:'💨 Inimigos rápidos! Derrote 22',target:22},et:['dog','skeleton','archer'],eh:90,ed:24,es:2.8,me:7,sr:1200,xp:480,sc:2100,uc:null},
-{id:17,w:2,wn:'Lunar Cave',sw:4,n:'2-4',m:{type:'survive',text:'🪨 Plataformas móveis! 55s',target:55},et:['skeleton','archer','necromancer'],eh:95,ed:24,es:2.2,me:6,sr:1400,xp:500,sc:2200,uc:null},
-{id:18,w:2,wn:'Lunar Cave',sw:5,n:'2-5',m:{type:'kill',text:'🎯 Emboscadas! Derrote 25',target:25},et:['skeleton','dog','archer','necromancer'],eh:100,ed:26,es:2.3,me:8,sr:1100,xp:530,sc:2300,uc:null},
-{id:19,w:2,wn:'Lunar Cave',sw:6,n:'2-6',m:{type:'kill',text:'💀💀 Dupla Mini-Boss!',target:15,hasBoss:1},et:['skeleton','bigbone'],eh:110,ed:28,es:2.2,me:6,sr:1300,xp:560,sc:2400,uc:null},
-{id:20,w:2,wn:'Lunar Cave',sw:7,n:'2-7',m:{type:'kill',text:'🧙‍♂️ Necromante Elite!',target:20,hasBoss:1},et:['necromancer','skeleton','archer'],eh:110,ed:28,es:2.3,me:7,sr:1200,xp:600,sc:2500,uc:null},
-{id:21,w:3,wn:'Peak of Justice',sw:1,n:'3-1',m:{type:'kill',text:'🌑 Floresta escura! Derrote 22',target:22},et:['skeleton','dog','necromancer'],eh:115,ed:30,es:2.3,me:7,sr:1200,xp:630,sc:2600,uc:null,fog:1},
-{id:22,w:3,wn:'Peak of Justice',sw:2,n:'3-2',m:{type:'kill',text:'👻 Inimigos invisíveis!',target:18},et:['skeleton','dog','archer'],eh:120,ed:30,es:2.4,me:6,sr:1300,xp:660,sc:2700,uc:null,fog:1,ie:1},
-{id:23,w:3,wn:'Peak of Justice',sw:3,n:'3-3',m:{type:'kill',text:'❄️ Destrua totens! Desbloqueie Vitória',target:15},et:['skeleton','necromancer','dog'],eh:120,ed:32,es:2.3,me:7,sr:1200,xp:700,sc:2800,uc:'vitoria'},
-{id:24,w:3,wn:'Peak of Justice',sw:4,n:'3-4',m:{type:'survive',text:'🌧️ Chuva mágica! 80s',target:80},et:['skeleton','archer','necromancer','dog'],eh:125,ed:32,es:2,me:7,sr:1200,xp:730,sc:2900,uc:null,slow:1},
-{id:25,w:3,wn:'Peak of Justice',sw:5,n:'3-5',m:{type:'survive',text:'⏳ Sobrevivência longa! 90s',target:90},et:['skeleton','dog','archer','necromancer'],eh:130,ed:34,es:2.5,me:8,sr:1100,xp:760,sc:3000,uc:null},
-{id:26,w:4,wn:'The Vermilion City',sw:1,n:'4-1',m:{type:'kill',text:'⚔️ Ajude Miguel! Desbloqueie Miguel',target:25},et:['skeleton','dog','archer','bigbone'],eh:135,ed:34,es:2.5,me:8,sr:1000,xp:800,sc:3200,uc:'miguel'},
-{id:27,w:4,wn:'The Vermilion City',sw:2,n:'4-2',m:{type:'kill',text:'⚡ Combate intenso!',target:30},et:['skeleton','dog','archer','necromancer'],eh:140,ed:36,es:2.8,me:9,sr:900,xp:850,sc:3400,uc:null},
-{id:28,w:4,wn:'The Vermilion City',sw:3,n:'4-3',m:{type:'kill',text:'☠️ Todos os inimigos! Derrote 35',target:35},et:['skeleton','dog','archer','necromancer','bigbone'],eh:145,ed:36,es:2.6,me:9,sr:900,xp:900,sc:3600,uc:null},
-{id:29,w:5,wn:'Arc Island',sw:1,n:'5-1',m:{type:'kill',text:'🏚️ Ruína! Derrote 35',target:35},et:['skeleton','dog','archer','necromancer','bigbone'],eh:150,ed:38,es:2.7,me:10,sr:850,xp:950,sc:3800,uc:null},
-{id:30,w:5,wn:'Arc Island',sw:2,n:'5-2',m:{type:'kill',text:'👑 BOSS: Warden of Bones!',target:20,hasBoss:1,isFinal:1},et:['skeleton','necromancer','bigbone'],eh:160,ed:40,es:2.5,me:8,sr:1000,xp:1500,sc:5000,uc:'lilia'}
+{id:1,w:1,wn:'Magewood Forest',sw:1,n:'1-1',m:{type:'kill',text:'Derrote 5 esqueletos',target:5},et:['skeleton'],eh:40,ed:8,es:1.5,me:3,sr:2500,xp:50,sc:300},
+{id:2,w:1,wn:'Magewood Forest',sw:2,n:'1-2',m:{type:'kill',text:'Derrote 8 esqueletos',target:8},et:['skeleton'],eh:45,ed:10,es:1.6,me:4,sr:2300,xp:80,sc:400},
+{id:3,w:1,wn:'Magewood Forest',sw:3,n:'1-3',m:{type:'survive',text:'Sobreviva por 45 segundos',target:45},et:['skeleton','dog'],eh:50,ed:10,es:1.7,me:4,sr:2200,xp:100,sc:500},
+{id:4,w:1,wn:'Magewood Forest',sw:4,n:'1-4',m:{type:'kill',text:'Derrote 10 inimigos',target:10},et:['skeleton','dog'],eh:55,ed:12,es:1.7,me:5,sr:2100,xp:120,sc:600},
+{id:5,w:1,wn:'Magewood Forest',sw:5,n:'1-5',m:{type:'combo',text:'Alcance combo 4x',target:4},et:['skeleton','dog'],eh:50,ed:12,es:1.8,me:5,sr:2000,xp:140,sc:700},
+{id:6,w:1,wn:'Magewood Forest',sw:6,n:'1-6',m:{type:'kill',text:'Derrote 15 inimigos + Mini-Boss',target:15,hasBoss:1},et:['skeleton','dog'],eh:60,ed:14,es:1.8,me:5,sr:1900,xp:200,sc:1000},
+{id:7,w:1,wn:'Magewood Forest',sw:7,n:'1-7',m:{type:'kill',text:'🌫️ Neblina! Derrote 12',target:12},et:['skeleton','dog'],eh:65,ed:14,es:1.9,me:5,sr:1800,xp:220,sc:1100,fog:1},
+{id:8,w:1,wn:'Magewood Forest',sw:8,n:'1-8',m:{type:'survive',text:'🛡️ Defenda por 60 segundos!',target:60},et:['skeleton','dog'],eh:60,ed:16,es:2,me:6,sr:1700,xp:250,sc:1200},
+{id:9,w:1,wn:'Magewood Forest',sw:9,n:'1-9',m:{type:'kill',text:'⚔️ Inimigos com escudo! Derrote 14',target:14},et:['skeleton','dog','archer'],eh:80,ed:16,es:1.8,me:5,sr:1800,xp:270,sc:1300,se:1},
+{id:10,w:1,wn:'Magewood Forest',sw:10,n:'1-10',m:{type:'kill',text:'💀 Mini-Boss Esqueleto Gigante!',target:10,hasBoss:1},et:['skeleton','dog','bigbone'],eh:70,ed:18,es:1.9,me:5,sr:1700,xp:300,sc:1500},
+{id:11,w:1,wn:'Magewood Forest',sw:11,n:'1-11',m:{type:'kill',text:'🌿 Múltiplas rotas! Derrote 16',target:16},et:['skeleton','dog','archer'],eh:75,ed:18,es:2,me:6,sr:1600,xp:320,sc:1600},
+{id:12,w:1,wn:'Magewood Forest',sw:12,n:'1-12',m:{type:'kill',text:'🧙 Necromantes! Derrote 18',target:18},et:['skeleton','necromancer','dog'],eh:80,ed:20,es:2,me:6,sr:1500,xp:350,sc:1700},
+{id:13,w:1,wn:'Magewood Forest',sw:13,n:'1-13',m:{type:'kill',text:'⚔️ Ondas de ataque! Derrote 20',target:20},et:['skeleton','dog','archer'],eh:85,ed:20,es:2.1,me:7,sr:1400,xp:380,sc:1800},
+{id:14,w:1,wn:'Magewood Forest',sw:14,n:'1-14',m:{type:'survive',text:'🧩 Plataformas! Sobreviva 50s',target:50},et:['skeleton','archer'],eh:85,ed:22,es:2.1,me:5,sr:1500,xp:400,sc:1900},
+{id:15,w:1,wn:'Magewood Forest',sw:15,n:'1-15',m:{type:'survive',text:'🔥 Proteja a área! 70 segundos',target:70},et:['skeleton','necromancer','dog'],eh:90,ed:22,es:2.1,me:7,sr:1300,xp:450,sc:2000},
+{id:16,w:1,wn:'Magewood Forest',sw:16,n:'1-16',m:{type:'kill',text:'💨 Inimigos rápidos! Derrote 22',target:22},et:['dog','skeleton','archer'],eh:90,ed:24,es:2.8,me:7,sr:1200,xp:480,sc:2100},
+{id:17,w:1,wn:'Magewood Forest',sw:17,n:'1-17',m:{type:'survive',text:'🪨 Plataformas móveis! 55s',target:55},et:['skeleton','archer','necromancer'],eh:95,ed:24,es:2.2,me:6,sr:1400,xp:500,sc:2200},
+{id:18,w:1,wn:'Magewood Forest',sw:18,n:'1-18',m:{type:'kill',text:'🎯 Emboscadas! Derrote 25',target:25},et:['skeleton','dog','archer','necromancer'],eh:100,ed:26,es:2.3,me:8,sr:1100,xp:530,sc:2300},
+{id:19,w:1,wn:'Magewood Forest',sw:19,n:'1-19',m:{type:'kill',text:'💀💀 Dupla Mini-Boss!',target:15,hasBoss:1},et:['skeleton','bigbone'],eh:110,ed:28,es:2.2,me:6,sr:1300,xp:560,sc:2400},
+{id:20,w:1,wn:'Magewood Forest',sw:20,n:'1-20',m:{type:'kill',text:'🧙‍♂️ Necromante Elite!',target:20,hasBoss:1},et:['necromancer','skeleton','archer'],eh:110,ed:28,es:2.3,me:7,sr:1200,xp:600,sc:2500},
+{id:21,w:1,wn:'Magewood Forest',sw:21,n:'1-21',m:{type:'kill',text:'🌑 Floresta escura! Derrote 22',target:22},et:['skeleton','dog','necromancer'],eh:115,ed:30,es:2.3,me:7,sr:1200,xp:630,sc:2600,fog:1},
+{id:22,w:1,wn:'Magewood Forest',sw:22,n:'1-22',m:{type:'kill',text:'👻 Inimigos invisíveis!',target:18},et:['skeleton','dog','archer'],eh:120,ed:30,es:2.4,me:6,sr:1300,xp:660,sc:2700,fog:1,ie:1},
+{id:23,w:1,wn:'Magewood Forest',sw:23,n:'1-23',m:{type:'kill',text:'❄️ Destrua os totens!',target:15},et:['skeleton','necromancer','dog'],eh:120,ed:32,es:2.3,me:7,sr:1200,xp:700,sc:2800},
+{id:24,w:1,wn:'Magewood Forest',sw:24,n:'1-24',m:{type:'survive',text:'🌧️ Chuva mágica! 80s',target:80},et:['skeleton','archer','necromancer','dog'],eh:125,ed:32,es:2,me:7,sr:1200,xp:730,sc:2900,slow:1},
+{id:25,w:1,wn:'Magewood Forest',sw:25,n:'1-25',m:{type:'survive',text:'⏳ Sobrevivência longa! 90s',target:90},et:['skeleton','dog','archer','necromancer'],eh:130,ed:34,es:2.5,me:8,sr:1100,xp:760,sc:3000},
+{id:26,w:1,wn:'Magewood Forest',sw:26,n:'1-26',m:{type:'kill',text:'⚔️ Horda massiva! Derrote 25',target:25},et:['skeleton','dog','archer','bigbone'],eh:135,ed:34,es:2.5,me:8,sr:1000,xp:800,sc:3200},
+{id:27,w:1,wn:'Magewood Forest',sw:27,n:'1-27',m:{type:'kill',text:'⚡ Combate intenso!',target:30},et:['skeleton','dog','archer','necromancer'],eh:140,ed:36,es:2.8,me:9,sr:900,xp:850,sc:3400},
+{id:28,w:1,wn:'Magewood Forest',sw:28,n:'1-28',m:{type:'kill',text:'☠️ Todos os inimigos! Derrote 35',target:35},et:['skeleton','dog','archer','necromancer','bigbone'],eh:145,ed:36,es:2.6,me:9,sr:900,xp:900,sc:3600},
+{id:29,w:1,wn:'Magewood Forest',sw:29,n:'1-29',m:{type:'kill',text:'🏚️ Ruína principal! Derrote 35',target:35},et:['skeleton','dog','archer','necromancer','bigbone'],eh:150,ed:38,es:2.7,me:10,sr:850,xp:950,sc:3800},
+{id:30,w:1,wn:'Magewood Forest',sw:30,n:'1-30',m:{type:'kill',text:'👑 BOSS: Warden of Bones!',target:20,hasBoss:1,isFinal:1},et:['skeleton','necromancer','bigbone'],eh:160,ed:40,es:2.5,me:8,sr:1000,xp:1500,sc:5000}
 ];
 
 const XP={f(l){return Math.floor(100*Math.pow(1.5,l-1))},g(t){let l=1,n=0;while(t>=n+this.f(l)){n+=this.f(l);l++;if(l>99)break}return{level:l,currentXp:t-n,neededXp:this.f(l)}},b(l,s){return{attack:l*3,health:l*10,speed:Math.min(l*.1,3)}[s]||0}};
@@ -206,7 +206,7 @@ S:{w:65,h:95,ps:10,ar:400,acd:600,ba:15},D:{w:70,h:100,sd:6000,scd:15000},
 A:{w:65,h:95,fr:150,bd:3,bdr:3000,bfd:5000,acd:8000},V:{w:65,h:95,fc:.25,fd:2000,s1c:5000,s2c:12000,s3c:10000},
 M:{w:65,h:95,ps:12,acd:800,ba:18},L:{w:65,h:95,pr:160,hAmt:15,shAmt:20,atkBuff:1.3,burnDmg:4,bdr:4000,acd:10000}};
 
-const G_={totalXp:0,pl:1,cx:0,xn:100,hs:1,ss:{},uc:{lia:1,sarah:0,dani:0,alice:0,vitoria:0,miguel:0,lilia:0},ts:0,cs:null,sel:['lia'],pc:'lia',
+const G_={totalXp:0,pl:1,cx:0,xn:100,hs:1,ss:{},uc:{lia:1,sarah:1,dani:1,alice:1,vitoria:1,miguel:1,lilia:1},ts:0,cs:null,sel:['lia'],pc:'lia',
 sit:0,dit:0,ait:0,vit:0,mit:0,lit:0,run:0,pau:0,sc:0,died:0,sk:0,ssc:0,sdt:0,smc:0,sst:0,co:0,lct:0,lsp:0,bo:0,
 par:[],di:[],ssh:{x:0,y:0,i:0},keys:{},proj:[],
 shA:0,shE:0,lsT:0,aBuf:0,aBufE:0,iSh:0,iShE:0,fCA:0,fCE:0,fCC:0,
@@ -381,14 +381,13 @@ function chkComplete(){const st=G_.cs;if(!st||G_.sc)return;if(st.m.type==='kill'
 
 function showRes(v){G_.sc=1;G_.run=0;const st=G_.cs,el_=Math.floor((Date.now()-G_.sst)/1000);let xpG=0,ucN=null;
 if(v){xpG=st.xp;if(G_.sdt===0)xpG+=50;if(G_.smc>=5)xpG+=30;const prev=G_.pl;G_.totalXp+=xpG;G_.ts+=G_.ssc;const l=XP.g(G_.totalXp);G_.pl=l.level;G_.cx=l.currentXp;G_.xn=l.neededXp;if(st.id>=G_.hs)G_.hs=st.id+1;let stars=1;if(G_.sdt===0)stars=3;else if(G_.sdt<30)stars=2;if(!G_.ss[st.id]||G_.ss[st.id]<stars)G_.ss[st.id]=stars;
-if(st.uc&&!G_.uc[st.uc]){G_.uc[st.uc]=1;const cn={sarah:'Sarah (Atacante)',dani:'Dani (Defensora)',alice:'Alice (Suporte Fogo)',vitoria:'Vitória (Suporte Gelo)',miguel:'Miguel (Atirador)',lilia:'Lilia (Criativa)'};ucN=cn[st.uc]||st.uc;snd.unlock()}
 save();snd.sc();el.resultsTitle.textContent='FASE COMPLETA!';el.resultsTitle.className='results-title victory';el.resultXp.textContent='+'+xpG+' XP';el.resultXp.style.display='block';el.resultLevelUp.style.display=G_.pl>prev?'block':'none';if(G_.pl>prev)snd.lu();
 }else{snd.go();el.resultsTitle.textContent='DERROTA';el.resultsTitle.className='results-title defeat';el.resultXp.style.display='none';el.resultLevelUp.style.display='none'}
 el.resultsGrid.innerHTML='<div class="result-card"><div class="result-card-value">'+st.n+'</div><div class="result-card-label">Fase</div></div><div class="result-card"><div class="result-card-value">'+G_.ssc.toLocaleString()+'</div><div class="result-card-label">Pontos</div></div><div class="result-card"><div class="result-card-value">'+G_.sk+'</div><div class="result-card-label">Derrotados</div></div><div class="result-card"><div class="result-card-value">'+G_.smc+'x</div><div class="result-card-label">Max Combo</div></div><div class="result-card"><div class="result-card-value">'+el_+'s</div><div class="result-card-label">Tempo</div></div><div class="result-card"><div class="result-card-value">'+G_.sdt+'</div><div class="result-card-label">Dano Recebido</div></div>';
-if(ucN){el.resultUnlock.textContent='🎉 '+ucN.toUpperCase()+' DESBLOQUEADO(A)! 🎉';el.resultUnlock.style.display='block'}else el.resultUnlock.style.display='none';
+el.resultUnlock.style.display='none';
 el.resultsButtons.innerHTML='';
-if(v){const nid=st.id+1,ns=SD.find(s=>s.id===nid),isL=!ns||ns.w!==st.w;
-if(isL||nid>30){const b=document.createElement('button');b.className='game-btn game-btn-secondary';b.innerHTML='🗺️ VOLTAR AO MAPA';b.addEventListener('click',()=>{hRes();showSS()});el.resultsButtons.appendChild(b)}
+if(v){const nid=st.id+1;
+if(nid>30){const b=document.createElement('button');b.className='game-btn game-btn-secondary';b.innerHTML='🗺️ VOLTAR AO MAPA';b.addEventListener('click',()=>{hRes();showSS()});el.resultsButtons.appendChild(b)}
 else{const b=document.createElement('button');b.className='game-btn game-btn-secondary';b.innerHTML='🗺️ MAPA';b.addEventListener('click',()=>{hRes();showSS()});el.resultsButtons.appendChild(b);const n=document.createElement('button');n.className='game-btn game-btn-primary';n.innerHTML='PRÓXIMA →';n.addEventListener('click',()=>{hRes();startS(nid)});el.resultsButtons.appendChild(n)}
 }else{const r=document.createElement('button');r.className='game-btn game-btn-danger';r.innerHTML='🔄 RETRY';r.addEventListener('click',()=>{hRes();startS(st.id)});el.resultsButtons.appendChild(r);const m=document.createElement('button');m.className='game-btn game-btn-secondary';m.innerHTML='🗺️ MAPA';m.addEventListener('click',()=>{hRes();showSS()});el.resultsButtons.appendChild(m)}
 el.hudOverlay.style.display='none';el.stageIndicator.style.display='none';el.missionIndicator.style.display='none';el.supportCooldown.style.display='none';el.controlsPanel.style.display='none';el.fogOverlay.classList.remove('active');
@@ -437,15 +436,15 @@ el.stageSelectScreen.classList.remove('active');el.resultsScreen.classList.remov
 function tPause(){if(!G_.run||G_.sc)return;G_.pau=!G_.pau;el.pauseOverlay.classList.toggle('active',G_.pau)}
 
 let cW=1,selS=1;
-function rWT(){el.worldTabs.innerHTML='';WORLDS.forEach((w,i)=>{const t=document.createElement('button');t.className='world-tab '+(i+1===cW?'active':'');t.textContent=(i+1)+'. '+w;t.addEventListener('click',()=>{cW=i+1;rWT();rSG()});el.worldTabs.appendChild(t)})}
-function rSG(){el.stageGrid.innerHTML='';SD.filter(s=>s.w===cW).forEach(st=>{const n=document.createElement('div');n.className='stage-node';const u=st.id<=G_.hs,c=G_.ss[st.id]>0,ic=st.id===G_.hs;if(c)n.classList.add('completed');else if(u){n.classList.add('unlocked');if(ic)n.classList.add('current')}else n.classList.add('locked');n.innerHTML='<div class="stage-number">'+st.sw+'</div><div class="stage-stars">'+('⭐'.repeat(G_.ss[st.id]||0))+'</div>';if(u)n.addEventListener('click',()=>selStage(st.id));el.stageGrid.appendChild(n)})}
+function rWT(){el.worldTabs.innerHTML='';const t=document.createElement('button');t.className='world-tab active';t.textContent='🌲 Magewood Forest';el.worldTabs.appendChild(t)}
+function rSG(){el.stageGrid.innerHTML='';SD.forEach(st=>{const n=document.createElement('div');n.className='stage-node';const u=st.id<=G_.hs,c=G_.ss[st.id]>0,ic=st.id===G_.hs;if(c)n.classList.add('completed');else if(u){n.classList.add('unlocked');if(ic)n.classList.add('current')}else n.classList.add('locked');n.innerHTML='<div class="stage-number">'+st.sw+'</div><div class="stage-stars">'+('⭐'.repeat(G_.ss[st.id]||0))+'</div>';if(u)n.addEventListener('click',()=>selStage(st.id));el.stageGrid.appendChild(n)})}
 function selStage(id){selS=id;const s=SD.find(x=>x.id===id);if(!s)return;el.stageInfoPanel.style.display='block';el.stageInfoTitle.textContent='FASE '+s.n+' - '+s.wn;el.stageInfoMission.textContent=s.m.text;el.stageXpReward.textContent=s.xp;el.stageScoreReward.textContent=s.sc;rTS()}
 function rTS(){el.teamSelectMini.innerHTML='';
-[{id:'lia',n:'Lia',r:'Guerreira',i:'lia.png',a:1},{id:'sarah',n:'Sarah',r:'Atacante',i:'sarah.png'},{id:'dani',n:'Dani',r:'Defensora',i:'dani.png'},{id:'alice',n:'Alice',r:'Suporte🔥',i:'alice.png'},{id:'vitoria',n:'Vitória',r:'Suporte❄️',i:'vitoria.png'},{id:'miguel',n:'Miguel',r:'Atirador',i:'miguel.png'},{id:'lilia',n:'Lilia',r:'Criativa',i:'lilia.png'}].forEach(c=>{
-const div=document.createElement('div'),ul=c.a||G_.uc[c.id],idx=G_.sel.indexOf(c.id),ip=idx===0,sel=idx>=0;
-div.className='team-char-mini'+(sel?' selected':'')+(ip?' primary-char':'')+(!ul?' locked':'');
+[{id:'lia',n:'Lia',r:'Guerreira',i:'lia.png'},{id:'sarah',n:'Sarah',r:'Atacante',i:'sarah.png'},{id:'dani',n:'Dani',r:'Defensora',i:'dani.png'},{id:'alice',n:'Alice',r:'Suporte🔥',i:'alice.png'},{id:'vitoria',n:'Vitória',r:'Suporte❄️',i:'vitoria.png'},{id:'miguel',n:'Miguel',r:'Atirador',i:'miguel.png'},{id:'lilia',n:'Lilia',r:'Criativa',i:'lilia.png'}].forEach(c=>{
+const div=document.createElement('div'),idx=G_.sel.indexOf(c.id),ip=idx===0,sel=idx>=0;
+div.className='team-char-mini'+(sel?' selected':'')+(ip?' primary-char':'');
 div.innerHTML='<img src="'+c.i+'" alt="'+c.n+'"><div class="cn">'+(ip?'★ ':'')+c.n+'</div><div class="cr">'+c.r+'</div>';
-if(ul)div.addEventListener('click',()=>{if(idx>=0){if(ip&&G_.sel.length>1)G_.sel.push(G_.sel.shift());else if(!ip)G_.sel.splice(idx,1)}else if(G_.sel.length<4)G_.sel.push(c.id);rTS()});
+div.addEventListener('click',()=>{if(idx>=0){if(ip&&G_.sel.length>1)G_.sel.push(G_.sel.shift());else if(!ip)G_.sel.splice(idx,1)}else if(G_.sel.length<4)G_.sel.push(c.id);rTS()});
 el.teamSelectMini.appendChild(div)})}
 function uPS(){el.playerLevelStat.textContent='Lv. '+G_.pl;el.playerXpStat.textContent=G_.totalXp.toLocaleString();let t=0;Object.values(G_.ss).forEach(s=>t+=s);el.playerStarsStat.textContent=t}
 function showSS(){uPS();rWT();rSG();el.mainMenuScreen.classList.remove('active');el.resultsScreen.classList.remove('active');el.stageSelectScreen.classList.add('active');el.hudOverlay.style.display='none';el.stageIndicator.style.display='none';el.missionIndicator.style.display='none';el.supportCooldown.style.display='none';el.controlsPanel.style.display='none';el.fogOverlay.classList.remove('active');selStage(Math.min(G_.hs,30))}
