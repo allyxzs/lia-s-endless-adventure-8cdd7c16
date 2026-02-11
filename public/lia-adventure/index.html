@@ -444,7 +444,7 @@ function rTS(){el.teamSelectMini.innerHTML='';
 const div=document.createElement('div'),idx=G_.sel.indexOf(c.id),ip=idx===0,sel=idx>=0;
 div.className='team-char-mini'+(sel?' selected':'')+(ip?' primary-char':'');
 div.innerHTML='<img src="'+c.i+'" alt="'+c.n+'"><div class="cn">'+(ip?'★ ':'')+c.n+'</div><div class="cr">'+c.r+'</div>';
-div.addEventListener('click',()=>{if(idx>=0){if(ip&&G_.sel.length>1)G_.sel.push(G_.sel.shift());else if(!ip)G_.sel.splice(idx,1)}else if(G_.sel.length<4)G_.sel.push(c.id);rTS()});
+div.addEventListener('click',()=>{if(idx>=0){if(ip&&G_.sel.length>1)G_.sel.push(G_.sel.shift());else if(!ip)G_.sel.splice(idx,1)}else if(G_.sel.length<3)G_.sel.push(c.id);rTS()});
 el.teamSelectMini.appendChild(div)})}
 function uPS(){el.playerLevelStat.textContent='Lv. '+G_.pl;el.playerXpStat.textContent=G_.totalXp.toLocaleString();let t=0;Object.values(G_.ss).forEach(s=>t+=s);el.playerStarsStat.textContent=t}
 function showSS(){uPS();rWT();rSG();el.mainMenuScreen.classList.remove('active');el.resultsScreen.classList.remove('active');el.stageSelectScreen.classList.add('active');el.hudOverlay.style.display='none';el.stageIndicator.style.display='none';el.missionIndicator.style.display='none';el.supportCooldown.style.display='none';el.controlsPanel.style.display='none';el.fogOverlay.classList.remove('active');selStage(Math.min(G_.hs,30))}
