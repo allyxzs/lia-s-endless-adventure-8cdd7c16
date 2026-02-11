@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Lia Adventure</title>
-    <meta name="description" content="Jogo de aventura side-scroller com Lia, Sarah e Dani! Derrote esqueletos e avance pelos 5 mundos.">
+    <meta name="description" content="Jogo de aventura side-scroller com Lia, Sarah, Dani, Alice e Vitória! Derrote esqueletos e avance pelos 5 mundos.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
@@ -29,6 +29,8 @@
             --xp-purple: #a855f7;
             --sarah-red: #e74c3c;
             --dani-blue: #3498db;
+            --alice-orange: #e67e22;
+            --vitoria-cyan: #00bcd4;
         }
 
         html, body { height: 100%; overflow: hidden; }
@@ -42,9 +44,7 @@
         }
 
         .game-wrapper { display: flex; flex-direction: column; align-items: center; width: 100%; height: 100%; }
-
         .canvas-container { position: relative; width: 100%; height: 100%; overflow: hidden; }
-
         canvas { display: block; width: 100%; height: 100%; background: var(--bg-dark); object-fit: contain; }
 
         /* Compact HUD */
@@ -197,7 +197,7 @@
         .play-stage-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #2a9d8f; }
 
         /* Team Select */
-        .team-select-mini { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; }
+        .team-select-mini { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; flex-wrap: wrap; }
         .team-char-mini {
             width: 55px; height: 65px; border-radius: 10px; border: 2px solid rgba(255,255,255,0.2);
             background: rgba(0,0,0,0.4); display: flex; flex-direction: column;
@@ -284,23 +284,14 @@
         .mobile-btn.attack { background: rgba(255,107,157,0.4); border-color: var(--primary); }
         .mobile-btn.jump { background: rgba(77,204,189,0.4); border-color: var(--secondary); }
         .mobile-btn.support { background: rgba(52,152,219,0.4); border-color: var(--dani-blue); }
+        .mobile-btn.skill1 { background: rgba(230,126,34,0.4); border-color: var(--alice-orange); font-size: 1.2rem; }
+        .mobile-btn.skill2 { background: rgba(0,188,212,0.4); border-color: var(--vitoria-cyan); font-size: 1.2rem; }
 
         .support-cooldown {
             position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
             background: rgba(0,0,0,0.7); padding: 4px 12px; border-radius: 12px;
             font-family: 'Press Start 2P', cursive; font-size: 0.4rem; color: var(--dani-blue); z-index: 20; display: none;
         }
-
-        /* Loading */
-        .loading-screen {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--bg-darker); display: flex; flex-direction: column;
-            align-items: center; justify-content: center; z-index: 200;
-        }
-        .loading-spinner { width: 50px; height: 50px; border: 4px solid rgba(255,107,157,0.2); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
-        @keyframes spin { to{transform:rotate(360deg)} }
-        .loading-text { font-family: 'Press Start 2P', cursive; font-size: 0.6rem; color: var(--text-secondary); animation: pulse 1.5s ease-in-out infinite; }
-        @keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
 
         /* Overlays */
         .combo-display {
@@ -335,6 +326,17 @@
         }
         .pause-overlay.active { display: block; animation: pausePulse 1s ease-in-out infinite; }
         @keyframes pausePulse { 0%,100%{opacity:0.7} 50%{opacity:1} }
+
+        /* Loading */
+        .loading-screen {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-darker); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 200;
+        }
+        .loading-spinner { width: 50px; height: 50px; border: 4px solid rgba(255,107,157,0.2); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
+        @keyframes spin { to{transform:rotate(360deg)} }
+        .loading-text { font-family: 'Press Start 2P', cursive; font-size: 0.6rem; color: var(--text-secondary); animation: pulse 1.5s ease-in-out infinite; }
+        @keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
 
         /* Desktop Controls */
         .controls-panel {
@@ -459,7 +461,7 @@
                 </div>
             </div>
 
-            <!-- RESULTS SCREEN (Victory & Defeat) -->
+            <!-- RESULTS SCREEN -->
             <div class="results-screen" id="resultsScreen">
                 <h2 class="results-title" id="resultsTitle">FASE COMPLETA!</h2>
                 <div class="results-grid" id="resultsGrid"></div>
@@ -474,7 +476,7 @@
                 <div class="control-item"><span class="control-label">Mover:</span><span class="key">A</span><span class="key">D</span></div>
                 <div class="control-item"><span class="control-label">Pular:</span><span class="key">W</span><span class="key">ESPAÇO</span></div>
                 <div class="control-item"><span class="control-label">Atacar:</span><span class="key">J</span></div>
-                <div class="control-item"><span class="control-label">Correr:</span><span class="key">SHIFT</span></div>
+                <div class="control-item"><span class="control-label">Skill:</span><span class="key">K</span><span class="key">L</span></div>
                 <div class="control-item"><span class="control-label">Pausar:</span><span class="key">ESC</span></div>
             </div>
         </div>
@@ -487,6 +489,8 @@
             <button class="mobile-btn" id="mobileRight">▶</button>
         </div>
         <div class="mobile-btn-group">
+            <button class="mobile-btn skill2" id="mobileSkill2" style="display:none;">❄️</button>
+            <button class="mobile-btn skill1" id="mobileSkill1" style="display:none;">🔥</button>
             <button class="mobile-btn support" id="mobileSupport">🛡️</button>
             <button class="mobile-btn jump" id="mobileJump">▲</button>
             <button class="mobile-btn attack" id="mobileAttack">⚔</button>
@@ -495,8 +499,9 @@
 
     <script>
         // ============================================
-        // LIA ADVENTURE - Game Engine v4.0
-        // 5 Worlds, 30 Stages, Sarah & Dani Characters
+        // LIA ADVENTURE - Game Engine v5.0
+        // 5 Worlds, 30 Stages, 5 Characters
+        // Lia, Sarah, Dani, Alice, Vitória
         // ============================================
 
         const WORLDS = [
@@ -513,7 +518,6 @@
         for (let world = 0; world < 5; world++) {
             for (let stage = 0; stage < 6; stage++) {
                 const stageNum = world * 6 + stage + 1;
-                const difficulty = Math.floor(stageNum / 3) + 1;
 
                 let mission;
                 if (stage === 5) {
@@ -530,8 +534,10 @@
                 }
 
                 let unlockChar = null;
-                if (stageNum === 2) unlockChar = 'sarah';  // Forest stage 2
-                if (stageNum === 8) unlockChar = 'dani';    // Forest stage 8 (but world 1 has 6 stages so stage 8 = world 2 stage 2... let me fix)
+                if (stageNum === 2) unlockChar = 'sarah';
+                if (stageNum === 8) unlockChar = 'dani';
+                if (stageNum === 15) unlockChar = 'alice';
+                if (stageNum === 23) unlockChar = 'vitoria';
 
                 STAGES_DATA.push({
                     id: stageNum,
@@ -551,19 +557,6 @@
                 });
             }
         }
-
-        // Fix unlock stages: Sarah at stage 2 (world 1, stage 2), Dani at stage 8 (world 2, stage 2)
-        // Stage 2 = world 1 stage 2, Stage 8 = world 2 stage 2 (since 6 per world: w1=1-6, w2=7-12)
-        // Actually user said: Sarah after completion of phase 2 of world 1 (forest) = stageNum 2
-        // Dani after completion of phase 8 of world 1 (forest) - but world 1 only has 6 stages.
-        // User said "fase 8 do mundo 1 (floresta)" - but with 6 stages per world, phase 8 doesn't exist in world 1
-        // I'll interpret this as the 8th overall stage which is world 2 stage 2.
-        // Let me set it properly:
-        STAGES_DATA.forEach(s => {
-            s.unlockChar = null;
-            if (s.id === 2) s.unlockChar = 'sarah';
-            if (s.id === 8) s.unlockChar = 'dani';
-        });
 
         // XP System
         const XP_SYSTEM = {
@@ -593,6 +586,8 @@
             },
             sarah: { width: 65, height: 95, projectileSpeed: 10, attackRange: 400, attackCooldown: 600, baseAttack: 15 },
             dani: { width: 70, height: 100, shieldDuration: 6000, shieldCooldown: 15000 },
+            alice: { width: 65, height: 95, fireRadius: 150, burnDamage: 3, burnDuration: 3000, buffDuration: 5000, attackCooldown: 8000 },
+            vitoria: { width: 65, height: 95, iceRange: 350, freezeChance: 0.25, freezeDuration: 2000, skill1Cooldown: 5000, skill2Cooldown: 12000, skill3Cooldown: 10000 },
             scoring: { killBase: 100, comboMultiplier: 1.5, comboTimeout: 2000 }
         };
 
@@ -600,21 +595,28 @@
         const gameState = {
             totalXp: 0, playerLevel: 1, currentXp: 0, xpToNextLevel: 100,
             highestStage: 1, stageStars: {},
-            unlockedChars: { lia: true, sarah: false, dani: false },
+            unlockedChars: { lia: true, sarah: false, dani: false, alice: false, vitoria: false },
             totalScore: 0,
             currentStage: null, selectedCharacters: ['lia'],
-            sarahInTeam: false, daniInTeam: false,
+            sarahInTeam: false, daniInTeam: false, aliceInTeam: false, vitoriaInTeam: false,
             running: false, paused: false, stageComplete: false, playerDied: false,
             stageKills: 0, stageScore: 0, stageDamageTaken: 0, stageMaxCombo: 0,
             stageStartTime: 0, combo: 0, lastComboTime: 0, lastSpawnTime: 0,
             backgroundOffset: 0, particles: [], damageIndicators: [],
             screenShake: { x: 0, y: 0, intensity: 0 }, keys: {},
             projectiles: [],
-            shieldActive: false, shieldEndTime: 0, lastShieldTime: 0
+            shieldActive: false, shieldEndTime: 0, lastShieldTime: 0,
+            // Alice buffs
+            attackBuff: false, attackBuffEnd: 0,
+            // Vitória buffs
+            iceShieldActive: false, iceShieldEnd: 0,
+            frostComboActive: false, frostComboEnd: 0, frostComboChance: 0,
+            isLoggedIn: false
         };
 
-        // Save/Load
+        // Save/Load - ONLY saves if logged in
         function saveProgress() {
+            if (!gameState.isLoggedIn) return; // Only save if logged in
             localStorage.setItem('liaAdventureSave', JSON.stringify({
                 totalXp: gameState.totalXp, highestStage: gameState.highestStage,
                 stageStars: gameState.stageStars, unlockedChars: gameState.unlockedChars,
@@ -622,13 +624,14 @@
             }));
         }
         function loadProgress() {
+            if (!gameState.isLoggedIn) return;
             const saved = localStorage.getItem('liaAdventureSave');
             if (saved) {
                 const d = JSON.parse(saved);
                 gameState.totalXp = d.totalXp || 0;
                 gameState.highestStage = d.highestStage || 1;
                 gameState.stageStars = d.stageStars || {};
-                gameState.unlockedChars = d.unlockedChars || { lia: true, sarah: false, dani: false };
+                gameState.unlockedChars = d.unlockedChars || { lia: true, sarah: false, dani: false, alice: false, vitoria: false };
                 gameState.totalScore = d.totalScore || 0;
                 const li = XP_SYSTEM.getLevelFromXp(gameState.totalXp);
                 gameState.playerLevel = li.level; gameState.currentXp = li.currentXp; gameState.xpToNextLevel = li.neededXp;
@@ -708,6 +711,8 @@
             shield: () => { playTone(300, 0.1, 'sine', 0.1); setTimeout(() => playTone(500, 0.15, 'sine', 0.1), 100); },
             shoot: () => playTone(600, 0.08, 'sine', 0.08),
             combo: () => playTone(800, 0.1, 'sine', 0.1),
+            fire: () => { playTone(250, 0.2, 'sawtooth', 0.12); setTimeout(() => playTone(350, 0.15, 'sawtooth', 0.1), 100); },
+            ice: () => { playTone(700, 0.15, 'sine', 0.1); setTimeout(() => playTone(900, 0.1, 'sine', 0.08), 100); },
             stageComplete: () => { playTone(523, 0.15); setTimeout(() => playTone(659, 0.15), 150); setTimeout(() => playTone(784, 0.2), 300); setTimeout(() => playTone(1047, 0.3), 450); },
             unlock: () => { for(let i = 0; i < 5; i++) setTimeout(() => playTone(400 + i * 100, 0.1, 'sine', 0.12), i * 80); },
             levelUp: () => { playTone(523, 0.1); setTimeout(() => playTone(784, 0.1), 100); setTimeout(() => playTone(1047, 0.2), 200); },
@@ -722,6 +727,10 @@
             sarahAttack: new Image(), sarahDamage: new Image(),
             daniIdle: new Image(), daniRun: new Image(), daniJump: new Image(),
             daniDefense: new Image(), daniDamage: new Image(),
+            aliceIdle: new Image(), aliceRun: new Image(),
+            aliceAttack: new Image(), aliceDamage: new Image(),
+            vitoriaIdle: new Image(), vitoriaRun: new Image(),
+            vitoriaAttack1: new Image(), vitoriaAttack2: new Image(), vitoriaAttack3: new Image(),
             enemyIdle: new Image(), enemyWalkL: new Image(), enemyWalkR: new Image(),
             enemyAttack: new Image(), enemyDamage: new Image(), enemyDead: new Image(),
             background: new Image()
@@ -736,6 +745,11 @@
         images.daniIdle.src = 'dani.png'; images.daniRun.src = 'danirun.png';
         images.daniJump.src = 'danijump.png'; images.daniDefense.src = 'danidefense.png';
         images.daniDamage.src = 'danidamage.png';
+        images.aliceIdle.src = 'alice.png'; images.aliceRun.src = 'alicerun.png';
+        images.aliceAttack.src = 'aliceattack.png'; images.aliceDamage.src = 'alicedamage.png';
+        images.vitoriaIdle.src = 'vitoria.png'; images.vitoriaRun.src = 'vitoriarun.png';
+        images.vitoriaAttack1.src = 'vitoriaattack1.png'; images.vitoriaAttack2.src = 'vitoriaattack2.png';
+        images.vitoriaAttack3.src = 'vitoriaattack3.png';
         images.enemyIdle.src = 'skeleton.png'; images.enemyWalkL.src = 'skeletonwalkl.png';
         images.enemyWalkR.src = 'skeletonwalkr.png'; images.enemyAttack.src = 'skeletonattack.png';
         images.enemyDamage.src = 'skeletondamage.png'; images.enemyDead.src = 'skeletonko.png';
@@ -743,11 +757,15 @@
 
         let imagesLoaded = 0;
         const totalImages = Object.keys(images).length;
-        function onImageLoad() { imagesLoaded++; if (imagesLoaded >= totalImages) { el.loadingScreen.style.display = 'none'; loadProgress(); } }
+        function onImageLoad() { imagesLoaded++; if (imagesLoaded >= totalImages) { el.loadingScreen.style.display = 'none'; } }
         Object.values(images).forEach(img => { img.onload = onImageLoad; img.onerror = onImageLoad; });
 
         // ================ ENTITIES ================
         let enemies = [];
+
+        function checkCollision(a, b) {
+            return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
+        }
 
         // Player (Lia)
         const player = {
@@ -814,11 +832,26 @@
                 if (now - this.lastAttackTime < CONFIG.player.attackCooldown) return;
                 this.isAttacking = true; this.lastAttackTime = now; sounds.attack();
 
+                let atkPower = this.attackPower;
+                if (gameState.attackBuff && now < gameState.attackBuffEnd) atkPower *= 1.4;
+
                 const ab = { x: this.facingRight ? this.x + this.width - 10 : this.x - CONFIG.player.attackRange + 10,
                     y: this.y + 20, width: CONFIG.player.attackRange, height: CONFIG.player.attackHeight };
 
                 let hit = false;
-                enemies.forEach(e => { if (!e.isDead && checkCollision(ab, e)) { e.takeDamage(this.attackPower); hit = true; } });
+                enemies.forEach(e => {
+                    if (!e.isDead && checkCollision(ab, e)) {
+                        e.takeDamage(atkPower);
+                        hit = true;
+                        // Frost combo check
+                        if (gameState.frostComboActive && now < gameState.frostComboEnd) {
+                            if (Math.random() < gameState.frostComboChance && !e.frozen) {
+                                e.freeze(CONFIG.vitoria.freezeDuration);
+                            }
+                            gameState.frostComboChance = Math.min(gameState.frostComboChance + 0.05, 0.6);
+                        }
+                    }
+                });
 
                 if (hit) {
                     gameState.combo++; gameState.lastComboTime = now;
@@ -831,11 +864,17 @@
             takeDamage(amount) {
                 const now = Date.now();
                 if (now - this.lastDamageTime < CONFIG.player.damageCooldown) return;
-                if (gameState.shieldActive) return; // Dani's shield protects
+                if (gameState.shieldActive) return;
+                // Ice shield reflects damage
+                if (gameState.iceShieldActive && now < gameState.iceShieldEnd) {
+                    createParticles(this.x + this.width / 2, this.y + this.height / 2, '#00bcd4', 6);
+                    return;
+                }
 
                 this.health -= amount; this.isDamaged = true; this.lastDamageTime = now;
                 gameState.stageDamageTaken += amount; sounds.damage();
                 gameState.screenShake.intensity = 8; gameState.combo = 0;
+                if (gameState.frostComboActive) gameState.frostComboChance = 0.05;
                 createDamageIndicator(this.x + this.width / 2, this.y, amount);
                 createParticles(this.x + this.width / 2, this.y + this.height / 2, '#ff6b6b', 8);
 
@@ -853,6 +892,26 @@
 
                 ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath();
                 ctx.ellipse(this.x + this.width / 2, CONFIG.physics.groundY + 5, this.width / 2, 10, 0, 0, Math.PI * 2); ctx.fill();
+
+                // Attack buff glow
+                if (gameState.attackBuff && Date.now() < gameState.attackBuffEnd) {
+                    ctx.globalAlpha = 0.3 + Math.sin(Date.now() * 0.01) * 0.15;
+                    ctx.fillStyle = '#e67e22';
+                    ctx.beginPath();
+                    ctx.ellipse(this.x + this.width / 2, this.y + this.height / 2, this.width * 0.7, this.height * 0.6, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+
+                // Ice shield glow
+                if (gameState.iceShieldActive && Date.now() < gameState.iceShieldEnd) {
+                    ctx.globalAlpha = 0.25 + Math.sin(Date.now() * 0.008) * 0.1;
+                    ctx.fillStyle = '#00bcd4';
+                    ctx.beginPath();
+                    ctx.ellipse(this.x + this.width / 2, this.y + this.height / 2, this.width * 0.8, this.height * 0.65, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
 
                 if (!this.facingRight) { ctx.scale(-1, 1); ctx.drawImage(s, -this.x - this.width, this.y, this.width, this.height); }
                 else ctx.drawImage(s, this.x, this.y, this.width, this.height);
@@ -881,7 +940,6 @@
                 if (this.y >= CONFIG.physics.groundY - this.height) { this.y = CONFIG.physics.groundY - this.height; this.velocityY = 0; this.isJumping = false; }
                 this.x = Math.max(0, Math.min(CONFIG.canvas.width - this.width, this.x));
 
-                // Auto-attack nearest enemy
                 const now = Date.now();
                 if (now - this.lastAttackTime > CONFIG.sarah.attackCooldown && enemies.length > 0) {
                     const alive = enemies.filter(e => !e.isDead);
@@ -897,11 +955,12 @@
             },
 
             shootProjectile(target) {
-                const atk = CONFIG.sarah.baseAttack + XP_SYSTEM.getStatBonus(gameState.playerLevel, 'attack') * 0.5;
+                let atk = CONFIG.sarah.baseAttack + XP_SYSTEM.getStatBonus(gameState.playerLevel, 'attack') * 0.5;
+                if (gameState.attackBuff && Date.now() < gameState.attackBuffEnd) atk *= 1.4;
                 gameState.projectiles.push({
                     x: this.x + this.width / 2, y: this.y + this.height / 2,
                     vx: (target.x > this.x ? 1 : -1) * CONFIG.sarah.projectileSpeed,
-                    damage: atk, life: 1, size: 8
+                    damage: atk, life: 1, size: 8, type: 'light'
                 });
                 sounds.shoot();
             },
@@ -923,7 +982,7 @@
             }
         };
 
-        // Dani (Tank/Defender) - AI companion
+        // Dani (Tank/Defender)
         const dani = {
             x: 80, y: CONFIG.physics.groundY - CONFIG.dani.height,
             width: CONFIG.dani.width, height: CONFIG.dani.height,
@@ -934,7 +993,6 @@
 
             update(dt) {
                 if (!gameState.daniInTeam) return;
-                // Position in front of player
                 const tx = player.x + (player.facingRight ? 60 : -60);
                 const dx = tx - this.x;
                 if (Math.abs(dx) > 20) { this.velocityX += Math.sign(dx) * 0.4; this.velocityX = Math.max(-5, Math.min(5, this.velocityX)); this.facingRight = player.facingRight; }
@@ -945,21 +1003,22 @@
                 if (this.y >= CONFIG.physics.groundY - this.height) { this.y = CONFIG.physics.groundY - this.height; this.velocityY = 0; this.isJumping = false; }
                 this.x = Math.max(0, Math.min(CONFIG.canvas.width - this.width, this.x));
 
-                // Check shield status
-                if (gameState.shieldActive && Date.now() > gameState.shieldEndTime) {
+                const now = Date.now();
+                if (gameState.shieldActive && now > gameState.shieldEndTime) {
                     gameState.shieldActive = false; this.isDefending = false;
                 }
-                this.isDefending = gameState.shieldActive;
             },
 
             activateShield() {
                 if (!gameState.daniInTeam) return;
                 const now = Date.now();
                 if (now - gameState.lastShieldTime < CONFIG.dani.shieldCooldown) return;
-                gameState.shieldActive = true; gameState.shieldEndTime = now + CONFIG.dani.shieldDuration;
-                gameState.lastShieldTime = now; this.isDefending = true;
+                gameState.shieldActive = true;
+                gameState.shieldEndTime = now + CONFIG.dani.shieldDuration;
+                gameState.lastShieldTime = now;
+                this.isDefending = true;
                 sounds.shield();
-                createParticles(this.x + this.width / 2, this.y + this.height / 2, '#3498db', 15);
+                createParticles(this.x + this.width / 2, this.y + this.height / 2, '#3498db', 12);
             },
 
             draw() {
@@ -970,22 +1029,287 @@
                 else if (this.isJumping) s = images.daniJump;
                 else if (Math.abs(this.velocityX) > 0.5) s = images.daniRun;
 
-                // Shield effect
+                ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.beginPath();
+                ctx.ellipse(this.x + this.width / 2, CONFIG.physics.groundY + 3, this.width / 2.5, 8, 0, 0, Math.PI * 2); ctx.fill();
+
                 if (gameState.shieldActive) {
-                    const t = Date.now() * 0.003;
-                    ctx.globalAlpha = 0.15 + Math.sin(t) * 0.08;
+                    ctx.globalAlpha = 0.3 + Math.sin(Date.now() * 0.005) * 0.15;
                     ctx.fillStyle = '#3498db';
                     ctx.beginPath();
-                    ctx.arc(player.x + player.width / 2, player.y + player.height / 2, 120 + Math.sin(t * 2) * 10, 0, Math.PI * 2);
+                    ctx.ellipse(this.x + this.width / 2, this.y + this.height / 2, 100, 80, 0, 0, Math.PI * 2);
                     ctx.fill();
                     ctx.globalAlpha = 1;
-
-                    ctx.strokeStyle = 'rgba(52,152,219,0.4)';
-                    ctx.lineWidth = 3;
-                    ctx.beginPath();
-                    ctx.arc(player.x + player.width / 2, player.y + player.height / 2, 120 + Math.sin(t * 2) * 10, 0, Math.PI * 2);
-                    ctx.stroke();
                 }
+
+                if (!this.facingRight) { ctx.scale(-1, 1); ctx.drawImage(s, -this.x - this.width, this.y, this.width, this.height); }
+                else ctx.drawImage(s, this.x, this.y, this.width, this.height);
+                ctx.restore();
+            }
+        };
+
+        // ===== ALICE (Fire Support) =====
+        const alice = {
+            x: 200, y: CONFIG.physics.groundY - CONFIG.alice.height,
+            width: CONFIG.alice.width, height: CONFIG.alice.height,
+            velocityX: 0, velocityY: 0, facingRight: true, isJumping: false,
+            isAttacking: false, lastAttackTime: 0, isDamaged: false, lastDamageTime: 0,
+
+            reset() {
+                this.x = 200; this.y = CONFIG.physics.groundY - this.height;
+                this.velocityX = 0; this.velocityY = 0; this.facingRight = true;
+                this.isJumping = false; this.isAttacking = false; this.lastAttackTime = 0;
+                this.isDamaged = false; this.lastDamageTime = 0;
+            },
+
+            update(dt) {
+                if (!gameState.aliceInTeam) return;
+                const now = Date.now();
+
+                // Follow player at distance
+                const tx = player.x + (player.facingRight ? -120 : 120);
+                const dx = tx - this.x;
+                if (Math.abs(dx) > 40) {
+                    this.velocityX += Math.sign(dx) * 0.3;
+                    this.velocityX = Math.max(-4.5, Math.min(4.5, this.velocityX));
+                    this.facingRight = dx > 0;
+                } else this.velocityX *= 0.8;
+
+                if (player.isJumping && this.y >= CONFIG.physics.groundY - this.height - 5 && Math.abs(dx) < 200) {
+                    this.velocityY = -10; this.isJumping = true;
+                }
+
+                this.velocityY += CONFIG.physics.gravity;
+                this.x += this.velocityX; this.y += this.velocityY;
+                if (this.y >= CONFIG.physics.groundY - this.height) { this.y = CONFIG.physics.groundY - this.height; this.velocityY = 0; this.isJumping = false; }
+                this.x = Math.max(0, Math.min(CONFIG.canvas.width - this.width, this.x));
+
+                if (this.isDamaged && now - this.lastDamageTime > 300) this.isDamaged = false;
+                if (this.isAttacking && now - this.lastAttackTime > 600) this.isAttacking = false;
+
+                // Auto fire attack when enemies nearby
+                if (now - this.lastAttackTime > CONFIG.alice.attackCooldown) {
+                    const alive = enemies.filter(e => !e.isDead);
+                    const nearbyEnemies = alive.filter(e => {
+                        const dist = Math.sqrt(Math.pow(e.x - this.x, 2) + Math.pow(e.y - this.y, 2));
+                        return dist < CONFIG.alice.fireRadius;
+                    });
+                    if (nearbyEnemies.length > 0 || alive.length > 2) {
+                        this.fireAttack();
+                        this.lastAttackTime = now;
+                    }
+                }
+            },
+
+            fireAttack() {
+                this.isAttacking = true;
+                sounds.fire();
+
+                const baseDmg = 10 + XP_SYSTEM.getStatBonus(gameState.playerLevel, 'attack') * 0.3;
+                const cx = this.x + this.width / 2;
+                const cy = this.y + this.height / 2;
+
+                // AoE fire damage
+                enemies.forEach(e => {
+                    if (e.isDead) return;
+                    const dist = Math.sqrt(Math.pow(e.x + e.width/2 - cx, 2) + Math.pow(e.y + e.height/2 - cy, 2));
+                    if (dist < CONFIG.alice.fireRadius) {
+                        e.takeDamage(baseDmg);
+                        // Apply burn
+                        e.burnEnd = Date.now() + CONFIG.alice.burnDuration;
+                        e.burnDamage = CONFIG.alice.burnDamage;
+                    }
+                });
+
+                // Buff allies attack
+                gameState.attackBuff = true;
+                gameState.attackBuffEnd = Date.now() + CONFIG.alice.buffDuration;
+
+                // Fire particles
+                for (let i = 0; i < 20; i++) {
+                    const angle = (Math.PI * 2 / 20) * i;
+                    gameState.particles.push({
+                        x: cx + Math.cos(angle) * 30,
+                        y: cy + Math.sin(angle) * 20,
+                        vx: Math.cos(angle) * 3,
+                        vy: Math.sin(angle) * 2 - 1,
+                        life: 40, maxLife: 40, size: 6,
+                        color: Math.random() > 0.5 ? '#e67e22' : '#f39c12'
+                    });
+                }
+            },
+
+            draw() {
+                if (!gameState.aliceInTeam) return;
+                ctx.save();
+                let s = images.aliceIdle;
+                if (this.isDamaged) s = images.aliceDamage;
+                else if (this.isAttacking) s = images.aliceAttack;
+                else if (Math.abs(this.velocityX) > 0.5) s = images.aliceRun;
+
+                ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.beginPath();
+                ctx.ellipse(this.x + this.width / 2, CONFIG.physics.groundY + 3, this.width / 2.5, 8, 0, 0, Math.PI * 2); ctx.fill();
+
+                // Fire aura when attacking
+                if (this.isAttacking) {
+                    ctx.globalAlpha = 0.25;
+                    const grad = ctx.createRadialGradient(this.x + this.width/2, this.y + this.height/2, 10, this.x + this.width/2, this.y + this.height/2, CONFIG.alice.fireRadius);
+                    grad.addColorStop(0, '#e67e22'); grad.addColorStop(1, 'transparent');
+                    ctx.fillStyle = grad;
+                    ctx.beginPath();
+                    ctx.arc(this.x + this.width/2, this.y + this.height/2, CONFIG.alice.fireRadius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+
+                if (!this.facingRight) { ctx.scale(-1, 1); ctx.drawImage(s, -this.x - this.width, this.y, this.width, this.height); }
+                else ctx.drawImage(s, this.x, this.y, this.width, this.height);
+                ctx.restore();
+            }
+        };
+
+        // ===== VITÓRIA (Ice Support) =====
+        const vitoria = {
+            x: 240, y: CONFIG.physics.groundY - CONFIG.vitoria.height,
+            width: CONFIG.vitoria.width, height: CONFIG.vitoria.height,
+            velocityX: 0, velocityY: 0, facingRight: true, isJumping: false,
+            currentSprite: 'idle', lastSkill1Time: 0, lastSkill2Time: 0, lastSkill3Time: 0,
+            isDamaged: false, lastDamageTime: 0,
+
+            reset() {
+                this.x = 240; this.y = CONFIG.physics.groundY - this.height;
+                this.velocityX = 0; this.velocityY = 0; this.facingRight = true;
+                this.isJumping = false; this.currentSprite = 'idle';
+                this.lastSkill1Time = 0; this.lastSkill2Time = 0; this.lastSkill3Time = 0;
+                this.isDamaged = false; this.lastDamageTime = 0;
+            },
+
+            update(dt) {
+                if (!gameState.vitoriaInTeam) return;
+                const now = Date.now();
+
+                const tx = player.x + (player.facingRight ? -150 : 150);
+                const dx = tx - this.x;
+                if (Math.abs(dx) > 40) {
+                    this.velocityX += Math.sign(dx) * 0.3;
+                    this.velocityX = Math.max(-4.5, Math.min(4.5, this.velocityX));
+                    this.facingRight = dx > 0;
+                } else this.velocityX *= 0.8;
+
+                if (player.isJumping && this.y >= CONFIG.physics.groundY - this.height - 5 && Math.abs(dx) < 200) {
+                    this.velocityY = -10; this.isJumping = true;
+                }
+
+                this.velocityY += CONFIG.physics.gravity;
+                this.x += this.velocityX; this.y += this.velocityY;
+                if (this.y >= CONFIG.physics.groundY - this.height) { this.y = CONFIG.physics.groundY - this.height; this.velocityY = 0; this.isJumping = false; }
+                this.x = Math.max(0, Math.min(CONFIG.canvas.width - this.width, this.x));
+
+                if (this.isDamaged && now - this.lastDamageTime > 300) this.isDamaged = false;
+
+                // Update sprite state
+                if (now - Math.max(this.lastSkill1Time, this.lastSkill2Time, this.lastSkill3Time) > 500) {
+                    this.currentSprite = 'idle';
+                }
+
+                // Auto use skills
+                const alive = enemies.filter(e => !e.isDead);
+                // Skill 1: Ice blast (auto when enemy in range)
+                if (alive.length > 0 && now - this.lastSkill1Time > CONFIG.vitoria.skill1Cooldown) {
+                    const nearest = alive.reduce((a, b) => Math.abs(a.x - this.x) < Math.abs(b.x - this.x) ? a : b);
+                    if (Math.abs(nearest.x - this.x) < CONFIG.vitoria.iceRange) {
+                        this.skill1IceBlast(nearest);
+                    }
+                }
+            },
+
+            // Skill 1: Ice blast projectile
+            skill1IceBlast(target) {
+                this.lastSkill1Time = Date.now();
+                this.currentSprite = 'attack1';
+                this.facingRight = target.x > this.x;
+                sounds.ice();
+
+                const atk = 12 + XP_SYSTEM.getStatBonus(gameState.playerLevel, 'attack') * 0.4;
+                gameState.projectiles.push({
+                    x: this.x + this.width / 2, y: this.y + this.height / 2,
+                    vx: (target.x > this.x ? 1 : -1) * 8,
+                    damage: atk, life: 1, size: 12, type: 'ice',
+                    freezeChance: CONFIG.vitoria.freezeChance
+                });
+            },
+
+            // Skill 2: AoE ice explosion (manually triggered by player pressing L)
+            skill2IceAoE() {
+                if (!gameState.vitoriaInTeam) return;
+                const now = Date.now();
+                if (now - this.lastSkill2Time < CONFIG.vitoria.skill2Cooldown) return;
+                this.lastSkill2Time = now;
+                this.currentSprite = 'attack2';
+                sounds.ice();
+
+                const cx = this.x + this.width / 2;
+                const cy = this.y + this.height / 2;
+                const dmg = 18 + XP_SYSTEM.getStatBonus(gameState.playerLevel, 'attack') * 0.5;
+
+                // Damage nearby enemies + freeze chance
+                enemies.forEach(e => {
+                    if (e.isDead) return;
+                    const dist = Math.sqrt(Math.pow(e.x + e.width/2 - cx, 2) + Math.pow(e.y + e.height/2 - cy, 2));
+                    if (dist < 180) {
+                        e.takeDamage(dmg);
+                        if (Math.random() < 0.5) e.freeze(CONFIG.vitoria.freezeDuration);
+                    }
+                });
+
+                // Give ice shield to allies
+                gameState.iceShieldActive = true;
+                gameState.iceShieldEnd = now + 4000;
+
+                // Ice particles
+                for (let i = 0; i < 25; i++) {
+                    const angle = (Math.PI * 2 / 25) * i;
+                    gameState.particles.push({
+                        x: cx + Math.cos(angle) * 20,
+                        y: cy + Math.sin(angle) * 15,
+                        vx: Math.cos(angle) * 4,
+                        vy: Math.sin(angle) * 3 - 2,
+                        life: 45, maxLife: 45, size: 5,
+                        color: Math.random() > 0.5 ? '#00bcd4' : '#4dd0e1'
+                    });
+                }
+            },
+
+            // Skill 3: Frost combo buff (manually triggered by player pressing L when skill2 is on cooldown)
+            skill3FrostCombo() {
+                if (!gameState.vitoriaInTeam) return;
+                const now = Date.now();
+                if (now - this.lastSkill3Time < CONFIG.vitoria.skill3Cooldown) return;
+                this.lastSkill3Time = now;
+                this.currentSprite = 'attack3';
+                sounds.ice();
+
+                // Each ally attack has increasing freeze chance
+                gameState.frostComboActive = true;
+                gameState.frostComboEnd = now + 8000;
+                gameState.frostComboChance = 0.05;
+
+                // Also buff attack
+                gameState.attackBuff = true;
+                gameState.attackBuffEnd = now + 8000;
+
+                // Particles
+                createParticles(this.x + this.width / 2, this.y + this.height / 2, '#4dd0e1', 15);
+            },
+
+            draw() {
+                if (!gameState.vitoriaInTeam) return;
+                ctx.save();
+                let s = images.vitoriaIdle;
+                if (this.isDamaged) s = images.vitoriaIdle; // no damage sprite available
+                else if (this.currentSprite === 'attack1') s = images.vitoriaAttack1;
+                else if (this.currentSprite === 'attack2') s = images.vitoriaAttack2;
+                else if (this.currentSprite === 'attack3') s = images.vitoriaAttack3;
+                else if (Math.abs(this.velocityX) > 0.5) s = images.vitoriaRun;
 
                 ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.beginPath();
                 ctx.ellipse(this.x + this.width / 2, CONFIG.physics.groundY + 3, this.width / 2.5, 8, 0, 0, Math.PI * 2); ctx.fill();
@@ -996,108 +1320,214 @@
             }
         };
 
-        // Enemy
+        // ================ ENEMY ================
         class Enemy {
-            constructor(x, stageData) {
-                this.x = x; this.y = CONFIG.physics.groundY - 80;
-                this.width = 60; this.height = 80; this.velocityX = 0;
-                this.health = stageData.enemyHealth; this.maxHealth = stageData.enemyHealth;
-                this.speed = stageData.enemySpeed; this.damage = stageData.enemyDamage;
-                this.isAttacking = false; this.isDamaged = false; this.isDead = false;
-                this.lastAttackTime = 0; this.lastDamageTime = 0; this.deathTime = 0; this.facingLeft = true;
+            constructor(x, stage) {
+                this.width = 60; this.height = 80;
+                this.x = x; this.y = CONFIG.physics.groundY - this.height;
+                this.velocityX = 0; this.velocityY = 0;
+                this.health = stage.enemyHealth; this.maxHealth = stage.enemyHealth;
+                this.damage = stage.enemyDamage; this.speed = stage.enemySpeed;
+                this.isDead = false; this.isDamaged = false; this.isAttacking = false;
+                this.facingRight = x < CONFIG.canvas.width / 2;
+                this.lastAttackTime = 0; this.lastDamageTime = 0;
+                this.deathTime = 0; this.attackCooldown = 1200;
+                this.burnEnd = 0; this.burnDamage = 0; this.lastBurnTick = 0;
+                this.frozen = false; this.freezeEnd = 0;
             }
+
+            freeze(duration) {
+                this.frozen = true;
+                this.freezeEnd = Date.now() + duration;
+                createParticles(this.x + this.width / 2, this.y + this.height / 2, '#00bcd4', 8);
+            }
+
             update(dt) {
-                if (this.isDead) { if (Date.now() - this.deathTime > 600) { const i = enemies.indexOf(this); if (i > -1) enemies.splice(i, 1); } return; }
-                const now = Date.now(), dir = player.x > this.x ? 1 : -1;
-                this.facingLeft = dir < 0;
-                const dist = Math.abs(player.x - this.x);
-                if (dist > 70) this.velocityX = dir * this.speed;
-                else { this.velocityX = 0; if (now - this.lastAttackTime > 1200) this.doAttack(); }
-                this.x += this.velocityX;
-                if (this.isDamaged && now - this.lastDamageTime > 300) this.isDamaged = false;
-                if (this.isAttacking && now - this.lastAttackTime > 300) this.isAttacking = false;
-                if (this.x < -100 || this.x > CONFIG.canvas.width + 100) { const i = enemies.indexOf(this); if (i > -1) enemies.splice(i, 1); }
-            }
-            doAttack() {
-                this.isAttacking = true; this.lastAttackTime = Date.now();
-                if (Math.abs(player.x - this.x) < 80) player.takeDamage(this.damage);
-            }
-            takeDamage(amount) {
                 if (this.isDead) return;
+                const now = Date.now();
+
+                // Burn tick
+                if (now < this.burnEnd && now - this.lastBurnTick > 500) {
+                    this.health -= this.burnDamage;
+                    this.lastBurnTick = now;
+                    createParticles(this.x + this.width / 2, this.y, '#e67e22', 3);
+                    createDamageIndicator(this.x + this.width / 2, this.y, this.burnDamage, '#e67e22');
+                    if (this.health <= 0) { this.die(); return; }
+                }
+
+                // Freeze check
+                if (this.frozen) {
+                    if (now > this.freezeEnd) this.frozen = false;
+                    else return; // Can't move while frozen
+                }
+
+                if (this.isDamaged && now - this.lastDamageTime > 200) this.isDamaged = false;
+                if (this.isAttacking && now - this.lastAttackTime > 400) this.isAttacking = false;
+
+                // Move toward player
+                const dx = player.x - this.x;
+                this.facingRight = dx > 0;
+                if (Math.abs(dx) > 50) {
+                    this.velocityX = Math.sign(dx) * this.speed;
+                } else {
+                    this.velocityX = 0;
+                    if (now - this.lastAttackTime > this.attackCooldown) {
+                        this.isAttacking = true; this.lastAttackTime = now;
+                        if (checkCollision({ x: this.x - 20, y: this.y, width: this.width + 40, height: this.height }, player)) {
+                            player.takeDamage(this.damage);
+                        }
+                    }
+                }
+
+                this.x += this.velocityX;
+                this.x = Math.max(-50, Math.min(CONFIG.canvas.width + 50, this.x));
+            }
+
+            takeDamage(amount) {
                 this.health -= amount; this.isDamaged = true; this.lastDamageTime = Date.now();
-                sounds.hit(); createDamageIndicator(this.x + this.width / 2, this.y, amount);
+                sounds.hit();
+                createDamageIndicator(this.x + this.width / 2, this.y, Math.round(amount));
+                createParticles(this.x + this.width / 2, this.y + this.height / 2, '#ffffff', 4);
                 if (this.health <= 0) this.die();
             }
+
             die() {
-                this.isDead = true; this.deathTime = Date.now(); gameState.stageKills++;
-                const pts = CONFIG.scoring.killBase + Math.floor(gameState.combo * CONFIG.scoring.comboMultiplier);
-                gameState.stageScore += pts;
-                createParticles(this.x + this.width / 2, this.y + this.height / 2, '#7cb342', 12);
-                updateHUD(); checkStageComplete();
+                this.isDead = true; this.deathTime = Date.now();
+                gameState.stageKills++;
+                const sc = CONFIG.scoring.killBase * (1 + gameState.combo * 0.2);
+                gameState.stageScore += Math.floor(sc);
+                createParticles(this.x + this.width / 2, this.y + this.height / 2, '#ffd700', 10);
+                checkStageComplete();
             }
+
             draw() {
+                if (this.isDead) {
+                    if (Date.now() - this.deathTime < 600) {
+                        ctx.save(); ctx.globalAlpha = Math.max(0, 1 - (Date.now() - this.deathTime) / 600);
+                        ctx.drawImage(images.enemyDead, this.x, this.y, this.width, this.height);
+                        ctx.restore();
+                    }
+                    return;
+                }
+
                 ctx.save();
                 let s = images.enemyIdle;
-                if (this.isDead) s = images.enemyDead;
-                else if (this.isDamaged) s = images.enemyDamage;
+                if (this.isDamaged) s = images.enemyDamage;
                 else if (this.isAttacking) s = images.enemyAttack;
-                else if (Math.abs(this.velocityX) > 0.1) s = this.facingLeft ? images.enemyWalkL : images.enemyWalkR;
+                else if (Math.abs(this.velocityX) > 0.3) s = this.facingRight ? images.enemyWalkR : images.enemyWalkL;
 
-                ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.beginPath();
-                ctx.ellipse(this.x + this.width / 2, CONFIG.physics.groundY + 3, this.width / 2.5, 8, 0, 0, Math.PI * 2); ctx.fill();
-                ctx.drawImage(s, this.x, this.y, this.width, this.height);
+                ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.beginPath();
+                ctx.ellipse(this.x + this.width / 2, CONFIG.physics.groundY + 3, this.width / 2, 7, 0, 0, Math.PI * 2); ctx.fill();
 
-                if (!this.isDead && this.health < this.maxHealth) {
-                    const bw = 50, bh = 5, bx = this.x + (this.width - bw) / 2, by = this.y - 10;
-                    ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(bx, by, bw, bh);
-                    const hp = this.health / this.maxHealth;
-                    ctx.fillStyle = hp > 0.5 ? '#4caf50' : hp > 0.25 ? '#ff9800' : '#f44336';
-                    ctx.fillRect(bx, by, bw * hp, bh);
+                // Frozen effect
+                if (this.frozen) {
+                    ctx.globalAlpha = 0.3;
+                    ctx.fillStyle = '#00bcd4';
+                    ctx.fillRect(this.x - 5, this.y - 5, this.width + 10, this.height + 10);
+                    ctx.globalAlpha = 1;
                 }
+
+                // Burn effect
+                if (Date.now() < this.burnEnd) {
+                    ctx.globalAlpha = 0.2 + Math.sin(Date.now() * 0.01) * 0.1;
+                    ctx.fillStyle = '#e67e22';
+                    ctx.fillRect(this.x - 3, this.y - 3, this.width + 6, this.height + 6);
+                    ctx.globalAlpha = 1;
+                }
+
+                // Health bar
+                const hpPct = this.health / this.maxHealth;
+                ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(this.x, this.y - 10, this.width, 5);
+                ctx.fillStyle = hpPct > 0.5 ? '#4caf50' : hpPct > 0.25 ? '#ff9800' : '#f44336';
+                ctx.fillRect(this.x, this.y - 10, this.width * hpPct, 5);
+
+                ctx.drawImage(s, this.x, this.y, this.width, this.height);
                 ctx.restore();
             }
         }
 
-        // Utilities
-        function checkCollision(a, b) { return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y; }
-
+        // ================ PARTICLES & EFFECTS ================
         function createParticles(x, y, color, count) {
-            for (let i = 0; i < count; i++) gameState.particles.push({ x, y, vx: (Math.random() - 0.5) * 8, vy: (Math.random() - 0.5) * 8 - 2, size: Math.random() * 6 + 2, color, life: 1 });
+            for (let i = 0; i < count; i++) {
+                gameState.particles.push({
+                    x, y, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6 - 2,
+                    life: 30 + Math.random() * 20, maxLife: 50, size: 3 + Math.random() * 4, color
+                });
+            }
         }
-        function updateParticles() { gameState.particles = gameState.particles.filter(p => { p.x += p.vx; p.y += p.vy; p.vy += 0.15; p.life -= 0.03; p.size *= 0.97; return p.life > 0; }); }
-        function drawParticles() { gameState.particles.forEach(p => { ctx.save(); ctx.globalAlpha = p.life; ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }); }
+        function updateParticles() {
+            gameState.particles = gameState.particles.filter(p => { p.x += p.vx; p.y += p.vy; p.vy += 0.1; p.life--; return p.life > 0; });
+        }
+        function drawParticles() {
+            gameState.particles.forEach(p => {
+                ctx.globalAlpha = p.life / p.maxLife; ctx.fillStyle = p.color;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.size * (p.life / p.maxLife), 0, Math.PI * 2); ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+        }
+
+        function createDamageIndicator(x, y, amount, color) {
+            gameState.damageIndicators.push({ x, y, text: `-${amount}`, life: 40, color: color || '#ff6b6b' });
+        }
+        function updateDamageIndicators() {
+            gameState.damageIndicators = gameState.damageIndicators.filter(d => { d.y -= 1.5; d.life--; return d.life > 0; });
+        }
+        function drawDamageIndicators() {
+            gameState.damageIndicators.forEach(d => {
+                ctx.globalAlpha = d.life / 40;
+                ctx.fillStyle = d.color; ctx.font = 'bold 16px "Press Start 2P"';
+                ctx.textAlign = 'center'; ctx.fillText(d.text, d.x, d.y);
+            });
+            ctx.globalAlpha = 1;
+        }
+
+        function showCombo(combo) {
+            el.comboDisplay.textContent = `${combo}x COMBO!`;
+            el.comboDisplay.classList.remove('active');
+            void el.comboDisplay.offsetWidth;
+            el.comboDisplay.classList.add('active');
+        }
 
         function updateProjectiles() {
             gameState.projectiles = gameState.projectiles.filter(p => {
-                p.x += p.vx; p.life -= 0.01;
-                // Check hit
+                p.x += p.vx; p.life -= 0.02;
+                if (p.x < -50 || p.x > CONFIG.canvas.width + 50 || p.life <= 0) return false;
+
                 for (let e of enemies) {
-                    if (!e.isDead && Math.abs(p.x - e.x - e.width/2) < 30 && Math.abs(p.y - e.y - e.height/2) < 40) {
+                    if (!e.isDead && checkCollision({ x: p.x - p.size, y: p.y - p.size, width: p.size * 2, height: p.size * 2 }, e)) {
                         e.takeDamage(p.damage);
-                        createParticles(p.x, p.y, '#87ceeb', 5);
+                        if (p.type === 'ice' && p.freezeChance && Math.random() < p.freezeChance) {
+                            e.freeze(CONFIG.vitoria.freezeDuration);
+                        }
+                        createParticles(p.x, p.y, p.type === 'ice' ? '#00bcd4' : '#ffe082', 5);
                         return false;
                     }
                 }
-                return p.life > 0 && p.x > 0 && p.x < CONFIG.canvas.width;
+                return true;
             });
         }
+
         function drawProjectiles() {
             gameState.projectiles.forEach(p => {
-                ctx.save(); ctx.globalAlpha = p.life;
-                const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size + 4);
-                grad.addColorStop(0, '#ffffff'); grad.addColorStop(0.5, '#87ceeb'); grad.addColorStop(1, 'rgba(135,206,235,0)');
-                ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(p.x, p.y, p.size + 4, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2); ctx.fill();
+                ctx.save();
+                if (p.type === 'ice') {
+                    ctx.fillStyle = '#00bcd4'; ctx.shadowColor = '#00bcd4'; ctx.shadowBlur = 12;
+                } else {
+                    ctx.fillStyle = '#ffe082'; ctx.shadowColor = '#ffb300'; ctx.shadowBlur = 10;
+                }
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
                 ctx.restore();
             });
         }
 
-        function createDamageIndicator(x, y, amount) { gameState.damageIndicators.push({ x, y, text: `-${amount}`, color: '#ff6b6b', life: 1, vy: -2 }); }
-        function updateDamageIndicators() { gameState.damageIndicators = gameState.damageIndicators.filter(d => { d.y += d.vy; d.life -= 0.02; return d.life > 0; }); }
-        function drawDamageIndicators() { gameState.damageIndicators.forEach(d => { ctx.save(); ctx.globalAlpha = d.life; ctx.font = 'bold 16px "Press Start 2P"'; ctx.fillStyle = d.color; ctx.textAlign = 'center'; ctx.fillText(d.text, d.x, d.y); ctx.restore(); }); }
-
-        function showCombo(combo) { el.comboDisplay.textContent = `${combo}x COMBO!`; el.comboDisplay.classList.remove('active'); void el.comboDisplay.offsetWidth; el.comboDisplay.classList.add('active'); }
-        function updateScreenShake() { if (gameState.screenShake.intensity > 0) { gameState.screenShake.x = (Math.random() - 0.5) * gameState.screenShake.intensity; gameState.screenShake.y = (Math.random() - 0.5) * gameState.screenShake.intensity; gameState.screenShake.intensity *= 0.9; if (gameState.screenShake.intensity < 0.5) gameState.screenShake.intensity = 0; } }
+        function updateScreenShake() {
+            if (gameState.screenShake.intensity > 0) {
+                gameState.screenShake.x = (Math.random() - 0.5) * gameState.screenShake.intensity;
+                gameState.screenShake.y = (Math.random() - 0.5) * gameState.screenShake.intensity;
+                gameState.screenShake.intensity *= 0.9;
+                if (gameState.screenShake.intensity < 0.5) gameState.screenShake.intensity = 0;
+            }
+        }
 
         // Spawning
         function spawnEnemy() {
@@ -1111,15 +1541,12 @@
         // Stage Complete Check
         function checkStageComplete() {
             const stage = gameState.currentStage; if (!stage || gameState.stageComplete) return;
-
             let completed = false;
             if (stage.mission.type === 'kill') {
                 if (gameState.stageKills >= stage.mission.target && enemies.filter(e => !e.isDead).length === 0) completed = true;
             } else if (stage.mission.type === 'combo') {
                 if (gameState.stageMaxCombo >= stage.mission.target) completed = true;
             }
-            // survive is checked in game loop
-
             if (completed) showResults(true);
         }
 
@@ -1155,7 +1582,13 @@
                 // Check character unlock
                 if (stage.unlockChar && !gameState.unlockedChars[stage.unlockChar]) {
                     gameState.unlockedChars[stage.unlockChar] = true;
-                    unlockedCharName = stage.unlockChar === 'sarah' ? 'Sarah (Atacante)' : 'Dani (Defensora)';
+                    const charNames = {
+                        sarah: 'Sarah (Atacante)',
+                        dani: 'Dani (Defensora)',
+                        alice: 'Alice (Suporte Fogo)',
+                        vitoria: 'Vitória (Suporte Gelo)'
+                    };
+                    unlockedCharName = charNames[stage.unlockChar] || stage.unlockChar;
                     sounds.unlock();
                 }
 
@@ -1175,7 +1608,6 @@
                 el.resultLevelUp.style.display = 'none';
             }
 
-            // Build results grid
             el.resultsGrid.innerHTML = `
                 <div class="result-card"><div class="result-card-value">${stage.name}</div><div class="result-card-label">Fase</div></div>
                 <div class="result-card"><div class="result-card-value">${gameState.stageScore.toLocaleString()}</div><div class="result-card-label">Pontos</div></div>
@@ -1185,7 +1617,6 @@
                 <div class="result-card"><div class="result-card-value">${gameState.stageDamageTaken}</div><div class="result-card-label">Dano Recebido</div></div>
             `;
 
-            // Unlock notice
             if (unlockedCharName) {
                 el.resultUnlock.textContent = `🎉 ${unlockedCharName.toUpperCase()} DESBLOQUEADA! 🎉`;
                 el.resultUnlock.style.display = 'block';
@@ -1196,20 +1627,17 @@
             // Buttons
             el.resultsButtons.innerHTML = '';
             if (victory) {
-                // Check if there's a next stage in the same world
                 const nextStageId = stage.id + 1;
                 const nextStage = STAGES_DATA.find(s => s.id === nextStageId);
                 const isLastInWorld = !nextStage || nextStage.world !== stage.world;
 
                 if (isLastInWorld || nextStageId > 30) {
-                    // Last stage in world or last stage overall → back to map
                     const mapBtn = document.createElement('button');
                     mapBtn.className = 'game-btn game-btn-secondary';
                     mapBtn.innerHTML = '🗺️ VOLTAR AO MAPA';
                     mapBtn.addEventListener('click', () => { hideResults(); showStageSelect(); });
                     el.resultsButtons.appendChild(mapBtn);
                 } else {
-                    // Has next stage → show next button on right
                     const mapBtn = document.createElement('button');
                     mapBtn.className = 'game-btn game-btn-secondary';
                     mapBtn.innerHTML = '🗺️ MAPA';
@@ -1223,7 +1651,6 @@
                     el.resultsButtons.appendChild(nextBtn);
                 }
             } else {
-                // Defeat → retry button (reload icon)
                 const retryBtn = document.createElement('button');
                 retryBtn.className = 'game-btn game-btn-danger';
                 retryBtn.innerHTML = '🔄 TENTAR NOVAMENTE';
@@ -1237,7 +1664,6 @@
                 el.resultsButtons.appendChild(mapBtn);
             }
 
-            // Hide game UI
             el.hudOverlay.style.display = 'none';
             el.stageIndicator.style.display = 'none';
             el.missionIndicator.style.display = 'none';
@@ -1247,9 +1673,7 @@
             setTimeout(() => el.resultsScreen.classList.add('active'), victory ? 1000 : 500);
         }
 
-        function hideResults() {
-            el.resultsScreen.classList.remove('active');
-        }
+        function hideResults() { el.resultsScreen.classList.remove('active'); }
 
         // HUD
         function updateHUD() {
@@ -1298,18 +1722,22 @@
             ctx.clearRect(0, 0, CONFIG.canvas.width, CONFIG.canvas.height);
             ctx.save(); ctx.translate(gameState.screenShake.x, gameState.screenShake.y);
 
-            player.update(dt); sarah.update(dt); dani.update(dt);
+            player.update(dt); sarah.update(dt); dani.update(dt); alice.update(dt); vitoria.update(dt);
             enemies.forEach(e => e.update(dt));
             updateParticles(); updateDamageIndicators(); updateScreenShake(); updateProjectiles();
 
+            // Clear expired buffs
+            const now = Date.now();
+            if (gameState.attackBuff && now > gameState.attackBuffEnd) gameState.attackBuff = false;
+            if (gameState.iceShieldActive && now > gameState.iceShieldEnd) gameState.iceShieldActive = false;
+            if (gameState.frostComboActive && now > gameState.frostComboEnd) gameState.frostComboActive = false;
+
             gameState.backgroundOffset -= player.velocityX * 0.3;
 
-            const now = Date.now();
             const stage = gameState.currentStage;
             if (stage && now - gameState.lastSpawnTime > stage.spawnRate) { spawnEnemy(); gameState.lastSpawnTime = now; }
             if (now - gameState.lastComboTime > CONFIG.scoring.comboTimeout && gameState.combo > 0) gameState.combo = 0;
 
-            // Survive mission check
             if (stage && stage.mission.type === 'survive') {
                 const elapsed = (now - gameState.stageStartTime) / 1000;
                 if (elapsed >= stage.mission.target) showResults(true);
@@ -1319,7 +1747,7 @@
 
             drawBackground();
             enemies.forEach(e => e.draw());
-            dani.draw(); sarah.draw(); player.draw();
+            dani.draw(); alice.draw(); vitoria.draw(); sarah.draw(); player.draw();
             drawProjectiles(); drawParticles(); drawDamageIndicators();
 
             ctx.restore();
@@ -1341,11 +1769,23 @@
             gameState.particles = []; gameState.damageIndicators = []; gameState.projectiles = [];
             gameState.screenShake = { x: 0, y: 0, intensity: 0 };
             gameState.shieldActive = false; gameState.shieldEndTime = 0;
+            gameState.attackBuff = false; gameState.attackBuffEnd = 0;
+            gameState.iceShieldActive = false; gameState.iceShieldEnd = 0;
+            gameState.frostComboActive = false; gameState.frostComboEnd = 0; gameState.frostComboChance = 0;
 
             gameState.sarahInTeam = gameState.selectedCharacters.includes('sarah');
             gameState.daniInTeam = gameState.selectedCharacters.includes('dani');
+            gameState.aliceInTeam = gameState.selectedCharacters.includes('alice');
+            gameState.vitoriaInTeam = gameState.selectedCharacters.includes('vitoria');
 
-            player.reset(); sarah.reset(); dani.reset(); enemies = [];
+            player.reset(); sarah.reset(); dani.reset(); alice.reset(); vitoria.reset();
+            enemies = [];
+
+            // Update mobile skill buttons visibility
+            const sk1 = document.getElementById('mobileSkill1');
+            const sk2 = document.getElementById('mobileSkill2');
+            sk1.style.display = gameState.aliceInTeam ? 'flex' : 'none';
+            sk2.style.display = gameState.vitoriaInTeam ? 'flex' : 'none';
 
             el.stageSelectScreen.classList.remove('active');
             el.resultsScreen.classList.remove('active');
@@ -1421,7 +1861,9 @@
             const chars = [
                 { id: 'lia', name: 'Lia', role: 'Guerreira', img: 'lia.png', always: true },
                 { id: 'sarah', name: 'Sarah', role: 'Atacante', img: 'sarah.png', always: false },
-                { id: 'dani', name: 'Dani', role: 'Defensora', img: 'dani.png', always: false }
+                { id: 'dani', name: 'Dani', role: 'Defensora', img: 'dani.png', always: false },
+                { id: 'alice', name: 'Alice', role: 'Suporte 🔥', img: 'alice.png', always: false },
+                { id: 'vitoria', name: 'Vitória', role: 'Suporte ❄️', img: 'vitoria.png', always: false }
             ];
 
             chars.forEach(c => {
@@ -1469,7 +1911,15 @@
             if (!gameState.running) return;
             if ((k === 'w' || k === ' ' || k === 'arrowup') && !gameState.paused) { player.jump(); e.preventDefault(); }
             if (k === 'j' && !gameState.paused) player.attack();
-            if (k === 'k' && !gameState.paused) dani.activateShield();
+            if (k === 'k' && !gameState.paused) {
+                // K = Dani shield or Vitória skill2
+                if (gameState.daniInTeam) dani.activateShield();
+                else if (gameState.vitoriaInTeam) vitoria.skill2IceAoE();
+            }
+            if (k === 'l' && !gameState.paused) {
+                // L = Vitória skill3 (frost combo buff)
+                if (gameState.vitoriaInTeam) vitoria.skill3FrostCombo();
+            }
             if (k === 'escape' || k === 'p') togglePause();
             if ([' ', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) e.preventDefault();
         });
@@ -1493,12 +1943,23 @@
             document.getElementById('mobileAttack').addEventListener('touchend', te('attack'));
             document.getElementById('mobileSupport').addEventListener('touchstart', ts('support', () => dani.activateShield()));
             document.getElementById('mobileSupport').addEventListener('touchend', te('support'));
+            document.getElementById('mobileSkill1').addEventListener('touchstart', ts('skill1', () => {
+                // Alice fire attack is auto, this triggers Vitória skill2 if alice not in team
+                if (gameState.vitoriaInTeam) vitoria.skill2IceAoE();
+            }));
+            document.getElementById('mobileSkill1').addEventListener('touchend', te('skill1'));
+            document.getElementById('mobileSkill2').addEventListener('touchstart', ts('skill2', () => {
+                if (gameState.vitoriaInTeam) vitoria.skill3FrostCombo();
+            }));
+            document.getElementById('mobileSkill2').addEventListener('touchend', te('skill2'));
         }
 
         // Event Listeners
         document.getElementById('titleStartBtn').addEventListener('click', () => { initAudio(); el.titleScreen.classList.remove('active'); el.mainMenuScreen.classList.add('active'); });
         document.getElementById('playGameBtn').addEventListener('click', showStageSelect);
-        document.getElementById('googleLoginBtn').addEventListener('click', () => { alert('Login com Google será implementado em breve! Por enquanto, seus dados são salvos localmente.'); });
+        document.getElementById('googleLoginBtn').addEventListener('click', () => {
+            alert('Login com Google será implementado em breve! Por enquanto, seus dados NÃO serão salvos.');
+        });
         document.getElementById('backToMenuBtn').addEventListener('click', () => { el.stageSelectScreen.classList.remove('active'); el.mainMenuScreen.classList.add('active'); });
         document.getElementById('playStageBtn').addEventListener('click', () => { startStage(selectedStageId); });
 
