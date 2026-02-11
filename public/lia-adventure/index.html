@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
-        :root{--primary:#ff6b9d;--primary-dark:#e0558a;--primary-glow:rgba(255,107,157,0.5);--secondary:#4dccbd;--secondary-dark:#3eb3a5;--danger:#ff6b6b;--warning:#ffb347;--bg-dark:#0d1b2a;--bg-darker:#06101a;--text-primary:#fff;--text-secondary:#a9d1ff;--gold:#ffd700;--xp-purple:#a855f7;--alice-orange:#e67e22;--vitoria-cyan:#00bcd4;--miguel-green:#4caf50;--lilia-purple:#9c27b0;--isabela-red:#8b0000}
+        :root{--primary:#ff6b9d;--primary-dark:#e0558a;--primary-glow:rgba(255,107,157,0.5);--secondary:#4dccbd;--secondary-dark:#3eb3a5;--danger:#ff6b6b;--warning:#ffb347;--bg-dark:#0d1b2a;--bg-darker:#06101a;--text-primary:#fff;--text-secondary:#a9d1ff;--gold:#ffd700;--xp-purple:#a855f7;--alice-orange:#e67e22;--vitoria-cyan:#00bcd4;--miguel-green:#4caf50;--lilia-purple:#9c27b0;--isabela-red:#8b0000;--gabriel-blue:#1565c0;--luccas-green:#2e7d32}
         html,body{height:100%;overflow:hidden}
         body{font-family:'Fredoka',sans-serif;background:linear-gradient(135deg,var(--bg-darker),var(--bg-dark),#1a2c4a);color:var(--text-primary);display:flex;align-items:center;justify-content:center;min-height:100vh}
         .game-wrapper{display:flex;flex-direction:column;align-items:center;width:100%;height:100%}
@@ -115,6 +115,8 @@
         .mobile-btn.attack-miguel{background:rgba(76,175,80,0.4);border-color:var(--miguel-green)}
         .mobile-btn.attack-lilia{background:rgba(156,39,176,0.4);border-color:var(--lilia-purple)}
         .mobile-btn.attack-isabela{background:rgba(139,0,0,0.4);border-color:var(--isabela-red)}
+        .mobile-btn.attack-gabriel{background:rgba(21,101,192,0.4);border-color:var(--gabriel-blue)}
+        .mobile-btn.attack-luccas{background:rgba(46,125,50,0.4);border-color:var(--luccas-green)}
         .mobile-btn.jump{background:rgba(77,204,189,0.4);border-color:var(--secondary)}
         .support-cooldown{position:absolute;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:4px 12px;border-radius:12px;font-family:'Press Start 2P',cursive;font-size:.4rem;color:#3498db;z-index:20;display:none}
         .combo-display{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);font-family:'Press Start 2P',cursive;font-size:1.2rem;color:var(--gold);text-shadow:0 0 20px var(--gold),2px 2px 0 #b38600;pointer-events:none;opacity:0;z-index:50}
@@ -209,12 +211,14 @@ const XP={f(l){return Math.floor(100*Math.pow(1.5,l-1))},g(t){let l=1,n=0;while(
 const C={W:1280,H:720,GY:620,G:.5,AR:.98,P:{w:70,h:100,ws:4,rs:7,ac:.45,dc:.35,jf:-14,jhf:-.5,mjh:200,ad:300,acd:400,dcd:1000,ar:90,ah:70,bh:100,ba:20},
 S:{w:65,h:95,ps:10,ar:400,acd:600,ba:15},D:{w:70,h:100,sd:6000,scd:15000},
 A:{w:65,h:95,fr:150,bd:3,bdr:3000,bfd:5000,acd:8000},V:{w:65,h:95,fc:.25,fd:2000,s1c:5000,s2c:12000,s3c:10000},
-M:{w:65,h:95,ps:12,acd:800,ba:18},L:{w:65,h:95,pr:160,hAmt:15,shAmt:20,atkBuff:1.3,burnDmg:4,bdr:4000,acd:10000}};
+M:{w:65,h:95,ps:12,acd:800,ba:18},L:{w:65,h:95,pr:160,hAmt:15,shAmt:20,atkBuff:1.3,burnDmg:4,bdr:4000,acd:10000},
+GB:{w:65,h:95,rfl:1500,rcd:8000},LC:{w:65,h:95,shHP:40,shDur:10000,atkBuf:1.3,bufDur:6000,acd1:12000,acd2:10000,ps:10}};
 
-const G_={totalXp:0,pl:1,cx:0,xn:100,hs:1,ss:{},uc:{lia:1,sarah:1,dani:1,alice:1,vitoria:1,miguel:1,lilia:1,isabela:1},ts:0,cs:null,sel:['lia'],pc:'lia',
-sit:0,dit:0,ait:0,vit:0,mit:0,lit:0,ibt:0,run:0,pau:0,sc:0,died:0,sk:0,ssc:0,sdt:0,smc:0,sst:0,co:0,lct:0,lsp:0,bo:0,
+const G_={totalXp:0,pl:1,cx:0,xn:100,hs:1,ss:{},uc:{lia:1,sarah:1,dani:1,alice:1,vitoria:1,miguel:1,lilia:1,isabela:1,gabriel:1,luccas:1},ts:0,cs:null,sel:['lia'],pc:'lia',
+sit:0,dit:0,ait:0,vit:0,mit:0,lit:0,ibt:0,gbt:0,lut:0,run:0,pau:0,sc:0,died:0,sk:0,ssc:0,sdt:0,smc:0,sst:0,co:0,lct:0,lsp:0,bo:0,
 par:[],di:[],ssh:{x:0,y:0,i:0},keys:{},proj:[],
 shA:0,shE:0,lsT:0,aBuf:0,aBufE:0,iSh:0,iShE:0,fCA:0,fCE:0,fCC:0,
+lcSh:0,lcShHP:0,lcShE:0,
 login:0,fog:0,slow:0};
 
 function save(){if(!G_.login)return;localStorage.setItem('liaSave',JSON.stringify({x:G_.totalXp,h:G_.hs,s:G_.ss,u:G_.uc,t:G_.ts}))}
@@ -241,6 +245,8 @@ vitoriaIdle:'vitoria.png',vitoriaRun:'vitoriarun.png',vitoriaA1:'vitoriaattack1.
 miguelIdle:'miguel.png',miguelRun:'miguelrun.png',miguelJump:'migueljump.png',miguelAttack:'miguelattack.png',miguelDamage:'migueldamage.png',
 liliaIdle:'lilia.png',liliaRun:'liliarun.png',liliaJump:'liliajump.png',liliaAttack:'liliaattack.png',liliaDamage:'liliadamage.png',
 isabelaIdle:'isabela.png',isabelaRun:'isabelarun.png',isabelaJump:'isabelajump.png',isabelaAttack:'isabelaattack.png',isabelaDamage:'isabeladamage.png',
+gabrielIdle:'gabriel.png',gabrielRun:'gabrielrun.png',gabrielJump:'gabrieljump.png',gabrielDefense:'gabrieldefense.png',gabrielDamage:'gabrieldamage.png',
+luccasIdle:'luccas.png',luccasRun:'luccasrun.png',luccasDamage:'luccasdamage.png',luccasAttack1:'luccasattack1.png',luccasAttack2:'luccasattack2.png',
 skeleton:'skeleton.png',skeletonWL:'skeletonwalkl.png',skeletonWR:'skeletonwalkr.png',skeletonAtk:'skeletonattack.png',skeletonDmg:'skeletondamage.png',skeletonDead:'skeletonko.png',
 dog:'edmf.png',archer:'bonearc.png',necromancer:'wizbon.png',bigbone:'bigbon.png',
 background:'mapa.png',bg1:'bg_forest1.png',bg2:'bg_forest2.png',bg3:'bg_forest3.png',bg4:'bg_forest4.png',bg5:'bg_forest5.png'};
@@ -269,6 +275,7 @@ const ab={x:this.fr?this.x+this.w-10:this.x-C.P.ar+10,y:this.y+20,width:C.P.ar,h
 enemies.forEach(e=>{if(!e.dead&&cc(ab,e)){e.takeDmg(a);hit=1;if(G_.fCA&&now<G_.fCE&&Math.random()<G_.fCC&&!e.frz)e.freeze(C.V.fd);G_.fCC=Math.min((G_.fCC||0)+.05,.6)}});
 if(hit){G_.co++;G_.lct=now;if(G_.co>G_.smc)G_.smc=G_.co;if(G_.co>1){showCombo(G_.co);snd.combo()}cP(this.fr?this.x+this.w+20:this.x-20,this.y+this.h/2,'#ff6b9d',5)}},
 takeDmg(a){const now=Date.now();if(now-this.ldt<C.P.dcd)return;if(G_.shA)return;if(G_.iSh&&now<G_.iShE){cP(this.x+this.w/2,this.y+this.h/2,'#00bcd4',6);return}
+if(G_.lcSh&&Date.now()<G_.lcShE){G_.lcShHP-=a;cP(this.x+this.w/2,this.y+this.h/2,'#2e7d32',4);if(G_.lcShHP<=0){G_.lcSh=0;cP(this.x+this.w/2,this.y,'#ff6b6b',8)}return}
 this.hp-=a;this.dmg=1;this.ldt=now;G_.sdt+=a;snd.dmg();G_.ssh.i=8;G_.co=0;if(G_.fCA)G_.fCC=.05;
 cDI(this.x+this.w/2,this.y,a);cP(this.x+this.w/2,this.y+this.h/2,'#ff6b6b',8);if(this.hp<=0){this.hp=0;gOver()}uHUD()},
 draw(){ctx.save();const sp=pcSpr[G_.pc]||pcSpr.lia;let s=sp.idle;if(this.dmg)s=sp.damage;else if(this.atk)s=sp.attack;else if(!this.gr)s=sp.jump;else if(Math.abs(this.vx)>.5)s=this.run?sp.run:sp.walk;
@@ -359,6 +366,45 @@ update(){if(!G_.ibt)return;fP(this,-200);const now=Date.now();if(this.atk&&now-t
 if(now-this.lat>8000&&enemies.filter(e=>!e.dead).length>0)this.batSwarm()},
 draw(){if(!G_.ibt)return;ctx.save();let s=img.isabelaIdle;if(this.atk){s=img.isabelaAttack;ctx.globalAlpha=.2;ctx.fillStyle='#8b0000';ctx.beginPath();ctx.arc(this.x+this.w/2,this.y+this.h/2,100,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1}else if(this.jmp)s=img.isabelaJump;else if(Math.abs(this.vx)>.5)s=img.isabelaRun;dC(this,s);ctx.restore()}};
 
+// Gabriel - Defender: reflects attacks with shield
+const gabriel={x:280,y:0,w:65,h:95,vx:0,vy:0,fr:1,jmp:0,def:0,lat:0,width:65,height:95,
+reset(){this.x=280;this.y=C.GY-this.h;this.vx=0;this.vy=0;this.def=0;this.lat=0},
+reflect(){this.def=1;this.lat=Date.now();snd.shield();
+const cx=this.x+this.w/2,cy=this.y+this.h/2;
+// Reflect nearby enemy projectiles
+G_.proj=G_.proj.map(p=>{if(p.isE){const dist=Math.sqrt(Math.pow(p.x-cx,2)+Math.pow(p.y-cy,2));if(dist<120){p.vx*=-1.5;p.isE=0;p.type='light';p.damage*=2;cP(p.x,p.y,'#64b5f6',6)}}return p});
+// Damage nearby melee enemies
+const d=12+XP.b(G_.pl,'attack')*.4;
+enemies.forEach(e=>{if(e.dead)return;const dist=Math.sqrt(Math.pow(e.x+e.width/2-cx,2)+Math.pow(e.y+e.height/2-cy,2));if(dist<100){e.takeDmg(d);e.vx=Math.sign(e.x-cx)*8}});
+for(let i=0;i<15;i++){const a=(Math.PI*2/15)*i;G_.par.push({x:cx+Math.cos(a)*30,y:cy+Math.sin(a)*20,vx:Math.cos(a)*5,vy:Math.sin(a)*3,life:35,ml:35,size:5,color:Math.random()>.5?'#1565c0':'#64b5f6'})}},
+update(){if(!G_.gbt)return;fP(this,80);const now=Date.now();if(this.def&&now-this.lat>C.GB.rfl)this.def=0;
+if(now-this.lat>C.GB.rcd){const a=enemies.filter(e=>!e.dead);const hasProj=G_.proj.some(p=>p.isE);if(a.length>0||hasProj)this.reflect()}},
+draw(){if(!G_.gbt)return;ctx.save();let s=img.gabrielIdle;if(this.def){s=img.gabrielDefense;ctx.globalAlpha=.25;ctx.fillStyle='#1565c0';ctx.beginPath();ctx.arc(this.x+this.w/2,this.y+this.h/2,80,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1}else if(this.jmp)s=img.gabrielJump;else if(Math.abs(this.vx)>.5)s=img.gabrielRun;dC(this,s);ctx.restore()}};
+
+// Luccas - Creative: throw shield (attack1) gives allies shield, kick shield (attack2) gives attack buff
+const luccas={x:300,y:0,w:65,h:95,vx:0,vy:0,fr:1,jmp:0,atk:0,atkType:0,lat1:0,lat2:0,width:65,height:95,
+reset(){this.x=300;this.y=C.GY-this.h;this.vx=0;this.vy=0;this.atk=0;this.atkType=0;this.lat1=0;this.lat2=0},
+throwShield(){this.atk=1;this.atkType=1;this.lat1=Date.now();snd.shield();
+// Give allies a shield
+G_.lcSh=1;G_.lcShHP=C.LC.shHP+XP.b(G_.pl,'health')*.3;G_.lcShE=Date.now()+C.LC.shDur;
+// Throw shield projectile
+const d=15+XP.b(G_.pl,'attack')*.5;const dir=this.fr?1:-1;
+G_.proj.push({x:this.x+this.w/2,y:this.y+this.h/2,vx:dir*C.LC.ps,damage:d,life:1,size:14,type:'shield'});
+cP(this.x+this.w/2,this.y+this.h/2,'#2e7d32',10)},
+kickShield(){this.atk=1;this.atkType=2;this.lat2=Date.now();snd.energy();
+// Attack buff for allies
+G_.aBuf=1;G_.aBufE=Date.now()+C.LC.bufDur;
+// Kick shield projectile
+const d=20+XP.b(G_.pl,'attack')*.6;const dir=this.fr?1:-1;
+G_.proj.push({x:this.x+this.w/2,y:this.y+this.h/2,vx:dir*C.LC.ps*1.5,damage:d,life:1,size:16,type:'shield'});
+cP(this.x+this.w/2,this.y+this.h/2,'#4caf50',12)},
+update(){if(!G_.lut)return;fP(this,120);const now=Date.now();if(this.atk&&now-Math.max(this.lat1,this.lat2)>500)this.atk=0;
+if(now-this.lat1>C.LC.acd1&&enemies.filter(e=>!e.dead).length>0)this.throwShield();
+else if(now-this.lat2>C.LC.acd2&&now-this.lat1>3000&&enemies.filter(e=>!e.dead).length>0)this.kickShield()},
+draw(){if(!G_.lut)return;ctx.save();let s=img.luccasIdle;if(this.atk&&this.atkType===1)s=img.luccasAttack1;else if(this.atk&&this.atkType===2)s=img.luccasAttack2;else if(Math.abs(this.vx)>.5)s=img.luccasRun;
+if(G_.lcSh&&Date.now()<G_.lcShE){ctx.globalAlpha=.15;ctx.fillStyle='#2e7d32';ctx.beginPath();ctx.ellipse(P.x+P.w/2,P.y+P.h/2,P.w*.8,P.h*.65,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1}
+dC(this,s);ctx.restore()}};
+
 // Player character sprite map (for primary character rendering)
 const pcSpr={
 lia:{idle:img.playerIdle,walk:img.playerWalk,run:img.playerRun,jump:img.playerJump,attack:img.playerAttack,damage:img.playerDamage},
@@ -368,7 +414,9 @@ alice:{idle:img.aliceIdle,walk:img.aliceRun,run:img.aliceRun,jump:img.aliceIdle,
 vitoria:{idle:img.vitoriaIdle,walk:img.vitoriaRun,run:img.vitoriaRun,jump:img.vitoriaIdle,attack:img.vitoriaA1,damage:img.vitoriaIdle},
 miguel:{idle:img.miguelIdle,walk:img.miguelRun,run:img.miguelRun,jump:img.miguelJump,attack:img.miguelAttack,damage:img.miguelDamage},
 lilia:{idle:img.liliaIdle,walk:img.liliaRun,run:img.liliaRun,jump:img.liliaJump,attack:img.liliaAttack,damage:img.liliaDamage},
-isabela:{idle:img.isabelaIdle,walk:img.isabelaRun,run:img.isabelaRun,jump:img.isabelaJump,attack:img.isabelaAttack,damage:img.isabelaDamage}};
+isabela:{idle:img.isabelaIdle,walk:img.isabelaRun,run:img.isabelaRun,jump:img.isabelaJump,attack:img.isabelaAttack,damage:img.isabelaDamage},
+gabriel:{idle:img.gabrielIdle,walk:img.gabrielRun,run:img.gabrielRun,jump:img.gabrielJump,attack:img.gabrielDefense,damage:img.gabrielDamage},
+luccas:{idle:img.luccasIdle,walk:img.luccasRun,run:img.luccasRun,jump:img.luccasIdle,attack:img.luccasAttack1,damage:img.luccasDamage}};
 
 // ===== ENEMY =====
 function gEI(t){return{skeleton:img.skeleton,dog:img.dog,archer:img.archer,necromancer:img.necromancer,bigbone:img.bigbone}[t]||img.skeleton}
@@ -403,7 +451,7 @@ function uDI(){G_.di=G_.di.filter(d=>{d.y-=1.5;d.life--;return d.life>0})}
 function dDI(){G_.di.forEach(d=>{ctx.globalAlpha=d.life/40;ctx.fillStyle=d.color;ctx.font='bold 16px "Press Start 2P"';ctx.textAlign='center';ctx.fillText(d.text,d.x,d.y)});ctx.globalAlpha=1}
 function showCombo(c){el.comboDisplay.textContent=c+'x COMBO!';el.comboDisplay.classList.remove('active');void el.comboDisplay.offsetWidth;el.comboDisplay.classList.add('active')}
 function uProj(){G_.proj=G_.proj.filter(p=>{p.x+=p.vx;p.life-=.02;if(p.x<-50||p.x>C.W+50||p.life<=0)return false;if(p.isE){if(cc({x:p.x-p.size,y:p.y-p.size,width:p.size*2,height:p.size*2},P)){P.takeDmg(p.damage);return false}}else{for(let e of enemies){if(!e.dead&&cc({x:p.x-p.size,y:p.y-p.size,width:p.size*2,height:p.size*2},e)){e.takeDmg(p.damage);if(p.type==='ice'&&p.fc&&Math.random()<p.fc)e.freeze(C.V.fd);cP(p.x,p.y,p.type==='ice'?'#00bcd4':p.type==='energy'?'#4caf50':'#ffe082',5);return false}}}return true})}
-function dProj(){G_.proj.forEach(p=>{ctx.save();if(p.isE){ctx.fillStyle='#a855f7';ctx.shadowColor='#a855f7';ctx.shadowBlur=10}else if(p.type==='ice'){ctx.fillStyle='#00bcd4';ctx.shadowColor='#00bcd4';ctx.shadowBlur=12}else if(p.type==='energy'){ctx.fillStyle='#4caf50';ctx.shadowColor='#4caf50';ctx.shadowBlur=12}else if(p.type==='bat'){ctx.fillStyle='#8b0000';ctx.shadowColor='#8b0000';ctx.shadowBlur=10}else{ctx.fillStyle='#ffe082';ctx.shadowColor='#ffb300';ctx.shadowBlur=10}ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();ctx.restore()})}
+function dProj(){G_.proj.forEach(p=>{ctx.save();if(p.isE){ctx.fillStyle='#a855f7';ctx.shadowColor='#a855f7';ctx.shadowBlur=10}else if(p.type==='ice'){ctx.fillStyle='#00bcd4';ctx.shadowColor='#00bcd4';ctx.shadowBlur=12}else if(p.type==='energy'){ctx.fillStyle='#4caf50';ctx.shadowColor='#4caf50';ctx.shadowBlur=12}else if(p.type==='bat'){ctx.fillStyle='#8b0000';ctx.shadowColor='#8b0000';ctx.shadowBlur=10}else if(p.type==='shield'){ctx.fillStyle='#2e7d32';ctx.shadowColor='#4caf50';ctx.shadowBlur=14}else{ctx.fillStyle='#ffe082';ctx.shadowColor='#ffb300';ctx.shadowBlur=10}ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();ctx.restore()})}
 function uSS(){if(G_.ssh.i>0){G_.ssh.x=(Math.random()-.5)*G_.ssh.i;G_.ssh.y=(Math.random()-.5)*G_.ssh.i;G_.ssh.i*=.9;if(G_.ssh.i<.5)G_.ssh.i=0}}
 function spawnE(){const st=G_.cs;if(!st)return;if(enemies.filter(e=>!e.dead).length>=st.me)return;if(st.m.type==='kill'&&G_.sk>=st.m.target)return;const side=Math.random()>.5?1:-1;const types=st.et||['skeleton'];const type=types[Math.floor(Math.random()*types.length)];enemies.push(new Enemy(side===1?C.W+50:-60,st,type))}
 function chkComplete(){const st=G_.cs;if(!st||G_.sc)return;if(st.m.type==='kill'&&G_.sk>=st.m.target&&enemies.filter(e=>!e.dead).length===0)showRes(1);if(st.m.type==='combo'&&G_.smc>=st.m.target)showRes(1)}
@@ -433,12 +481,12 @@ ctx.fillStyle='#3a5a40';ctx.fillRect(0,C.GY,C.W,C.H-C.GY);ctx.fillStyle='#588157
 let lt=0;
 function loop(ts){if(!G_.run)return;const dt=ts-lt;lt=ts;if(G_.pau||G_.sc){requestAnimationFrame(loop);return}
 ctx.clearRect(0,0,C.W,C.H);ctx.save();ctx.translate(G_.ssh.x,G_.ssh.y);
-P.update(dt);sarah.update();dani.update();alice.update();vitoria.update();miguel.update();lilia.update();isabela.update();
+P.update(dt);sarah.update();dani.update();alice.update();vitoria.update();miguel.update();lilia.update();isabela.update();gabriel.update();luccas.update();
 enemies.forEach(e=>e.update());uP();uDI();uSS();uProj();
-const now=Date.now();if(G_.aBuf&&now>G_.aBufE)G_.aBuf=0;if(G_.iSh&&now>G_.iShE)G_.iSh=0;if(G_.fCA&&now>G_.fCE)G_.fCA=0;
+const now=Date.now();if(G_.aBuf&&now>G_.aBufE)G_.aBuf=0;if(G_.iSh&&now>G_.iShE)G_.iSh=0;if(G_.fCA&&now>G_.fCE)G_.fCA=0;if(G_.lcSh&&now>G_.lcShE)G_.lcSh=0;
 G_.bo-=P.vx*.3;const st=G_.cs;if(st&&now-G_.lsp>st.sr){spawnE();G_.lsp=now}if(now-G_.lct>2000&&G_.co>0)G_.co=0;
 if(st&&st.m.type==='survive'&&(now-G_.sst)/1000>=st.m.target)showRes(1);
-uHUD();drawBg();enemies.forEach(e=>e.draw());dani.draw();alice.draw();vitoria.draw();lilia.draw();miguel.draw();isabela.draw();sarah.draw();P.draw();dProj();dP();dDI();
+uHUD();drawBg();enemies.forEach(e=>e.draw());dani.draw();alice.draw();vitoria.draw();lilia.draw();miguel.draw();isabela.draw();gabriel.draw();luccas.draw();sarah.draw();P.draw();dProj();dP();dDI();
 ctx.restore();requestAnimationFrame(loop)}
 
 // Primary character attack
@@ -450,13 +498,15 @@ alice:{icon:'🔥🔥',css:'attack-alice',fn:()=>{alice.fireAttack();alice.lat=D
 vitoria:{icon:'❄',css:'attack-vitoria',fn:()=>vitoria.s2()},
 miguel:{icon:'🔫',css:'attack-miguel',fn:()=>{miguel.shoot();miguel.lat=Date.now()}},
 lilia:{icon:'🔮',css:'attack-lilia',fn:()=>{lilia.purpleBurst();lilia.lat=Date.now()}},
-isabela:{icon:'🦇',css:'attack-isabela',fn:()=>{isabela.batSwarm();isabela.lat=Date.now()}}
+isabela:{icon:'🦇',css:'attack-isabela',fn:()=>{isabela.batSwarm();isabela.lat=Date.now()}},
+gabriel:{icon:'🛡️',css:'attack-gabriel',fn:()=>{gabriel.reflect();gabriel.lat=Date.now()}},
+luccas:{icon:'🟢',css:'attack-luccas',fn:()=>{luccas.throwShield();luccas.lat1=Date.now()}}
 };
 function uMAB(){const b=document.getElementById('mobileAttack'),i=CA[G_.pc]||CA.lia;b.textContent=i.icon;b.className='mobile-btn '+i.css}
 function pAtk(){(CA[G_.pc]||CA.lia).fn()}
 
 function startS(id){iA();const st=SD.find(s=>s.id===id);if(!st||id>G_.hs)return;
-G_.cs=st;G_.run=1;G_.pau=0;G_.sc=0;G_.died=0;G_.sk=0;G_.ssc=0;G_.sdt=0;G_.smc=0;G_.co=0;G_.lct=0;G_.lsp=Date.now();G_.lsT=0;G_.sst=Date.now();G_.bo=0;G_.par=[];G_.di=[];G_.proj=[];G_.ssh={x:0,y:0,i:0};G_.shA=0;G_.shE=0;G_.aBuf=0;G_.aBufE=0;G_.iSh=0;G_.iShE=0;G_.fCA=0;G_.fCE=0;G_.fCC=0;G_.fog=!!st.fog;G_.slow=!!st.slow;
+G_.cs=st;G_.run=1;G_.pau=0;G_.sc=0;G_.died=0;G_.sk=0;G_.ssc=0;G_.sdt=0;G_.smc=0;G_.co=0;G_.lct=0;G_.lsp=Date.now();G_.lsT=0;G_.sst=Date.now();G_.bo=0;G_.par=[];G_.di=[];G_.proj=[];G_.ssh={x:0,y:0,i:0};G_.shA=0;G_.shE=0;G_.aBuf=0;G_.aBufE=0;G_.iSh=0;G_.iShE=0;G_.fCA=0;G_.fCE=0;G_.fCC=0;G_.lcSh=0;G_.lcShHP=0;G_.lcShE=0;G_.fog=!!st.fog;G_.slow=!!st.slow;
 el.fogOverlay.classList.toggle('active',G_.fog);
 curBg=img[getBg(id)]||img.background;
 G_.pc=G_.sel[0]||'lia';
@@ -467,8 +517,10 @@ G_.vit=G_.sel.includes('vitoria')&&G_.pc!=='vitoria'?1:0;
 G_.mit=G_.sel.includes('miguel')&&G_.pc!=='miguel'?1:0;
 G_.lit=G_.sel.includes('lilia')&&G_.pc!=='lilia'?1:0;
 G_.ibt=G_.sel.includes('isabela')&&G_.pc!=='isabela'?1:0;
+G_.gbt=G_.sel.includes('gabriel')&&G_.pc!=='gabriel'?1:0;
+G_.lut=G_.sel.includes('luccas')&&G_.pc!=='luccas'?1:0;
 uMAB();
-P.reset();sarah.reset();dani.reset();alice.reset();vitoria.reset();miguel.reset();lilia.reset();isabela.reset();enemies=[];
+P.reset();sarah.reset();dani.reset();alice.reset();vitoria.reset();miguel.reset();lilia.reset();isabela.reset();gabriel.reset();luccas.reset();enemies=[];
 el.stageSelectScreen.classList.remove('active');el.resultsScreen.classList.remove('active');el.hudOverlay.style.display='flex';el.stageIndicator.style.display='block';el.stageIndicator.textContent='FASE '+st.n;el.missionIndicator.style.display='block';el.missionIndicator.textContent=st.m.text;el.controlsPanel.style.display=window.innerWidth>768?'grid':'none';el.supportCooldown.style.display=G_.dit?'block':'none';uHUD();lt=performance.now();requestAnimationFrame(loop)}
 function tPause(){if(!G_.run||G_.sc)return;G_.pau=!G_.pau;el.pauseOverlay.classList.toggle('active',G_.pau)}
 
@@ -477,7 +529,7 @@ function rWT(){el.worldTabs.innerHTML='';const t=document.createElement('button'
 function rSG(){el.stageGrid.innerHTML='';SD.forEach(st=>{const n=document.createElement('div');n.className='stage-node';const u=st.id<=G_.hs,c=G_.ss[st.id]>0,ic=st.id===G_.hs;if(c)n.classList.add('completed');else if(u){n.classList.add('unlocked');if(ic)n.classList.add('current')}else n.classList.add('locked');n.innerHTML='<div class="stage-number">'+st.sw+'</div><div class="stage-stars">'+('⭐'.repeat(G_.ss[st.id]||0))+'</div>';if(u)n.addEventListener('click',()=>selStage(st.id));el.stageGrid.appendChild(n)})}
 function selStage(id){selS=id;const s=SD.find(x=>x.id===id);if(!s)return;el.stageInfoPanel.style.display='block';el.stageInfoTitle.textContent='FASE '+s.n+' - '+s.wn;el.stageInfoMission.textContent=s.m.text;el.stageXpReward.textContent=s.xp;el.stageScoreReward.textContent=s.sc;rTS()}
 function rTS(){el.teamSelectMini.innerHTML='';
-const chars=[{id:'lia',n:'Lia',r:'Guerreira',i:'lia.png'},{id:'sarah',n:'Sarah',r:'Atacante',i:'sarah.png'},{id:'dani',n:'Dani',r:'Defensora',i:'dani.png'},{id:'alice',n:'Alice',r:'Suporte🔥',i:'alice.png'},{id:'vitoria',n:'Vitória',r:'Suporte❄️',i:'vitoria.png'},{id:'miguel',n:'Miguel',r:'Atirador',i:'miguel.png'},{id:'lilia',n:'Lilia',r:'Criativa',i:'lilia.png'},{id:'isabela',n:'Isabela',r:'Atacante🦇',i:'isabela.png'}];
+const chars=[{id:'lia',n:'Lia',r:'Guerreira',i:'lia.png'},{id:'sarah',n:'Sarah',r:'Atacante',i:'sarah.png'},{id:'dani',n:'Dani',r:'Defensora',i:'dani.png'},{id:'alice',n:'Alice',r:'Suporte🔥',i:'alice.png'},{id:'vitoria',n:'Vitória',r:'Suporte❄️',i:'vitoria.png'},{id:'miguel',n:'Miguel',r:'Atirador',i:'miguel.png'},{id:'lilia',n:'Lilia',r:'Criativa',i:'lilia.png'},{id:'isabela',n:'Isabela',r:'Atacante🦇',i:'isabela.png'},{id:'gabriel',n:'Gabriel',r:'Defensor🛡️',i:'gabriel.png'},{id:'luccas',n:'Luccas',r:'Criativo🟢',i:'luccas.png'}];
 chars.forEach(c=>{
 const div=document.createElement('div'),idx=G_.sel.indexOf(c.id),ip=idx===0,sel=idx>=0;
 div.className='team-char-mini'+(sel?' selected':'')+(ip?' primary-char':'');
@@ -502,7 +554,7 @@ document.getElementById('playGameBtn').addEventListener('click',showSS);
 document.getElementById('googleLoginBtn').addEventListener('click',()=>alert('Login com Google será implementado em breve!\nSem login, seus dados NÃO serão salvos ao fechar o jogo.'));
 document.getElementById('backToMenuBtn').addEventListener('click',()=>{el.stageSelectScreen.classList.remove('active');el.mainMenuScreen.classList.add('active')});
 document.getElementById('playStageBtn').addEventListener('click',()=>startS(selS));
-setupM();G_.sel=['lia'];G_.uc.isabela=1;if('ontouchstart' in window)el.mobileControls.style.display='flex';
+setupM();G_.sel=['lia'];if('ontouchstart' in window)el.mobileControls.style.display='flex';
 </script>
 </body>
 </html>
