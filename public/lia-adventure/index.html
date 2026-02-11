@@ -75,7 +75,7 @@
         .reward-item{display:flex;align-items:center;gap:5px;font-size:.65rem;color:var(--gold)}
         .play-stage-btn{font-family:'Press Start 2P',cursive;font-size:.6rem;padding:12px 30px;border:none;border-radius:25px;cursor:pointer;background:linear-gradient(135deg,var(--secondary),var(--secondary-dark));color:white;box-shadow:0 4px 0 #2a9d8f;transition:all .2s}
         .play-stage-btn:hover{transform:translateY(-2px)}
-        .team-select-mini{display:flex;gap:8px;margin-bottom:15px;justify-content:center;flex-wrap:wrap}
+        .team-select-mini{display:flex;gap:8px;margin-bottom:15px;justify-content:center;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:8px 4px;max-width:100%}
         .team-char-mini{width:50px;height:62px;border-radius:10px;border:2px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.4);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;padding:2px}
         .team-char-mini.selected{border-color:var(--secondary);background:rgba(77,204,189,0.2)}
         .team-char-mini.primary-char{border-color:var(--gold);background:rgba(255,215,0,0.15);box-shadow:0 0 8px rgba(255,215,0,0.3)}
@@ -117,6 +117,8 @@
         .mobile-btn.attack-isabela{background:rgba(139,0,0,0.4);border-color:var(--isabela-red)}
         .mobile-btn.attack-gabriel{background:rgba(21,101,192,0.4);border-color:var(--gabriel-blue)}
         .mobile-btn.attack-luccas{background:rgba(46,125,50,0.4);border-color:var(--luccas-green)}
+        .mobile-btn.attack-manuh{background:rgba(100,0,150,0.4);border-color:#7b1fa2}
+        .mobile-btn.attack-julia{background:rgba(200,50,30,0.4);border-color:#c62828}
         .mobile-btn.jump{background:rgba(77,204,189,0.4);border-color:var(--secondary)}
         .support-cooldown{position:absolute;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:4px 12px;border-radius:12px;font-family:'Press Start 2P',cursive;font-size:.4rem;color:#3498db;z-index:20;display:none}
         .combo-display{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);font-family:'Press Start 2P',cursive;font-size:1.2rem;color:var(--gold);text-shadow:0 0 20px var(--gold),2px 2px 0 #b38600;pointer-events:none;opacity:0;z-index:50}
@@ -161,7 +163,7 @@
             <div class="player-stats-panel"><div class="player-stat-item"><div class="player-stat-value" id="playerLevelStat">Lv. 1</div><div class="player-stat-label">Nível</div></div><div class="player-stat-item"><div class="player-stat-value" id="playerXpStat">0</div><div class="player-stat-label">XP Total</div></div><div class="player-stat-item"><div class="player-stat-value" id="playerStarsStat">0</div><div class="player-stat-label">⭐ Estrelas</div></div></div>
             <div class="world-tabs" id="worldTabs"></div>
             <div class="stage-grid" id="stageGrid"></div>
-            <div class="stage-info-panel" id="stageInfoPanel" style="display:none;"><div class="stage-info-title" id="stageInfoTitle"></div><div class="stage-info-mission" id="stageInfoMission"></div><div class="stage-info-rewards"><div class="reward-item">🏆 <span id="stageXpReward">50</span> XP</div><div class="reward-item">⭐ <span id="stageScoreReward">500</span> pts</div></div><div class="team-select-mini" id="teamSelectMini"></div><button class="play-stage-btn" id="playStageBtn">JOGAR FASE</button></div>
+            <div class="stage-info-panel" id="stageInfoPanel" style="display:none;"><div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px"><div class="stage-info-title" id="stageInfoTitle" style="margin-bottom:0"></div><button class="play-stage-btn" id="playStageBtn">INICIAR FASE</button></div><div class="stage-info-mission" id="stageInfoMission"></div><div class="stage-info-rewards"><div class="reward-item">🏆 <span id="stageXpReward">50</span> XP</div><div class="reward-item">⭐ <span id="stageScoreReward">500</span> pts</div></div><div class="team-select-mini" id="teamSelectMini"></div></div>
         </div>
         <div class="results-screen" id="resultsScreen"><h2 class="results-title" id="resultsTitle"></h2><div class="results-grid" id="resultsGrid"></div><div class="result-xp" id="resultXp" style="display:none;"></div><div class="result-levelup" id="resultLevelUp" style="display:none;">🎉 LEVEL UP! 🎉</div><div class="result-unlock" id="resultUnlock" style="display:none;"></div><div class="results-buttons" id="resultsButtons"></div></div>
         <div class="controls-panel" id="controlsPanel"><div class="control-item"><span class="control-label">Mover:</span><span class="key">A</span><span class="key">D</span></div><div class="control-item"><span class="control-label">Pular:</span><span class="key">W</span></div><div class="control-item"><span class="control-label">Atacar:</span><span class="key">J</span></div><div class="control-item"><span class="control-label">Pausar:</span><span class="key">ESC</span></div></div>
@@ -209,13 +211,13 @@ const SD=[
 
 const XP={f(l){return Math.floor(100*Math.pow(1.5,l-1))},g(t){let l=1,n=0;while(t>=n+this.f(l)){n+=this.f(l);l++;if(l>99)break}return{level:l,currentXp:t-n,neededXp:this.f(l)}},b(l,s){return{attack:l*3,health:l*10,speed:Math.min(l*.1,3)}[s]||0}};
 const C={W:1280,H:720,GY:620,G:.5,AR:.98,P:{w:70,h:100,ws:4,rs:7,ac:.45,dc:.35,jf:-14,jhf:-.5,mjh:200,ad:300,acd:400,dcd:1000,ar:90,ah:70,bh:100,ba:20},
-S:{w:65,h:95,ps:10,ar:400,acd:600,ba:15},D:{w:70,h:100,sd:6000,scd:15000},
+S:{w:65,h:95,ps:10,ar:400,acd:600,ba:15},D:{w:70,h:100,sd:6000,scd:15000},MN:{w:65,h:95,ar:120,acd:6000,ba:16,frzC:.3,frzD:2000,atkBuf:1.3,bufDur:5000},JU:{w:65,h:95,flameR:200,acd:9000,ba:12,burnDmg:5,bdr:3000,healAmt:20,atkBuf:1.25,bufDur:5000},
 A:{w:65,h:95,fr:150,bd:3,bdr:3000,bfd:5000,acd:8000},V:{w:65,h:95,fc:.25,fd:2000,s1c:5000,s2c:12000,s3c:10000},
 M:{w:65,h:95,ps:12,acd:800,ba:18},L:{w:65,h:95,pr:160,hAmt:15,shAmt:20,atkBuff:1.3,burnDmg:4,bdr:4000,acd:10000},
 GB:{w:65,h:95,rfl:1500,rcd:8000},LC:{w:65,h:95,shHP:40,shDur:10000,atkBuf:1.3,bufDur:6000,acd1:12000,acd2:10000,ps:10}};
 
-const G_={totalXp:0,pl:1,cx:0,xn:100,hs:1,ss:{},uc:{lia:1,sarah:1,dani:1,alice:1,vitoria:1,miguel:1,lilia:1,isabela:1,gabriel:1,luccas:1},ts:0,cs:null,sel:['lia'],pc:'lia',
-sit:0,dit:0,ait:0,vit:0,mit:0,lit:0,ibt:0,gbt:0,lut:0,run:0,pau:0,sc:0,died:0,sk:0,ssc:0,sdt:0,smc:0,sst:0,co:0,lct:0,lsp:0,bo:0,
+const G_={totalXp:0,pl:1,cx:0,xn:100,hs:1,ss:{},uc:{lia:1,sarah:1,dani:1,alice:1,vitoria:1,miguel:1,lilia:1,isabela:1,gabriel:1,luccas:1,manuh:1,julia:1},ts:0,cs:null,sel:['lia'],pc:'lia',
+sit:0,dit:0,ait:0,vit:0,mit:0,lit:0,ibt:0,gbt:0,lut:0,mnt:0,jut:0,run:0,pau:0,sc:0,died:0,sk:0,ssc:0,sdt:0,smc:0,sst:0,co:0,lct:0,lsp:0,bo:0,
 par:[],di:[],ssh:{x:0,y:0,i:0},keys:{},proj:[],
 shA:0,shE:0,lsT:0,aBuf:0,aBufE:0,iSh:0,iShE:0,fCA:0,fCE:0,fCC:0,
 lcSh:0,lcShHP:0,lcShE:0,
@@ -247,6 +249,8 @@ liliaIdle:'lilia.png',liliaRun:'liliarun.png',liliaJump:'liliajump.png',liliaAtt
 isabelaIdle:'isabela.png',isabelaRun:'isabelarun.png',isabelaJump:'isabelajump.png',isabelaAttack:'isabelaattack.png',isabelaDamage:'isabeladamage.png',
 gabrielIdle:'gabriel.png',gabrielRun:'gabrielrun.png',gabrielJump:'gabrieljump.png',gabrielDefense:'gabrieldefense.png',gabrielDamage:'gabrieldamage.png',
 luccasIdle:'luccas.png',luccasRun:'luccasrun.png',luccasDamage:'luccasdamage.png',luccasAttack1:'luccasattack1.png',luccasAttack2:'luccasattack2.png',
+manuhIdle:'manuh.png',manuhRun:'manuhrun.png',manuhJump:'manuhjump.png',manuhDamage:'manuhdamage.png',manuhAttack:'manuhattack1.png',
+juliaIdle:'julia.png',juliaRun:'juliarun.png',juliaJump:'juliajump.png',juliaDamage:'juliadamage.png',juliaAttack:'juliaattack.png',
 skeleton:'skeleton.png',skeletonWL:'skeletonwalkl.png',skeletonWR:'skeletonwalkr.png',skeletonAtk:'skeletonattack.png',skeletonDmg:'skeletondamage.png',skeletonDead:'skeletonko.png',
 dog:'edmf.png',archer:'bonearc.png',necromancer:'wizbon.png',bigbone:'bigbon.png',
 background:'mapa.png',bg1:'bg_forest1.png',bg2:'bg_forest2.png',bg3:'bg_forest3.png',bg4:'bg_forest4.png',bg5:'bg_forest5.png'};
@@ -401,9 +405,38 @@ cP(this.x+this.w/2,this.y+this.h/2,'#4caf50',12)},
 update(){if(!G_.lut)return;fP(this,120);const now=Date.now();if(this.atk&&now-Math.max(this.lat1,this.lat2)>500)this.atk=0;
 if(now-this.lat1>C.LC.acd1&&enemies.filter(e=>!e.dead).length>0)this.throwShield();
 else if(now-this.lat2>C.LC.acd2&&now-this.lat1>3000&&enemies.filter(e=>!e.dead).length>0)this.kickShield()},
-draw(){if(!G_.lut)return;ctx.save();let s=img.luccasIdle;if(this.atk&&this.atkType===1)s=img.luccasAttack1;else if(this.atk&&this.atkType===2)s=img.luccasAttack2;else if(Math.abs(this.vx)>.5)s=img.luccasRun;
+draw(){if(!G_.lut)return;ctx.save();let s=img.luccasIdle;let flipAtk=0;if(this.atk&&this.atkType===1){s=img.luccasAttack1;flipAtk=1}else if(this.atk&&this.atkType===2){s=img.luccasAttack2;flipAtk=1}else if(Math.abs(this.vx)>.5)s=img.luccasRun;
 if(G_.lcSh&&Date.now()<G_.lcShE){ctx.globalAlpha=.15;ctx.fillStyle='#2e7d32';ctx.beginPath();ctx.ellipse(P.x+P.w/2,P.y+P.h/2,P.w*.8,P.h*.65,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1}
-dC(this,s);ctx.restore()}};
+if(flipAtk){ctx.save();ctx.scale(-1,1);ctx.drawImage(s,-this.x-this.w,this.y,this.w,this.h);ctx.restore()}else{dC(this,s)}ctx.restore()}};
+
+// Manuh - Creative: ice sword slash, freezes enemies + buffs nearest ally attack
+const manuh={x:320,y:0,w:65,h:95,vx:0,vy:0,fr:1,jmp:0,atk:0,lat:0,width:65,height:95,
+reset(){this.x=320;this.y=C.GY-this.h;this.vx=0;this.vy=0;this.atk=0;this.lat=0},
+iceSlash(){this.atk=1;this.lat=Date.now();snd.ice();const cx=this.x+this.w/2,cy=this.y+this.h/2;
+const d=C.MN.ba+XP.b(G_.pl,'attack')*.5;
+enemies.forEach(e=>{if(e.dead)return;const dist=Math.sqrt(Math.pow(e.x+e.width/2-cx,2)+Math.pow(e.y+e.height/2-cy,2));if(dist<C.MN.ar){e.takeDmg(d);if(Math.random()<C.MN.frzC)e.freeze(C.MN.frzD)}});
+// Buff nearest ally attack
+G_.aBuf=1;G_.aBufE=Date.now()+C.MN.bufDur;
+for(let i=0;i<18;i++){const a=(Math.PI*2/18)*i;G_.par.push({x:cx+Math.cos(a)*25,y:cy+Math.sin(a)*20,vx:Math.cos(a)*4,vy:Math.sin(a)*3-2,life:40,ml:40,size:5,color:Math.random()>.5?'#7b1fa2':'#81d4fa'})}},
+update(){if(!G_.mnt)return;fP(this,-220);const now=Date.now();if(this.atk&&now-this.lat>500)this.atk=0;
+if(now-this.lat>C.MN.acd&&enemies.filter(e=>!e.dead).length>0)this.iceSlash()},
+draw(){if(!G_.mnt)return;ctx.save();let s=img.manuhIdle;if(this.atk){s=img.manuhAttack;ctx.globalAlpha=.2;ctx.fillStyle='#7b1fa2';ctx.beginPath();ctx.arc(this.x+this.w/2,this.y+this.h/2,C.MN.ar,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1}else if(this.jmp)s=img.manuhJump;else if(Math.abs(this.vx)>.5)s=img.manuhRun;dC(this,s);ctx.restore()}};
+
+// Julia - Support: flame burst heals allies, burns enemies, buffs attack
+const julia={x:340,y:0,w:65,h:95,vx:0,vy:0,fr:1,jmp:0,atk:0,lat:0,width:65,height:95,
+reset(){this.x=340;this.y=C.GY-this.h;this.vx=0;this.vy=0;this.atk=0;this.lat=0},
+flameBurst(){this.atk=1;this.lat=Date.now();snd.fire();const cx=this.x+this.w/2,cy=this.y+this.h/2;
+const d=C.JU.ba+XP.b(G_.pl,'attack')*.4;
+// Burn and damage enemies in range
+enemies.forEach(e=>{if(e.dead)return;const dist=Math.sqrt(Math.pow(e.x+e.width/2-cx,2)+Math.pow(e.y+e.height/2-cy,2));if(dist<C.JU.flameR){e.takeDmg(d);e.burnEnd=Date.now()+C.JU.bdr;e.burnDmg=C.JU.burnDmg}});
+// Heal player
+P.hp=Math.min(P.mhp,P.hp+C.JU.healAmt);
+// Buff allies attack
+G_.aBuf=1;G_.aBufE=Date.now()+C.JU.bufDur;
+for(let i=0;i<22;i++){const a=(Math.PI*2/22)*i;G_.par.push({x:cx+Math.cos(a)*30,y:cy+Math.sin(a)*20,vx:Math.cos(a)*5,vy:Math.sin(a)*3-2,life:45,ml:45,size:6,color:Math.random()>.5?'#ff6f00':'#ffd600'})}},
+update(){if(!G_.jut)return;fP(this,150);const now=Date.now();if(this.atk&&now-this.lat>600)this.atk=0;
+if(now-this.lat>C.JU.acd&&enemies.filter(e=>!e.dead).length>0)this.flameBurst()},
+draw(){if(!G_.jut)return;ctx.save();let s=img.juliaIdle;if(this.atk){s=img.juliaAttack;ctx.globalAlpha=.25;const g=ctx.createRadialGradient(this.x+this.w/2,this.y+this.h/2,10,this.x+this.w/2,this.y+this.h/2,C.JU.flameR);g.addColorStop(0,'#ff6f00');g.addColorStop(1,'transparent');ctx.fillStyle=g;ctx.beginPath();ctx.arc(this.x+this.w/2,this.y+this.h/2,C.JU.flameR,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1}else if(this.jmp)s=img.juliaJump;else if(Math.abs(this.vx)>.5)s=img.juliaRun;dC(this,s);ctx.restore()}};
 
 // Player character sprite map (for primary character rendering)
 const pcSpr={
@@ -416,7 +449,9 @@ miguel:{idle:img.miguelIdle,walk:img.miguelRun,run:img.miguelRun,jump:img.miguel
 lilia:{idle:img.liliaIdle,walk:img.liliaRun,run:img.liliaRun,jump:img.liliaJump,attack:img.liliaAttack,damage:img.liliaDamage},
 isabela:{idle:img.isabelaIdle,walk:img.isabelaRun,run:img.isabelaRun,jump:img.isabelaJump,attack:img.isabelaAttack,damage:img.isabelaDamage},
 gabriel:{idle:img.gabrielIdle,walk:img.gabrielRun,run:img.gabrielRun,jump:img.gabrielJump,attack:img.gabrielDefense,damage:img.gabrielDamage},
-luccas:{idle:img.luccasIdle,walk:img.luccasRun,run:img.luccasRun,jump:img.luccasIdle,attack:img.luccasAttack1,damage:img.luccasDamage}};
+luccas:{idle:img.luccasIdle,walk:img.luccasRun,run:img.luccasRun,jump:img.luccasIdle,attack:img.luccasAttack1,damage:img.luccasDamage},
+manuh:{idle:img.manuhIdle,walk:img.manuhRun,run:img.manuhRun,jump:img.manuhJump,attack:img.manuhAttack,damage:img.manuhDamage},
+julia:{idle:img.juliaIdle,walk:img.juliaRun,run:img.juliaRun,jump:img.juliaJump,attack:img.juliaAttack,damage:img.juliaDamage}};
 
 // ===== ENEMY =====
 function gEI(t){return{skeleton:img.skeleton,dog:img.dog,archer:img.archer,necromancer:img.necromancer,bigbone:img.bigbone}[t]||img.skeleton}
@@ -481,12 +516,12 @@ ctx.fillStyle='#3a5a40';ctx.fillRect(0,C.GY,C.W,C.H-C.GY);ctx.fillStyle='#588157
 let lt=0;
 function loop(ts){if(!G_.run)return;const dt=ts-lt;lt=ts;if(G_.pau||G_.sc){requestAnimationFrame(loop);return}
 ctx.clearRect(0,0,C.W,C.H);ctx.save();ctx.translate(G_.ssh.x,G_.ssh.y);
-P.update(dt);sarah.update();dani.update();alice.update();vitoria.update();miguel.update();lilia.update();isabela.update();gabriel.update();luccas.update();
+P.update(dt);sarah.update();dani.update();alice.update();vitoria.update();miguel.update();lilia.update();isabela.update();gabriel.update();luccas.update();manuh.update();julia.update();
 enemies.forEach(e=>e.update());uP();uDI();uSS();uProj();
 const now=Date.now();if(G_.aBuf&&now>G_.aBufE)G_.aBuf=0;if(G_.iSh&&now>G_.iShE)G_.iSh=0;if(G_.fCA&&now>G_.fCE)G_.fCA=0;if(G_.lcSh&&now>G_.lcShE)G_.lcSh=0;
 G_.bo-=P.vx*.3;const st=G_.cs;if(st&&now-G_.lsp>st.sr){spawnE();G_.lsp=now}if(now-G_.lct>2000&&G_.co>0)G_.co=0;
 if(st&&st.m.type==='survive'&&(now-G_.sst)/1000>=st.m.target)showRes(1);
-uHUD();drawBg();enemies.forEach(e=>e.draw());dani.draw();alice.draw();vitoria.draw();lilia.draw();miguel.draw();isabela.draw();gabriel.draw();luccas.draw();sarah.draw();P.draw();dProj();dP();dDI();
+uHUD();drawBg();enemies.forEach(e=>e.draw());dani.draw();alice.draw();vitoria.draw();lilia.draw();miguel.draw();isabela.draw();gabriel.draw();luccas.draw();manuh.draw();julia.draw();sarah.draw();P.draw();dProj();dP();dDI();
 ctx.restore();requestAnimationFrame(loop)}
 
 // Primary character attack
@@ -500,7 +535,9 @@ miguel:{icon:'🔫',css:'attack-miguel',fn:()=>{miguel.shoot();miguel.lat=Date.n
 lilia:{icon:'🔮',css:'attack-lilia',fn:()=>{lilia.purpleBurst();lilia.lat=Date.now()}},
 isabela:{icon:'🦇',css:'attack-isabela',fn:()=>{isabela.batSwarm();isabela.lat=Date.now()}},
 gabriel:{icon:'🛡️',css:'attack-gabriel',fn:()=>{gabriel.reflect();gabriel.lat=Date.now()}},
-luccas:{icon:'🟢',css:'attack-luccas',fn:()=>{luccas.throwShield();luccas.lat1=Date.now()}}
+luccas:{icon:'🟢',css:'attack-luccas',fn:()=>{luccas.throwShield();luccas.lat1=Date.now()}},
+manuh:{icon:'🗡️',css:'attack-manuh',fn:()=>{manuh.iceSlash();manuh.lat=Date.now()}},
+julia:{icon:'🔥',css:'attack-julia',fn:()=>{julia.flameBurst();julia.lat=Date.now()}}
 };
 function uMAB(){const b=document.getElementById('mobileAttack'),i=CA[G_.pc]||CA.lia;b.textContent=i.icon;b.className='mobile-btn '+i.css}
 function pAtk(){(CA[G_.pc]||CA.lia).fn()}
@@ -519,8 +556,10 @@ G_.lit=G_.sel.includes('lilia')&&G_.pc!=='lilia'?1:0;
 G_.ibt=G_.sel.includes('isabela')&&G_.pc!=='isabela'?1:0;
 G_.gbt=G_.sel.includes('gabriel')&&G_.pc!=='gabriel'?1:0;
 G_.lut=G_.sel.includes('luccas')&&G_.pc!=='luccas'?1:0;
+G_.mnt=G_.sel.includes('manuh')&&G_.pc!=='manuh'?1:0;
+G_.jut=G_.sel.includes('julia')&&G_.pc!=='julia'?1:0;
 uMAB();
-P.reset();sarah.reset();dani.reset();alice.reset();vitoria.reset();miguel.reset();lilia.reset();isabela.reset();gabriel.reset();luccas.reset();enemies=[];
+P.reset();sarah.reset();dani.reset();alice.reset();vitoria.reset();miguel.reset();lilia.reset();isabela.reset();gabriel.reset();luccas.reset();manuh.reset();julia.reset();enemies=[];
 el.stageSelectScreen.classList.remove('active');el.resultsScreen.classList.remove('active');el.hudOverlay.style.display='flex';el.stageIndicator.style.display='block';el.stageIndicator.textContent='FASE '+st.n;el.missionIndicator.style.display='block';el.missionIndicator.textContent=st.m.text;el.controlsPanel.style.display=window.innerWidth>768?'grid':'none';el.supportCooldown.style.display=G_.dit?'block':'none';uHUD();lt=performance.now();requestAnimationFrame(loop)}
 function tPause(){if(!G_.run||G_.sc)return;G_.pau=!G_.pau;el.pauseOverlay.classList.toggle('active',G_.pau)}
 
@@ -529,7 +568,7 @@ function rWT(){el.worldTabs.innerHTML='';const t=document.createElement('button'
 function rSG(){el.stageGrid.innerHTML='';SD.forEach(st=>{const n=document.createElement('div');n.className='stage-node';const u=st.id<=G_.hs,c=G_.ss[st.id]>0,ic=st.id===G_.hs;if(c)n.classList.add('completed');else if(u){n.classList.add('unlocked');if(ic)n.classList.add('current')}else n.classList.add('locked');n.innerHTML='<div class="stage-number">'+st.sw+'</div><div class="stage-stars">'+('⭐'.repeat(G_.ss[st.id]||0))+'</div>';if(u)n.addEventListener('click',()=>selStage(st.id));el.stageGrid.appendChild(n)})}
 function selStage(id){selS=id;const s=SD.find(x=>x.id===id);if(!s)return;el.stageInfoPanel.style.display='block';el.stageInfoTitle.textContent='FASE '+s.n+' - '+s.wn;el.stageInfoMission.textContent=s.m.text;el.stageXpReward.textContent=s.xp;el.stageScoreReward.textContent=s.sc;rTS()}
 function rTS(){el.teamSelectMini.innerHTML='';
-const chars=[{id:'lia',n:'Lia',r:'Guerreira',i:'lia.png'},{id:'sarah',n:'Sarah',r:'Atacante',i:'sarah.png'},{id:'dani',n:'Dani',r:'Defensora',i:'dani.png'},{id:'alice',n:'Alice',r:'Suporte🔥',i:'alice.png'},{id:'vitoria',n:'Vitória',r:'Suporte❄️',i:'vitoria.png'},{id:'miguel',n:'Miguel',r:'Atirador',i:'miguel.png'},{id:'lilia',n:'Lilia',r:'Criativa',i:'lilia.png'},{id:'isabela',n:'Isabela',r:'Atacante🦇',i:'isabela.png'},{id:'gabriel',n:'Gabriel',r:'Defensor🛡️',i:'gabriel.png'},{id:'luccas',n:'Luccas',r:'Criativo🟢',i:'luccas.png'}];
+const chars=[{id:'lia',n:'Lia',r:'Atacante',i:'lia.png'},{id:'sarah',n:'Sarah',r:'Atacante',i:'sarah.png'},{id:'dani',n:'Dani',r:'Defensora',i:'dani.png'},{id:'alice',n:'Alice',r:'Suporte🔥',i:'alice.png'},{id:'vitoria',n:'Vitória',r:'Suporte❄️',i:'vitoria.png'},{id:'miguel',n:'Miguel',r:'Atirador',i:'miguel.png'},{id:'lilia',n:'Lilia',r:'Criativa',i:'lilia.png'},{id:'isabela',n:'Isabela',r:'Atacante🦇',i:'isabela.png'},{id:'gabriel',n:'Gabriel',r:'Defensor🛡️',i:'gabriel.png'},{id:'luccas',n:'Luccas',r:'Criativo🟢',i:'luccas.png'},{id:'manuh',n:'Manuh',r:'Criativa🗡️',i:'manuh.png'},{id:'julia',n:'Julia',r:'Suporte🔥',i:'julia.png'}];
 chars.forEach(c=>{
 const div=document.createElement('div'),idx=G_.sel.indexOf(c.id),ip=idx===0,sel=idx>=0;
 div.className='team-char-mini'+(sel?' selected':'')+(ip?' primary-char':'');
