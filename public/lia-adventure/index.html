@@ -4,1969 +4,467 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Lia Adventure</title>
-    <meta name="description" content="Jogo de aventura side-scroller com Lia, Sarah, Dani, Alice e Vitória! Derrote esqueletos e avance pelos 5 mundos.">
+    <meta name="description" content="Jogo 2D side-scroller com 7 personagens, 5 mundos e 30 fases!">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        :root {
-            --primary: #ff6b9d;
-            --primary-dark: #e0558a;
-            --primary-glow: rgba(255, 107, 157, 0.5);
-            --secondary: #4dccbd;
-            --secondary-dark: #3eb3a5;
-            --accent: #a9d1ff;
-            --danger: #ff6b6b;
-            --warning: #ffb347;
-            --bg-dark: #0d1b2a;
-            --bg-darker: #06101a;
-            --bg-panel: rgba(13, 27, 42, 0.95);
-            --text-primary: #ffffff;
-            --text-secondary: #a9d1ff;
-            --gold: #ffd700;
-            --xp-purple: #a855f7;
-            --sarah-red: #e74c3c;
-            --dani-blue: #3498db;
-            --alice-orange: #e67e22;
-            --vitoria-cyan: #00bcd4;
-        }
-
-        html, body { height: 100%; overflow: hidden; }
-
-        body {
-            font-family: 'Fredoka', sans-serif;
-            background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 50%, #1a2c4a 100%);
-            color: var(--text-primary);
-            display: flex; align-items: center; justify-content: center;
-            min-height: 100vh; padding: 0;
-        }
-
-        .game-wrapper { display: flex; flex-direction: column; align-items: center; width: 100%; height: 100%; }
-        .canvas-container { position: relative; width: 100%; height: 100%; overflow: hidden; }
-        canvas { display: block; width: 100%; height: 100%; background: var(--bg-dark); object-fit: contain; }
-
-        /* Compact HUD */
-        .hud-overlay {
-            position: absolute; top: 8px; left: 8px; right: 8px;
-            display: flex; justify-content: space-between; align-items: flex-start;
-            pointer-events: none; z-index: 10;
-        }
-        .hud-left, .hud-right { display: flex; gap: 4px; flex-wrap: wrap; }
-        .hud-stat {
-            background: rgba(0,0,0,0.7); padding: 4px 8px; border-radius: 8px;
-            display: flex; align-items: center; gap: 4px;
-            border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(5px);
-        }
-        .hud-icon { font-size: 0.65rem; }
-        .hud-value { font-family: 'Press Start 2P', cursive; font-size: 0.4rem; color: var(--gold); }
-        .health-bar-container { width: 50px; height: 8px; background: rgba(0,0,0,0.7); border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2); }
-        .health-bar { height: 100%; background: linear-gradient(90deg, var(--danger), var(--warning)); transition: width 0.3s; border-radius: 3px; }
-        .xp-bar-container { width: 40px; height: 6px; background: rgba(0,0,0,0.7); border-radius: 3px; overflow: hidden; }
-        .xp-bar { height: 100%; background: linear-gradient(90deg, var(--xp-purple), #c084fc); transition: width 0.3s; }
-
-        .stage-indicator {
-            position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            padding: 4px 12px; border-radius: 10px;
-            font-family: 'Press Start 2P', cursive; font-size: 0.4rem; color: white;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5); z-index: 11;
-        }
-        .mission-indicator {
-            position: absolute; top: 35px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.7); padding: 3px 10px; border-radius: 8px;
-            font-size: 0.6rem; color: var(--text-secondary); z-index: 11;
-            max-width: 80%; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-
-        /* Game Screens */
-        .game-screen {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: rgba(6,16,26,0.98); backdrop-filter: blur(10px);
-            z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s;
-            padding: 20px; overflow-y: auto;
-        }
-        .game-screen.active { opacity: 1; pointer-events: auto; }
-
-        /* Title Screen */
-        #titleScreen { background: radial-gradient(ellipse at center, #1a2c4a 0%, var(--bg-darker) 70%); }
-        .title-logo {
-            font-family: 'Press Start 2P', cursive; font-size: clamp(1.5rem, 5vw, 3rem);
-            color: var(--primary);
-            text-shadow: 0 0 30px var(--primary-glow), 4px 4px 0 var(--primary-dark), -2px -2px 0 #fff;
-            margin-bottom: 50px; animation: titleFloat 3s ease-in-out infinite; text-align: center;
-        }
-        @keyframes titleFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-        .press-start {
-            font-family: 'Press Start 2P', cursive; font-size: clamp(0.6rem, 2vw, 1rem);
-            color: var(--text-primary); animation: blink 1s infinite; margin-bottom: 30px;
-        }
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-        .start-btn-big {
-            font-family: 'Press Start 2P', cursive; font-size: clamp(0.8rem, 2.5vw, 1.2rem);
-            padding: 20px 60px; border: none; border-radius: 60px; cursor: pointer;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white;
-            box-shadow: 0 8px 0 #b03e6a, 0 12px 30px rgba(255,107,157,0.4); transition: all 0.2s;
-        }
-        .start-btn-big:hover { transform: translateY(-3px); box-shadow: 0 11px 0 #b03e6a, 0 18px 40px rgba(255,107,157,0.5); }
-        .start-btn-big:active { transform: translateY(4px); box-shadow: 0 4px 0 #b03e6a; }
-
-        /* Main Menu */
-        #mainMenuScreen .menu-title {
-            font-family: 'Press Start 2P', cursive; font-size: clamp(1rem, 3vw, 1.8rem);
-            color: var(--primary); text-shadow: 0 0 20px var(--primary-glow); margin-bottom: 40px;
-        }
-        .menu-options { display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 350px; }
-        .menu-btn {
-            font-family: 'Press Start 2P', cursive; font-size: clamp(0.5rem, 1.5vw, 0.75rem);
-            padding: 18px 30px; border: 3px solid transparent; border-radius: 15px;
-            cursor: pointer; transition: all 0.3s; text-align: center; width: 100%;
-        }
-        .menu-btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; box-shadow: 0 5px 0 #b03e6a; }
-        .menu-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #b03e6a; }
-        .menu-btn-secondary-style { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: var(--text-primary); }
-        .menu-btn-secondary-style:hover { background: rgba(255,255,255,0.2); border-color: var(--secondary); }
-        .menu-btn-google { background: linear-gradient(135deg, #4285f4, #356ac3); color: white; box-shadow: 0 5px 0 #2a5298; }
-        .menu-btn-google:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #2a5298; }
-        .google-hint { font-size: 0.65rem; color: var(--text-secondary); margin-top: -5px; opacity: 0.8; }
-
-        /* Stage Select */
-        #stageSelectScreen { padding: 10px; }
-        .stage-select-header { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 900px; margin-bottom: 15px; }
-        .stage-select-title { font-family: 'Press Start 2P', cursive; font-size: clamp(0.7rem, 2vw, 1rem); color: var(--secondary); }
-        .back-btn {
-            font-family: 'Press Start 2P', cursive; font-size: 0.5rem; padding: 8px 15px;
-            border: 2px solid var(--text-secondary); border-radius: 8px;
-            background: transparent; color: var(--text-secondary); cursor: pointer; transition: all 0.2s;
-        }
-        .back-btn:hover { border-color: var(--primary); color: var(--primary); }
-
-        .player-stats-panel {
-            display: flex; gap: 20px; background: rgba(0,0,0,0.4); padding: 10px 20px;
-            border-radius: 12px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center;
-        }
-        .player-stat-item { text-align: center; }
-        .player-stat-value { font-family: 'Press Start 2P', cursive; font-size: 0.7rem; color: var(--gold); }
-        .player-stat-label { font-size: 0.6rem; color: var(--text-secondary); }
-
-        .world-tabs { display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center; }
-        .world-tab {
-            font-family: 'Press Start 2P', cursive; font-size: 0.35rem; padding: 8px 12px;
-            border: 2px solid rgba(255,255,255,0.2); border-radius: 8px;
-            background: rgba(0,0,0,0.3); color: var(--text-secondary); cursor: pointer; transition: all 0.2s;
-        }
-        .world-tab.active { border-color: var(--primary); background: var(--primary); color: white; }
-        .world-tab:hover:not(.active) { border-color: var(--secondary); }
-
-        .stage-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-            gap: 10px; width: 100%; max-width: 900px; max-height: 40vh;
-            overflow-y: auto; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 15px;
-        }
-        .stage-node {
-            aspect-ratio: 1; border-radius: 12px; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s;
-            border: 3px solid transparent; position: relative; min-width: 70px;
-        }
-        .stage-node.unlocked { background: linear-gradient(135deg, #2d4a6d, #3d5a80); border-color: var(--secondary); }
-        .stage-node.unlocked:hover { transform: scale(1.05); border-color: var(--primary); box-shadow: 0 0 20px var(--primary-glow); }
-        .stage-node.completed { background: linear-gradient(135deg, #3a5a40, #588157); border-color: #7cb342; }
-        .stage-node.completed::after { content: '⭐'; position: absolute; top: -5px; right: -5px; font-size: 0.8rem; }
-        .stage-node.locked { background: rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.1); cursor: not-allowed; opacity: 0.5; }
-        .stage-node.current { animation: currentPulse 1.5s infinite; }
-        @keyframes currentPulse { 0%,100%{box-shadow:0 0 10px var(--primary-glow)} 50%{box-shadow:0 0 25px var(--primary-glow),0 0 40px var(--primary-glow)} }
-        .stage-number { font-family: 'Press Start 2P', cursive; font-size: 0.8rem; color: white; }
-        .stage-stars { font-size: 0.5rem; margin-top: 3px; }
-
-        .stage-info-panel {
-            background: rgba(0,0,0,0.5); padding: 15px; border-radius: 12px;
-            margin-top: 15px; width: 100%; max-width: 500px; text-align: center;
-        }
-        .stage-info-title { font-family: 'Press Start 2P', cursive; font-size: 0.6rem; color: var(--primary); margin-bottom: 8px; }
-        .stage-info-mission { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 10px; }
-        .stage-info-rewards { display: flex; justify-content: center; gap: 15px; margin-bottom: 10px; }
-        .reward-item { display: flex; align-items: center; gap: 5px; font-size: 0.65rem; color: var(--gold); }
-        .play-stage-btn {
-            font-family: 'Press Start 2P', cursive; font-size: 0.6rem; padding: 12px 30px;
-            border: none; border-radius: 25px; cursor: pointer;
-            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark)); color: white;
-            box-shadow: 0 4px 0 #2a9d8f; transition: all 0.2s;
-        }
-        .play-stage-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #2a9d8f; }
-
-        /* Team Select */
-        .team-select-mini { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; flex-wrap: wrap; }
-        .team-char-mini {
-            width: 55px; height: 65px; border-radius: 10px; border: 2px solid rgba(255,255,255,0.2);
-            background: rgba(0,0,0,0.4); display: flex; flex-direction: column;
-            align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;
-            padding: 3px;
-        }
-        .team-char-mini.selected { border-color: var(--secondary); background: rgba(77,204,189,0.2); }
-        .team-char-mini.locked { opacity: 0.4; cursor: not-allowed; }
-        .team-char-mini img { width: 35px; height: 35px; image-rendering: pixelated; }
-        .team-char-mini .char-name { font-size: 0.4rem; color: var(--text-secondary); font-family: 'Press Start 2P', cursive; margin-top: 2px; }
-        .team-char-mini .char-role { font-size: 0.3rem; color: var(--gold); }
-
-        /* Results Screen */
-        .results-screen {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: rgba(6,16,26,0.95); z-index: 90;
-            opacity: 0; pointer-events: none; transition: opacity 0.5s; padding: 20px;
-        }
-        .results-screen.active { opacity: 1; pointer-events: auto; }
-
-        .results-title {
-            font-family: 'Press Start 2P', cursive; font-size: clamp(1rem, 3vw, 1.5rem);
-            margin-bottom: 25px; text-shadow: 0 0 20px currentColor;
-        }
-        .results-title.victory { color: var(--secondary); }
-        .results-title.defeat { color: var(--danger); }
-
-        .results-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-            margin-bottom: 20px; width: 100%; max-width: 350px;
-        }
-        .result-card {
-            background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px;
-            text-align: center; border: 1px solid rgba(255,255,255,0.1);
-        }
-        .result-card-value { font-family: 'Press Start 2P', cursive; font-size: 0.7rem; color: var(--gold); }
-        .result-card-label { font-size: 0.6rem; color: var(--text-secondary); margin-top: 4px; }
-
-        .result-xp {
-            font-family: 'Press Start 2P', cursive; font-size: 0.8rem; color: var(--xp-purple);
-            margin-bottom: 10px;
-        }
-        .result-levelup {
-            font-family: 'Press Start 2P', cursive; font-size: 1rem; color: var(--gold);
-            animation: levelUpPulse 0.5s ease-in-out infinite alternate; margin-bottom: 10px;
-        }
-        @keyframes levelUpPulse { from{transform:scale(1)} to{transform:scale(1.1)} }
-
-        .result-unlock {
-            font-family: 'Press Start 2P', cursive; font-size: 0.65rem; color: var(--secondary);
-            background: rgba(77,204,189,0.15); padding: 10px 20px; border-radius: 10px;
-            border: 1px solid var(--secondary); margin-bottom: 15px;
-            animation: unlockGlow 1s ease-in-out infinite alternate;
-        }
-        @keyframes unlockGlow { from{box-shadow:0 0 10px rgba(77,204,189,0.3)} to{box-shadow:0 0 25px rgba(77,204,189,0.6)} }
-
-        .results-buttons { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
-
-        .game-btn {
-            font-family: 'Press Start 2P', cursive; font-size: 0.6rem; padding: 12px 25px;
-            border: none; border-radius: 50px; cursor: pointer; transition: all 0.2s; text-transform: uppercase;
-            display: flex; align-items: center; gap: 8px;
-        }
-        .game-btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; box-shadow: 0 5px 0 #b03e6a; }
-        .game-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #b03e6a; }
-        .game-btn-secondary { background: linear-gradient(135deg, var(--secondary), var(--secondary-dark)); color: white; box-shadow: 0 5px 0 #2a9d8f; }
-        .game-btn-secondary:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #2a9d8f; }
-        .game-btn-danger { background: linear-gradient(135deg, var(--danger), #c0392b); color: white; box-shadow: 0 5px 0 #962d22; }
-
-        /* Mobile Controls */
-        .mobile-controls {
-            display: none; position: fixed; bottom: 10px; left: 0; right: 0;
-            padding: 0 10px; justify-content: space-between; z-index: 1000;
-        }
-        .mobile-btn-group { display: flex; gap: 8px; }
-        .mobile-btn {
-            width: 60px; height: 60px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.4);
-            background: rgba(13,27,42,0.85); color: white; font-size: 1.5rem;
-            display: flex; align-items: center; justify-content: center;
-            touch-action: manipulation; user-select: none; -webkit-user-select: none;
-        }
-        .mobile-btn:active { background: rgba(255,107,157,0.5); transform: scale(0.95); }
-        .mobile-btn.attack { background: rgba(255,107,157,0.4); border-color: var(--primary); }
-        .mobile-btn.jump { background: rgba(77,204,189,0.4); border-color: var(--secondary); }
-        .mobile-btn.support { background: rgba(52,152,219,0.4); border-color: var(--dani-blue); }
-        .mobile-btn.skill1 { background: rgba(230,126,34,0.4); border-color: var(--alice-orange); font-size: 1.2rem; }
-        .mobile-btn.skill2 { background: rgba(0,188,212,0.4); border-color: var(--vitoria-cyan); font-size: 1.2rem; }
-
-        .support-cooldown {
-            position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.7); padding: 4px 12px; border-radius: 12px;
-            font-family: 'Press Start 2P', cursive; font-size: 0.4rem; color: var(--dani-blue); z-index: 20; display: none;
-        }
-
-        /* Overlays */
-        .combo-display {
-            position: absolute; top: 40%; left: 50%; transform: translate(-50%,-50%);
-            font-family: 'Press Start 2P', cursive; font-size: 1.2rem; color: var(--gold);
-            text-shadow: 0 0 20px var(--gold), 2px 2px 0 #b38600;
-            pointer-events: none; opacity: 0; z-index: 50;
-        }
-        .combo-display.active { animation: comboPopup 0.8s ease-out forwards; }
-        @keyframes comboPopup { 0%{opacity:0;transform:translate(-50%,-50%) scale(0.5)} 20%{opacity:1;transform:translate(-50%,-50%) scale(1.2)} 100%{opacity:0;transform:translate(-50%,-80%) scale(1)} }
-
-        .levelup-display {
-            position: absolute; top: 25%; left: 50%; transform: translateX(-50%);
-            font-family: 'Press Start 2P', cursive; font-size: 1rem; color: var(--secondary);
-            text-shadow: 0 0 30px var(--secondary); pointer-events: none; opacity: 0; z-index: 50;
-        }
-        .levelup-display.active { animation: levelUpPopup 1.5s ease-out forwards; }
-        @keyframes levelUpPopup { 0%{opacity:0;transform:translateX(-50%) translateY(20px) scale(0.8)} 20%{opacity:1;transform:translateX(-50%) translateY(0) scale(1.1)} 80%{opacity:1} 100%{opacity:0;transform:translateX(-50%) translateY(-30px)} }
-
-        .unlock-display {
-            position: absolute; top: 30%; left: 50%; transform: translateX(-50%);
-            font-family: 'Press Start 2P', cursive; font-size: 0.8rem; color: var(--secondary);
-            text-shadow: 0 0 30px var(--secondary); pointer-events: none; opacity: 0; z-index: 50; text-align: center;
-        }
-        .unlock-display.active { animation: unlockPopup 3s ease-out forwards; }
-        @keyframes unlockPopup { 0%{opacity:0;transform:translateX(-50%) scale(0.5)} 15%{opacity:1;transform:translateX(-50%) scale(1.2)} 85%{opacity:1} 100%{opacity:0} }
-
-        .pause-overlay {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-            font-family: 'Press Start 2P', cursive; font-size: 1.5rem; color: var(--text-primary);
-            text-shadow: 0 0 20px var(--primary); z-index: 60; display: none;
-        }
-        .pause-overlay.active { display: block; animation: pausePulse 1s ease-in-out infinite; }
-        @keyframes pausePulse { 0%,100%{opacity:0.7} 50%{opacity:1} }
-
-        /* Loading */
-        .loading-screen {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--bg-darker); display: flex; flex-direction: column;
-            align-items: center; justify-content: center; z-index: 200;
-        }
-        .loading-spinner { width: 50px; height: 50px; border: 4px solid rgba(255,107,157,0.2); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
-        @keyframes spin { to{transform:rotate(360deg)} }
-        .loading-text { font-family: 'Press Start 2P', cursive; font-size: 0.6rem; color: var(--text-secondary); animation: pulse 1.5s ease-in-out infinite; }
-        @keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
-
-        /* Desktop Controls */
-        .controls-panel {
-            display: none; position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.7); padding: 8px 20px; border-radius: 10px;
-            grid-template-columns: repeat(5, auto); gap: 15px; z-index: 20;
-        }
-        .control-item { display: flex; align-items: center; gap: 5px; }
-        .control-label { color: var(--text-secondary); font-size: 0.65rem; }
-        .key {
-            display: inline-flex; align-items: center; justify-content: center;
-            background: linear-gradient(180deg, #3a4d6e, #2a3d5e);
-            min-width: 22px; height: 20px; padding: 0 5px; border-radius: 4px;
-            font-family: 'Press Start 2P', cursive; font-size: 0.35rem; color: var(--text-primary);
-            box-shadow: 0 2px 0 #1a2639;
-        }
-
-        @media (max-width: 768px) {
-            .mobile-controls { display: flex; }
-            .stage-grid { grid-template-columns: repeat(5, 1fr); }
-            .stage-node { min-width: 50px; }
-            .stage-number { font-size: 0.6rem; }
-        }
-        @media (max-width: 480px) {
-            .mobile-btn { width: 55px; height: 55px; font-size: 1.3rem; }
-            .stage-grid { grid-template-columns: repeat(4, 1fr); }
-        }
-        @media (min-width: 769px) { .controls-panel { display: grid; } }
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{--primary:#ff6b9d;--primary-dark:#e0558a;--primary-glow:rgba(255,107,157,0.5);--secondary:#4dccbd;--secondary-dark:#3eb3a5;--danger:#ff6b6b;--warning:#ffb347;--bg-dark:#0d1b2a;--bg-darker:#06101a;--text-primary:#fff;--text-secondary:#a9d1ff;--gold:#ffd700;--xp-purple:#a855f7;--alice-orange:#e67e22;--vitoria-cyan:#00bcd4;--miguel-green:#4caf50;--lilia-purple:#9c27b0}
+        html,body{height:100%;overflow:hidden}
+        body{font-family:'Fredoka',sans-serif;background:linear-gradient(135deg,var(--bg-darker),var(--bg-dark),#1a2c4a);color:var(--text-primary);display:flex;align-items:center;justify-content:center;min-height:100vh}
+        .game-wrapper{display:flex;flex-direction:column;align-items:center;width:100%;height:100%}
+        .canvas-container{position:relative;width:100%;height:100%;overflow:hidden}
+        canvas{display:block;width:100%;height:100%;background:var(--bg-dark);object-fit:contain}
+        .hud-overlay{position:absolute;top:8px;left:8px;right:8px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;z-index:10}
+        .hud-left,.hud-right{display:flex;gap:4px;flex-wrap:wrap}
+        .hud-stat{background:rgba(0,0,0,0.7);padding:4px 8px;border-radius:8px;display:flex;align-items:center;gap:4px;border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(5px)}
+        .hud-icon{font-size:.65rem}.hud-value{font-family:'Press Start 2P',cursive;font-size:.4rem;color:var(--gold)}
+        .health-bar-container{width:50px;height:8px;background:rgba(0,0,0,0.7);border-radius:4px;overflow:hidden;border:1px solid rgba(255,255,255,0.2)}
+        .health-bar{height:100%;background:linear-gradient(90deg,var(--danger),var(--warning));transition:width .3s;border-radius:3px}
+        .xp-bar-container{width:40px;height:6px;background:rgba(0,0,0,0.7);border-radius:3px;overflow:hidden}
+        .xp-bar{height:100%;background:linear-gradient(90deg,var(--xp-purple),#c084fc);transition:width .3s}
+        .stage-indicator{position:absolute;top:8px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--primary),var(--secondary));padding:4px 12px;border-radius:10px;font-family:'Press Start 2P',cursive;font-size:.4rem;color:white;z-index:11}
+        .mission-indicator{position:absolute;top:35px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:3px 10px;border-radius:8px;font-size:.6rem;color:var(--text-secondary);z-index:11;max-width:80%;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .game-screen{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(6,16,26,0.98);backdrop-filter:blur(10px);z-index:100;opacity:0;pointer-events:none;transition:opacity .3s;padding:20px;overflow-y:auto}
+        .game-screen.active{opacity:1;pointer-events:auto}
+        #titleScreen{background:radial-gradient(ellipse at center,#1a2c4a,var(--bg-darker) 70%)}
+        .title-logo{font-family:'Press Start 2P',cursive;font-size:clamp(1.5rem,5vw,3rem);color:var(--primary);text-shadow:0 0 30px var(--primary-glow),4px 4px 0 var(--primary-dark),-2px -2px 0 #fff;margin-bottom:50px;animation:tf 3s ease-in-out infinite;text-align:center}
+        @keyframes tf{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+        .press-start{font-family:'Press Start 2P',cursive;font-size:clamp(.6rem,2vw,1rem);color:var(--text-primary);animation:bl 1s infinite;margin-bottom:30px}
+        @keyframes bl{0%,100%{opacity:1}50%{opacity:.3}}
+        .start-btn-big{font-family:'Press Start 2P',cursive;font-size:clamp(.8rem,2.5vw,1.2rem);padding:20px 60px;border:none;border-radius:60px;cursor:pointer;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;box-shadow:0 8px 0 #b03e6a;transition:all .2s}
+        .start-btn-big:hover{transform:translateY(-3px)}.start-btn-big:active{transform:translateY(4px);box-shadow:0 4px 0 #b03e6a}
+        .menu-title{font-family:'Press Start 2P',cursive;font-size:clamp(1rem,3vw,1.8rem);color:var(--primary);text-shadow:0 0 20px var(--primary-glow);margin-bottom:40px}
+        .menu-options{display:flex;flex-direction:column;gap:15px;width:100%;max-width:350px}
+        .menu-btn{font-family:'Press Start 2P',cursive;font-size:clamp(.5rem,1.5vw,.75rem);padding:18px 30px;border:3px solid transparent;border-radius:15px;cursor:pointer;transition:all .3s;text-align:center;width:100%}
+        .menu-btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;box-shadow:0 5px 0 #b03e6a}
+        .menu-btn-primary:hover{transform:translateY(-2px)}
+        .menu-btn-google{background:linear-gradient(135deg,#4285f4,#356ac3);color:white;box-shadow:0 5px 0 #2a5298}
+        .menu-btn-google:hover{transform:translateY(-2px)}
+        .google-hint{font-size:.65rem;color:var(--text-secondary);margin-top:-5px;opacity:.8}
+        #stageSelectScreen{padding:10px}
+        .stage-select-header{display:flex;justify-content:space-between;align-items:center;width:100%;max-width:900px;margin-bottom:15px}
+        .stage-select-title{font-family:'Press Start 2P',cursive;font-size:clamp(.7rem,2vw,1rem);color:var(--secondary)}
+        .back-btn{font-family:'Press Start 2P',cursive;font-size:.5rem;padding:8px 15px;border:2px solid var(--text-secondary);border-radius:8px;background:transparent;color:var(--text-secondary);cursor:pointer}
+        .back-btn:hover{border-color:var(--primary);color:var(--primary)}
+        .player-stats-panel{display:flex;gap:20px;background:rgba(0,0,0,0.4);padding:10px 20px;border-radius:12px;margin-bottom:15px;flex-wrap:wrap;justify-content:center}
+        .player-stat-item{text-align:center}.player-stat-value{font-family:'Press Start 2P',cursive;font-size:.7rem;color:var(--gold)}.player-stat-label{font-size:.6rem;color:var(--text-secondary)}
+        .world-tabs{display:flex;gap:5px;margin-bottom:15px;flex-wrap:wrap;justify-content:center}
+        .world-tab{font-family:'Press Start 2P',cursive;font-size:.35rem;padding:8px 12px;border:2px solid rgba(255,255,255,0.2);border-radius:8px;background:rgba(0,0,0,0.3);color:var(--text-secondary);cursor:pointer}
+        .world-tab.active{border-color:var(--primary);background:var(--primary);color:white}
+        .world-tab:hover:not(.active){border-color:var(--secondary)}
+        .stage-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:10px;width:100%;max-width:900px;max-height:40vh;overflow-y:auto;padding:10px;background:rgba(0,0,0,0.3);border-radius:15px}
+        .stage-node{aspect-ratio:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .3s;border:3px solid transparent;position:relative;min-width:70px}
+        .stage-node.unlocked{background:linear-gradient(135deg,#2d4a6d,#3d5a80);border-color:var(--secondary)}
+        .stage-node.unlocked:hover{transform:scale(1.05);border-color:var(--primary);box-shadow:0 0 20px var(--primary-glow)}
+        .stage-node.completed{background:linear-gradient(135deg,#3a5a40,#588157);border-color:#7cb342}
+        .stage-node.completed::after{content:'⭐';position:absolute;top:-5px;right:-5px;font-size:.8rem}
+        .stage-node.locked{background:rgba(0,0,0,0.4);border-color:rgba(255,255,255,0.1);cursor:not-allowed;opacity:.5}
+        .stage-node.current{animation:cp 1.5s infinite}
+        @keyframes cp{0%,100%{box-shadow:0 0 10px var(--primary-glow)}50%{box-shadow:0 0 25px var(--primary-glow),0 0 40px var(--primary-glow)}}
+        .stage-number{font-family:'Press Start 2P',cursive;font-size:.8rem;color:white}.stage-stars{font-size:.5rem;margin-top:3px}
+        .stage-info-panel{background:rgba(0,0,0,0.5);padding:15px;border-radius:12px;margin-top:15px;width:100%;max-width:500px;text-align:center}
+        .stage-info-title{font-family:'Press Start 2P',cursive;font-size:.6rem;color:var(--primary);margin-bottom:8px}
+        .stage-info-mission{font-size:.75rem;color:var(--text-secondary);margin-bottom:10px}
+        .stage-info-rewards{display:flex;justify-content:center;gap:15px;margin-bottom:10px}
+        .reward-item{display:flex;align-items:center;gap:5px;font-size:.65rem;color:var(--gold)}
+        .play-stage-btn{font-family:'Press Start 2P',cursive;font-size:.6rem;padding:12px 30px;border:none;border-radius:25px;cursor:pointer;background:linear-gradient(135deg,var(--secondary),var(--secondary-dark));color:white;box-shadow:0 4px 0 #2a9d8f;transition:all .2s}
+        .play-stage-btn:hover{transform:translateY(-2px)}
+        .team-select-mini{display:flex;gap:8px;margin-bottom:15px;justify-content:center;flex-wrap:wrap}
+        .team-char-mini{width:50px;height:62px;border-radius:10px;border:2px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.4);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;padding:2px}
+        .team-char-mini.selected{border-color:var(--secondary);background:rgba(77,204,189,0.2)}
+        .team-char-mini.primary-char{border-color:var(--gold);background:rgba(255,215,0,0.15);box-shadow:0 0 8px rgba(255,215,0,0.3)}
+        .team-char-mini.locked{opacity:.4;cursor:not-allowed}
+        .team-char-mini img{width:30px;height:30px;image-rendering:pixelated}
+        .team-char-mini .cn{font-size:.35rem;color:var(--text-secondary);font-family:'Press Start 2P',cursive;margin-top:1px}
+        .team-char-mini .cr{font-size:.25rem;color:var(--gold)}
+        .results-screen{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(6,16,26,0.95);z-index:90;opacity:0;pointer-events:none;transition:opacity .5s;padding:20px}
+        .results-screen.active{opacity:1;pointer-events:auto}
+        .results-title{font-family:'Press Start 2P',cursive;font-size:clamp(1rem,3vw,1.5rem);margin-bottom:25px;text-shadow:0 0 20px currentColor}
+        .results-title.victory{color:var(--secondary)}.results-title.defeat{color:var(--danger)}
+        .results-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;width:100%;max-width:350px}
+        .result-card{background:rgba(255,255,255,0.05);padding:12px;border-radius:10px;text-align:center;border:1px solid rgba(255,255,255,0.1)}
+        .result-card-value{font-family:'Press Start 2P',cursive;font-size:.7rem;color:var(--gold)}
+        .result-card-label{font-size:.6rem;color:var(--text-secondary);margin-top:4px}
+        .result-xp{font-family:'Press Start 2P',cursive;font-size:.8rem;color:var(--xp-purple);margin-bottom:10px}
+        .result-levelup{font-family:'Press Start 2P',cursive;font-size:1rem;color:var(--gold);animation:lup .5s ease-in-out infinite alternate;margin-bottom:10px}
+        @keyframes lup{from{transform:scale(1)}to{transform:scale(1.1)}}
+        .result-unlock{font-family:'Press Start 2P',cursive;font-size:.6rem;color:var(--secondary);background:rgba(77,204,189,0.15);padding:10px 20px;border-radius:10px;border:1px solid var(--secondary);margin-bottom:15px;animation:ug 1s ease-in-out infinite alternate}
+        @keyframes ug{from{box-shadow:0 0 10px rgba(77,204,189,0.3)}to{box-shadow:0 0 25px rgba(77,204,189,0.6)}}
+        .results-buttons{display:flex;gap:15px;flex-wrap:wrap;justify-content:center}
+        .game-btn{font-family:'Press Start 2P',cursive;font-size:.6rem;padding:12px 25px;border:none;border-radius:50px;cursor:pointer;transition:all .2s;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+        .game-btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;box-shadow:0 5px 0 #b03e6a}
+        .game-btn-primary:hover{transform:translateY(-2px)}
+        .game-btn-secondary{background:linear-gradient(135deg,var(--secondary),var(--secondary-dark));color:white;box-shadow:0 5px 0 #2a9d8f}
+        .game-btn-secondary:hover{transform:translateY(-2px)}
+        .game-btn-danger{background:linear-gradient(135deg,var(--danger),#c0392b);color:white;box-shadow:0 5px 0 #962d22}
+        .mobile-controls{display:none;position:fixed;bottom:10px;left:0;right:0;padding:0 10px;justify-content:space-between;z-index:1000}
+        .mobile-btn-group{display:flex;gap:8px;align-items:flex-end}
+        .mobile-btn{width:60px;height:60px;border-radius:50%;border:3px solid rgba(255,255,255,0.4);background:rgba(13,27,42,0.85);color:white;font-size:1.5rem;display:flex;align-items:center;justify-content:center;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+        .mobile-btn:active{background:rgba(255,107,157,0.5);transform:scale(.95)}
+        .mobile-btn.attack-lia{background:rgba(255,107,157,0.4);border-color:var(--primary)}
+        .mobile-btn.attack-sarah{background:rgba(231,76,60,0.4);border-color:#e74c3c}
+        .mobile-btn.attack-dani{background:rgba(52,152,219,0.4);border-color:#3498db}
+        .mobile-btn.attack-alice{background:rgba(230,126,34,0.4);border-color:var(--alice-orange)}
+        .mobile-btn.attack-vitoria{background:rgba(0,188,212,0.4);border-color:var(--vitoria-cyan)}
+        .mobile-btn.attack-miguel{background:rgba(76,175,80,0.4);border-color:var(--miguel-green)}
+        .mobile-btn.attack-lilia{background:rgba(156,39,176,0.4);border-color:var(--lilia-purple)}
+        .mobile-btn.jump{background:rgba(77,204,189,0.4);border-color:var(--secondary)}
+        .support-cooldown{position:absolute;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:4px 12px;border-radius:12px;font-family:'Press Start 2P',cursive;font-size:.4rem;color:#3498db;z-index:20;display:none}
+        .combo-display{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);font-family:'Press Start 2P',cursive;font-size:1.2rem;color:var(--gold);text-shadow:0 0 20px var(--gold),2px 2px 0 #b38600;pointer-events:none;opacity:0;z-index:50}
+        .combo-display.active{animation:comboP .8s ease-out forwards}
+        @keyframes comboP{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}100%{opacity:0;transform:translate(-50%,-80%) scale(1)}}
+        .pause-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Press Start 2P',cursive;font-size:1.5rem;color:var(--text-primary);text-shadow:0 0 20px var(--primary);z-index:60;display:none}
+        .pause-overlay.active{display:block;animation:pp 1s ease-in-out infinite}
+        @keyframes pp{0%,100%{opacity:.7}50%{opacity:1}}
+        .loading-screen{position:absolute;top:0;left:0;right:0;bottom:0;background:var(--bg-darker);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200}
+        .loading-spinner{width:50px;height:50px;border:4px solid rgba(255,107,157,0.2);border-top-color:var(--primary);border-radius:50%;animation:sp 1s linear infinite;margin-bottom:15px}
+        @keyframes sp{to{transform:rotate(360deg)}}
+        .loading-text{font-family:'Press Start 2P',cursive;font-size:.6rem;color:var(--text-secondary);animation:pu 1.5s ease-in-out infinite}
+        @keyframes pu{0%,100%{opacity:.5}50%{opacity:1}}
+        .controls-panel{display:none;position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:8px 20px;border-radius:10px;grid-template-columns:repeat(4,auto);gap:15px;z-index:20}
+        .control-item{display:flex;align-items:center;gap:5px}.control-label{color:var(--text-secondary);font-size:.65rem}
+        .key{display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#3a4d6e,#2a3d5e);min-width:22px;height:20px;padding:0 5px;border-radius:4px;font-family:'Press Start 2P',cursive;font-size:.35rem;color:var(--text-primary);box-shadow:0 2px 0 #1a2639}
+        .fog-overlay{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:5;background:radial-gradient(circle 200px at var(--px,50%) var(--py,50%),transparent 0%,rgba(0,0,0,0.85) 100%);opacity:0;transition:opacity .3s}
+        .fog-overlay.active{opacity:1}
+        @media(max-width:768px){.mobile-controls{display:flex}.stage-grid{grid-template-columns:repeat(5,1fr)}.stage-node{min-width:50px}.stage-number{font-size:.6rem}}
+        @media(max-width:480px){.mobile-btn{width:55px;height:55px;font-size:1.3rem}.stage-grid{grid-template-columns:repeat(4,1fr)}}
+        @media(min-width:769px){.controls-panel{display:grid}}
     </style>
 </head>
 <body>
-    <div class="game-wrapper">
-        <div class="canvas-container">
-            <canvas id="gameCanvas"></canvas>
-
-            <div class="stage-indicator" id="stageIndicator" style="display:none;">FASE 1-1</div>
-            <div class="mission-indicator" id="missionIndicator" style="display:none;">Derrote 5 esqueletos</div>
-
-            <div class="hud-overlay" id="hudOverlay" style="display:none;">
-                <div class="hud-left">
-                    <div class="hud-stat">
-                        <span class="hud-icon">❤️</span>
-                        <div class="health-bar-container"><div class="health-bar" id="healthBar" style="width:100%;"></div></div>
-                    </div>
-                    <div class="hud-stat">
-                        <span class="hud-icon">⚡</span>
-                        <div class="xp-bar-container"><div class="xp-bar" id="xpBar" style="width:0%;"></div></div>
-                        <span class="hud-value" id="levelDisplay">Lv.1</span>
-                    </div>
-                </div>
-                <div class="hud-right">
-                    <div class="hud-stat">
-                        <span class="hud-icon">💀</span>
-                        <span class="hud-value" id="killsDisplay">0/5</span>
-                    </div>
-                    <div class="hud-stat">
-                        <span class="hud-icon">⭐</span>
-                        <span class="hud-value" id="scoreDisplay">0</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="support-cooldown" id="supportCooldown">🛡️ SHIELD: PRONTO (K)</div>
-            <div class="combo-display" id="comboDisplay"></div>
-            <div class="levelup-display" id="levelUpDisplay"></div>
-            <div class="unlock-display" id="unlockDisplay"></div>
-            <div class="pause-overlay" id="pauseOverlay">PAUSADO</div>
-
-            <div class="loading-screen" id="loadingScreen">
-                <div class="loading-spinner"></div>
-                <div class="loading-text">CARREGANDO...</div>
-            </div>
-
-            <!-- TITLE SCREEN -->
-            <div class="game-screen active" id="titleScreen">
-                <h1 class="title-logo">LIA ADVENTURE</h1>
-                <p class="press-start">PRESS START</p>
-                <button class="start-btn-big" id="titleStartBtn">START</button>
-            </div>
-
-            <!-- MAIN MENU -->
-            <div class="game-screen" id="mainMenuScreen">
-                <h2 class="menu-title">LIA ADVENTURE</h2>
-                <div class="menu-options">
-                    <button class="menu-btn menu-btn-primary" id="playGameBtn">INICIAR JOGO</button>
-                    <button class="menu-btn menu-btn-google" id="googleLoginBtn">🔵 LOGAR CONTA GOOGLE</button>
-                    <p class="google-hint">Essa opção é para salvar seus dados de jogo.</p>
-                </div>
-            </div>
-
-            <!-- STAGE SELECT -->
-            <div class="game-screen" id="stageSelectScreen">
-                <div class="stage-select-header">
-                    <h2 class="stage-select-title">SELECIONAR FASE</h2>
-                    <button class="back-btn" id="backToMenuBtn">← VOLTAR</button>
-                </div>
-                <div class="player-stats-panel">
-                    <div class="player-stat-item">
-                        <div class="player-stat-value" id="playerLevelStat">Lv. 1</div>
-                        <div class="player-stat-label">Nível</div>
-                    </div>
-                    <div class="player-stat-item">
-                        <div class="player-stat-value" id="playerXpStat">0</div>
-                        <div class="player-stat-label">XP Total</div>
-                    </div>
-                    <div class="player-stat-item">
-                        <div class="player-stat-value" id="playerStarsStat">0</div>
-                        <div class="player-stat-label">⭐ Estrelas</div>
-                    </div>
-                </div>
-                <div class="world-tabs" id="worldTabs"></div>
-                <div class="stage-grid" id="stageGrid"></div>
-                <div class="stage-info-panel" id="stageInfoPanel" style="display:none;">
-                    <div class="stage-info-title" id="stageInfoTitle">FASE 1-1</div>
-                    <div class="stage-info-mission" id="stageInfoMission">Derrote 5 esqueletos para avançar.</div>
-                    <div class="stage-info-rewards">
-                        <div class="reward-item">🏆 <span id="stageXpReward">50</span> XP</div>
-                        <div class="reward-item">⭐ <span id="stageScoreReward">500</span> pts</div>
-                    </div>
-                    <div class="team-select-mini" id="teamSelectMini"></div>
-                    <button class="play-stage-btn" id="playStageBtn">JOGAR FASE</button>
-                </div>
-            </div>
-
-            <!-- RESULTS SCREEN -->
-            <div class="results-screen" id="resultsScreen">
-                <h2 class="results-title" id="resultsTitle">FASE COMPLETA!</h2>
-                <div class="results-grid" id="resultsGrid"></div>
-                <div class="result-xp" id="resultXp" style="display:none;"></div>
-                <div class="result-levelup" id="resultLevelUp" style="display:none;">🎉 LEVEL UP! 🎉</div>
-                <div class="result-unlock" id="resultUnlock" style="display:none;"></div>
-                <div class="results-buttons" id="resultsButtons"></div>
-            </div>
-
-            <!-- Desktop Controls -->
-            <div class="controls-panel" id="controlsPanel">
-                <div class="control-item"><span class="control-label">Mover:</span><span class="key">A</span><span class="key">D</span></div>
-                <div class="control-item"><span class="control-label">Pular:</span><span class="key">W</span><span class="key">ESPAÇO</span></div>
-                <div class="control-item"><span class="control-label">Atacar:</span><span class="key">J</span></div>
-                <div class="control-item"><span class="control-label">Skill:</span><span class="key">K</span><span class="key">L</span></div>
-                <div class="control-item"><span class="control-label">Pausar:</span><span class="key">ESC</span></div>
-            </div>
+    <div class="game-wrapper"><div class="canvas-container">
+        <canvas id="gameCanvas"></canvas>
+        <div class="fog-overlay" id="fogOverlay"></div>
+        <div class="stage-indicator" id="stageIndicator" style="display:none;"></div>
+        <div class="mission-indicator" id="missionIndicator" style="display:none;"></div>
+        <div class="hud-overlay" id="hudOverlay" style="display:none;">
+            <div class="hud-left"><div class="hud-stat"><span class="hud-icon">❤️</span><div class="health-bar-container"><div class="health-bar" id="healthBar" style="width:100%;"></div></div></div><div class="hud-stat"><span class="hud-icon">⚡</span><div class="xp-bar-container"><div class="xp-bar" id="xpBar" style="width:0%;"></div></div><span class="hud-value" id="levelDisplay">Lv.1</span></div></div>
+            <div class="hud-right"><div class="hud-stat"><span class="hud-icon">💀</span><span class="hud-value" id="killsDisplay">0/5</span></div><div class="hud-stat"><span class="hud-icon">⭐</span><span class="hud-value" id="scoreDisplay">0</span></div></div>
         </div>
-    </div>
-
-    <!-- Mobile Controls -->
+        <div class="support-cooldown" id="supportCooldown"></div>
+        <div class="combo-display" id="comboDisplay"></div>
+        <div class="pause-overlay" id="pauseOverlay">PAUSADO</div>
+        <div class="loading-screen" id="loadingScreen"><div class="loading-spinner"></div><div class="loading-text">CARREGANDO...</div></div>
+        <div class="game-screen active" id="titleScreen"><h1 class="title-logo">LIA ADVENTURE</h1><p class="press-start">PRESS START</p><button class="start-btn-big" id="titleStartBtn">START</button></div>
+        <div class="game-screen" id="mainMenuScreen"><h2 class="menu-title">LIA ADVENTURE</h2><div class="menu-options"><button class="menu-btn menu-btn-primary" id="playGameBtn">INICIAR JOGO</button><button class="menu-btn menu-btn-google" id="googleLoginBtn">🔵 LOGAR CONTA GOOGLE</button><p class="google-hint">Logue para salvar progresso. Sem login, dados serão perdidos.</p></div></div>
+        <div class="game-screen" id="stageSelectScreen">
+            <div class="stage-select-header"><h2 class="stage-select-title">SELECIONAR FASE</h2><button class="back-btn" id="backToMenuBtn">← VOLTAR</button></div>
+            <div class="player-stats-panel"><div class="player-stat-item"><div class="player-stat-value" id="playerLevelStat">Lv. 1</div><div class="player-stat-label">Nível</div></div><div class="player-stat-item"><div class="player-stat-value" id="playerXpStat">0</div><div class="player-stat-label">XP Total</div></div><div class="player-stat-item"><div class="player-stat-value" id="playerStarsStat">0</div><div class="player-stat-label">⭐ Estrelas</div></div></div>
+            <div class="world-tabs" id="worldTabs"></div>
+            <div class="stage-grid" id="stageGrid"></div>
+            <div class="stage-info-panel" id="stageInfoPanel" style="display:none;"><div class="stage-info-title" id="stageInfoTitle"></div><div class="stage-info-mission" id="stageInfoMission"></div><div class="stage-info-rewards"><div class="reward-item">🏆 <span id="stageXpReward">50</span> XP</div><div class="reward-item">⭐ <span id="stageScoreReward">500</span> pts</div></div><div class="team-select-mini" id="teamSelectMini"></div><button class="play-stage-btn" id="playStageBtn">JOGAR FASE</button></div>
+        </div>
+        <div class="results-screen" id="resultsScreen"><h2 class="results-title" id="resultsTitle"></h2><div class="results-grid" id="resultsGrid"></div><div class="result-xp" id="resultXp" style="display:none;"></div><div class="result-levelup" id="resultLevelUp" style="display:none;">🎉 LEVEL UP! 🎉</div><div class="result-unlock" id="resultUnlock" style="display:none;"></div><div class="results-buttons" id="resultsButtons"></div></div>
+        <div class="controls-panel" id="controlsPanel"><div class="control-item"><span class="control-label">Mover:</span><span class="key">A</span><span class="key">D</span></div><div class="control-item"><span class="control-label">Pular:</span><span class="key">W</span></div><div class="control-item"><span class="control-label">Atacar:</span><span class="key">J</span></div><div class="control-item"><span class="control-label">Pausar:</span><span class="key">ESC</span></div></div>
+    </div></div>
     <div class="mobile-controls" id="mobileControls">
-        <div class="mobile-btn-group">
-            <button class="mobile-btn" id="mobileLeft">◀</button>
-            <button class="mobile-btn" id="mobileRight">▶</button>
-        </div>
-        <div class="mobile-btn-group">
-            <button class="mobile-btn skill2" id="mobileSkill2" style="display:none;">❄️</button>
-            <button class="mobile-btn skill1" id="mobileSkill1" style="display:none;">🔥</button>
-            <button class="mobile-btn support" id="mobileSupport">🛡️</button>
-            <button class="mobile-btn jump" id="mobileJump">▲</button>
-            <button class="mobile-btn attack" id="mobileAttack">⚔</button>
-        </div>
+        <div class="mobile-btn-group"><button class="mobile-btn" id="mobileLeft">◀</button><button class="mobile-btn" id="mobileRight">▶</button></div>
+        <div class="mobile-btn-group"><button class="mobile-btn jump" id="mobileJump">▲</button><button class="mobile-btn attack-lia" id="mobileAttack">⚔</button></div>
     </div>
-
-    <script>
-        // ============================================
-        // LIA ADVENTURE - Game Engine v5.0
-        // 5 Worlds, 30 Stages, 5 Characters
-        // Lia, Sarah, Dani, Alice, Vitória
-        // ============================================
-
-        const WORLDS = [
-            'Magewood Forest',
-            'Lunar Cave',
-            'Peak of Justice',
-            'The Vermilion City',
-            'Arc Island'
-        ];
-
-        const STAGES_DATA = [];
-
-        // Generate 30 stages (6 per world)
-        for (let world = 0; world < 5; world++) {
-            for (let stage = 0; stage < 6; stage++) {
-                const stageNum = world * 6 + stage + 1;
-
-                let mission;
-                if (stage === 5) {
-                    mission = { type: 'kill', text: `Derrote ${10 + stageNum * 3} esqueletos + Chefe`, target: 10 + stageNum * 3, hasBoss: true };
-                } else if (stage % 3 === 0) {
-                    const t = 5 + stageNum * 2;
-                    mission = { type: 'kill', text: `Derrote ${t} esqueletos`, target: t };
-                } else if (stage % 3 === 1) {
-                    const t = 30 + stageNum * 5;
-                    mission = { type: 'survive', text: `Sobreviva por ${t} segundos`, target: t };
-                } else {
-                    const t = 3 + Math.floor(stageNum / 5);
-                    mission = { type: 'combo', text: `Alcance combo ${t}x`, target: t };
-                }
-
-                let unlockChar = null;
-                if (stageNum === 2) unlockChar = 'sarah';
-                if (stageNum === 8) unlockChar = 'dani';
-                if (stageNum === 15) unlockChar = 'alice';
-                if (stageNum === 23) unlockChar = 'vitoria';
-
-                STAGES_DATA.push({
-                    id: stageNum,
-                    world: world + 1,
-                    worldName: WORLDS[world],
-                    stageInWorld: stage + 1,
-                    name: `${world + 1}-${stage + 1}`,
-                    mission: mission,
-                    enemyHealth: 40 + stageNum * 8,
-                    enemyDamage: 8 + stageNum * 2,
-                    enemySpeed: 1.5 + stageNum * 0.08,
-                    maxEnemies: Math.min(3 + Math.floor(stageNum / 4), 10),
-                    spawnRate: Math.max(800, 2500 - stageNum * 50),
-                    xpReward: 50 + stageNum * 30,
-                    scoreReward: 300 + stageNum * 100,
-                    unlockChar: unlockChar
-                });
-            }
-        }
-
-        // XP System
-        const XP_SYSTEM = {
-            getXpForLevel(level) { return Math.floor(100 * Math.pow(1.5, level - 1)); },
-            getTotalXpForLevel(level) { let t = 0; for (let i = 1; i < level; i++) t += this.getXpForLevel(i); return t; },
-            getLevelFromXp(totalXp) {
-                let level = 1, xpNeeded = 0;
-                while (totalXp >= xpNeeded + this.getXpForLevel(level)) { xpNeeded += this.getXpForLevel(level); level++; if (level > 99) break; }
-                return { level, currentXp: totalXp - xpNeeded, neededXp: this.getXpForLevel(level) };
-            },
-            getStatBonus(level, stat) {
-                const b = { attack: level * 3, health: level * 10, speed: Math.min(level * 0.1, 3) };
-                return b[stat] || 0;
-            }
-        };
-
-        // Config
-        const CONFIG = {
-            canvas: { width: 1280, height: 720 },
-            physics: { gravity: 0.5, friction: 0.89, groundY: 620, airResistance: 0.98 },
-            player: {
-                width: 70, height: 100, walkSpeed: 4, runSpeed: 7, maxSpeed: 9,
-                acceleration: 0.45, deceleration: 0.35, jumpForce: -14, jumpHoldForce: -0.5,
-                maxJumpHoldTime: 200, attackDuration: 300, attackCooldown: 400,
-                damageCooldown: 1000, attackRange: 90, attackHeight: 70,
-                baseHealth: 100, baseAttack: 20
-            },
-            sarah: { width: 65, height: 95, projectileSpeed: 10, attackRange: 400, attackCooldown: 600, baseAttack: 15 },
-            dani: { width: 70, height: 100, shieldDuration: 6000, shieldCooldown: 15000 },
-            alice: { width: 65, height: 95, fireRadius: 150, burnDamage: 3, burnDuration: 3000, buffDuration: 5000, attackCooldown: 8000 },
-            vitoria: { width: 65, height: 95, iceRange: 350, freezeChance: 0.25, freezeDuration: 2000, skill1Cooldown: 5000, skill2Cooldown: 12000, skill3Cooldown: 10000 },
-            scoring: { killBase: 100, comboMultiplier: 1.5, comboTimeout: 2000 }
-        };
-
-        // Game State
-        const gameState = {
-            totalXp: 0, playerLevel: 1, currentXp: 0, xpToNextLevel: 100,
-            highestStage: 1, stageStars: {},
-            unlockedChars: { lia: true, sarah: false, dani: false, alice: false, vitoria: false },
-            totalScore: 0,
-            currentStage: null, selectedCharacters: ['lia'],
-            sarahInTeam: false, daniInTeam: false, aliceInTeam: false, vitoriaInTeam: false,
-            running: false, paused: false, stageComplete: false, playerDied: false,
-            stageKills: 0, stageScore: 0, stageDamageTaken: 0, stageMaxCombo: 0,
-            stageStartTime: 0, combo: 0, lastComboTime: 0, lastSpawnTime: 0,
-            backgroundOffset: 0, particles: [], damageIndicators: [],
-            screenShake: { x: 0, y: 0, intensity: 0 }, keys: {},
-            projectiles: [],
-            shieldActive: false, shieldEndTime: 0, lastShieldTime: 0,
-            // Alice buffs
-            attackBuff: false, attackBuffEnd: 0,
-            // Vitória buffs
-            iceShieldActive: false, iceShieldEnd: 0,
-            frostComboActive: false, frostComboEnd: 0, frostComboChance: 0,
-            isLoggedIn: false
-        };
-
-        // Save/Load - ONLY saves if logged in
-        function saveProgress() {
-            if (!gameState.isLoggedIn) return; // Only save if logged in
-            localStorage.setItem('liaAdventureSave', JSON.stringify({
-                totalXp: gameState.totalXp, highestStage: gameState.highestStage,
-                stageStars: gameState.stageStars, unlockedChars: gameState.unlockedChars,
-                totalScore: gameState.totalScore
-            }));
-        }
-        function loadProgress() {
-            if (!gameState.isLoggedIn) return;
-            const saved = localStorage.getItem('liaAdventureSave');
-            if (saved) {
-                const d = JSON.parse(saved);
-                gameState.totalXp = d.totalXp || 0;
-                gameState.highestStage = d.highestStage || 1;
-                gameState.stageStars = d.stageStars || {};
-                gameState.unlockedChars = d.unlockedChars || { lia: true, sarah: false, dani: false, alice: false, vitoria: false };
-                gameState.totalScore = d.totalScore || 0;
-                const li = XP_SYSTEM.getLevelFromXp(gameState.totalXp);
-                gameState.playerLevel = li.level; gameState.currentXp = li.currentXp; gameState.xpToNextLevel = li.neededXp;
-            }
-        }
-
-        // DOM
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const el = {
-            loadingScreen: document.getElementById('loadingScreen'),
-            titleScreen: document.getElementById('titleScreen'),
-            mainMenuScreen: document.getElementById('mainMenuScreen'),
-            stageSelectScreen: document.getElementById('stageSelectScreen'),
-            resultsScreen: document.getElementById('resultsScreen'),
-            resultsTitle: document.getElementById('resultsTitle'),
-            resultsGrid: document.getElementById('resultsGrid'),
-            resultXp: document.getElementById('resultXp'),
-            resultLevelUp: document.getElementById('resultLevelUp'),
-            resultUnlock: document.getElementById('resultUnlock'),
-            resultsButtons: document.getElementById('resultsButtons'),
-            hudOverlay: document.getElementById('hudOverlay'),
-            stageIndicator: document.getElementById('stageIndicator'),
-            missionIndicator: document.getElementById('missionIndicator'),
-            healthBar: document.getElementById('healthBar'),
-            xpBar: document.getElementById('xpBar'),
-            levelDisplay: document.getElementById('levelDisplay'),
-            killsDisplay: document.getElementById('killsDisplay'),
-            scoreDisplay: document.getElementById('scoreDisplay'),
-            supportCooldown: document.getElementById('supportCooldown'),
-            comboDisplay: document.getElementById('comboDisplay'),
-            levelUpDisplay: document.getElementById('levelUpDisplay'),
-            unlockDisplay: document.getElementById('unlockDisplay'),
-            pauseOverlay: document.getElementById('pauseOverlay'),
-            controlsPanel: document.getElementById('controlsPanel'),
-            mobileControls: document.getElementById('mobileControls'),
-            worldTabs: document.getElementById('worldTabs'),
-            stageGrid: document.getElementById('stageGrid'),
-            stageInfoPanel: document.getElementById('stageInfoPanel'),
-            stageInfoTitle: document.getElementById('stageInfoTitle'),
-            stageInfoMission: document.getElementById('stageInfoMission'),
-            stageXpReward: document.getElementById('stageXpReward'),
-            stageScoreReward: document.getElementById('stageScoreReward'),
-            teamSelectMini: document.getElementById('teamSelectMini'),
-            playerLevelStat: document.getElementById('playerLevelStat'),
-            playerXpStat: document.getElementById('playerXpStat'),
-            playerStarsStat: document.getElementById('playerStarsStat'),
-        };
-
-        // Canvas resize
-        function resizeCanvas() {
-            const c = canvas.parentElement;
-            const ar = CONFIG.canvas.width / CONFIG.canvas.height;
-            let w = c.clientWidth, h = w / ar;
-            if (h > c.clientHeight) { h = c.clientHeight; w = h * ar; }
-            canvas.width = CONFIG.canvas.width; canvas.height = CONFIG.canvas.height;
-            canvas.style.width = `${w}px`; canvas.style.height = `${h}px`;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        // Audio
-        let audioCtx = null;
-        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-        function playTone(freq, dur, type='square', vol=0.1) {
-            if (!audioCtx) return;
-            const o = audioCtx.createOscillator(), g = audioCtx.createGain();
-            o.type = type; o.frequency.value = freq; g.gain.value = vol;
-            g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
-            o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + dur);
-        }
-        const sounds = {
-            jump: () => playTone(400, 0.1, 'square', 0.08),
-            attack: () => playTone(200, 0.15, 'sawtooth', 0.1),
-            hit: () => playTone(150, 0.1, 'square', 0.12),
-            damage: () => playTone(100, 0.2, 'sawtooth', 0.15),
-            shield: () => { playTone(300, 0.1, 'sine', 0.1); setTimeout(() => playTone(500, 0.15, 'sine', 0.1), 100); },
-            shoot: () => playTone(600, 0.08, 'sine', 0.08),
-            combo: () => playTone(800, 0.1, 'sine', 0.1),
-            fire: () => { playTone(250, 0.2, 'sawtooth', 0.12); setTimeout(() => playTone(350, 0.15, 'sawtooth', 0.1), 100); },
-            ice: () => { playTone(700, 0.15, 'sine', 0.1); setTimeout(() => playTone(900, 0.1, 'sine', 0.08), 100); },
-            stageComplete: () => { playTone(523, 0.15); setTimeout(() => playTone(659, 0.15), 150); setTimeout(() => playTone(784, 0.2), 300); setTimeout(() => playTone(1047, 0.3), 450); },
-            unlock: () => { for(let i = 0; i < 5; i++) setTimeout(() => playTone(400 + i * 100, 0.1, 'sine', 0.12), i * 80); },
-            levelUp: () => { playTone(523, 0.1); setTimeout(() => playTone(784, 0.1), 100); setTimeout(() => playTone(1047, 0.2), 200); },
-            gameOver: () => { playTone(200, 0.3, 'sawtooth', 0.12); setTimeout(() => playTone(150, 0.4, 'sawtooth', 0.1), 300); }
-        };
-
-        // Images
-        const images = {
-            playerIdle: new Image(), playerWalk: new Image(), playerRun: new Image(),
-            playerJump: new Image(), playerAttack: new Image(), playerDamage: new Image(),
-            sarahIdle: new Image(), sarahRun: new Image(), sarahJump: new Image(),
-            sarahAttack: new Image(), sarahDamage: new Image(),
-            daniIdle: new Image(), daniRun: new Image(), daniJump: new Image(),
-            daniDefense: new Image(), daniDamage: new Image(),
-            aliceIdle: new Image(), aliceRun: new Image(),
-            aliceAttack: new Image(), aliceDamage: new Image(),
-            vitoriaIdle: new Image(), vitoriaRun: new Image(),
-            vitoriaAttack1: new Image(), vitoriaAttack2: new Image(), vitoriaAttack3: new Image(),
-            enemyIdle: new Image(), enemyWalkL: new Image(), enemyWalkR: new Image(),
-            enemyAttack: new Image(), enemyDamage: new Image(), enemyDead: new Image(),
-            background: new Image()
-        };
-
-        images.playerIdle.src = 'lia.png'; images.playerWalk.src = 'liawalk.png';
-        images.playerRun.src = 'liarun.png'; images.playerJump.src = 'liajump.png';
-        images.playerAttack.src = 'liaattacking.png'; images.playerDamage.src = 'liadamage.png';
-        images.sarahIdle.src = 'sarah.png'; images.sarahRun.src = 'sarahrun.png';
-        images.sarahJump.src = 'sarahjump.png'; images.sarahAttack.src = 'sarahattack.png';
-        images.sarahDamage.src = 'sarahdamage.png';
-        images.daniIdle.src = 'dani.png'; images.daniRun.src = 'danirun.png';
-        images.daniJump.src = 'danijump.png'; images.daniDefense.src = 'danidefense.png';
-        images.daniDamage.src = 'danidamage.png';
-        images.aliceIdle.src = 'alice.png'; images.aliceRun.src = 'alicerun.png';
-        images.aliceAttack.src = 'aliceattack.png'; images.aliceDamage.src = 'alicedamage.png';
-        images.vitoriaIdle.src = 'vitoria.png'; images.vitoriaRun.src = 'vitoriarun.png';
-        images.vitoriaAttack1.src = 'vitoriaattack1.png'; images.vitoriaAttack2.src = 'vitoriaattack2.png';
-        images.vitoriaAttack3.src = 'vitoriaattack3.png';
-        images.enemyIdle.src = 'skeleton.png'; images.enemyWalkL.src = 'skeletonwalkl.png';
-        images.enemyWalkR.src = 'skeletonwalkr.png'; images.enemyAttack.src = 'skeletonattack.png';
-        images.enemyDamage.src = 'skeletondamage.png'; images.enemyDead.src = 'skeletonko.png';
-        images.background.src = 'mapa.png';
-
-        let imagesLoaded = 0;
-        const totalImages = Object.keys(images).length;
-        function onImageLoad() { imagesLoaded++; if (imagesLoaded >= totalImages) { el.loadingScreen.style.display = 'none'; } }
-        Object.values(images).forEach(img => { img.onload = onImageLoad; img.onerror = onImageLoad; });
-
-        // ================ ENTITIES ================
-        let enemies = [];
-
-        function checkCollision(a, b) {
-            return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
-        }
-
-        // Player (Lia)
-        const player = {
-            x: 100, y: CONFIG.physics.groundY - CONFIG.player.height,
-            width: CONFIG.player.width, height: CONFIG.player.height,
-            velocityX: 0, velocityY: 0,
-            health: CONFIG.player.baseHealth, maxHealth: CONFIG.player.baseHealth,
-            attackPower: CONFIG.player.baseAttack,
-            isGrounded: false, isJumping: false, isAttacking: false,
-            isDamaged: false, isRunning: false, facingRight: true,
-            lastAttackTime: 0, lastDamageTime: 0, jumpHoldTime: 0, jumpPressed: false,
-
-            reset() {
-                const hb = XP_SYSTEM.getStatBonus(gameState.playerLevel, 'health');
-                const ab = XP_SYSTEM.getStatBonus(gameState.playerLevel, 'attack');
-                this.maxHealth = CONFIG.player.baseHealth + hb; this.health = this.maxHealth;
-                this.attackPower = CONFIG.player.baseAttack + ab;
-                this.x = 100; this.y = CONFIG.physics.groundY - this.height;
-                this.velocityX = 0; this.velocityY = 0;
-                this.isGrounded = false; this.isJumping = false; this.isAttacking = false;
-                this.isDamaged = false; this.isRunning = false; this.facingRight = true;
-                this.lastAttackTime = 0; this.lastDamageTime = 0; this.jumpHoldTime = 0; this.jumpPressed = false;
-            },
-
-            update(dt) {
-                const now = Date.now();
-                const sb = XP_SYSTEM.getStatBonus(gameState.playerLevel, 'speed');
-                this.isRunning = gameState.keys['shift'];
-                const ts = (this.isRunning ? CONFIG.player.runSpeed : CONFIG.player.walkSpeed) + sb;
-                const a = CONFIG.player.acceleration, d = CONFIG.player.deceleration;
-
-                if (gameState.keys['a'] || gameState.keys['arrowleft']) { this.velocityX = Math.max(this.velocityX - a, -ts); this.facingRight = false; }
-                else if (gameState.keys['d'] || gameState.keys['arrowright']) { this.velocityX = Math.min(this.velocityX + a, ts); this.facingRight = true; }
-                else { if (Math.abs(this.velocityX) < d) this.velocityX = 0; else this.velocityX += this.velocityX > 0 ? -d : d; }
-
-                if (!this.isGrounded) this.velocityX *= CONFIG.physics.airResistance;
-                if (this.isJumping && this.jumpPressed && this.jumpHoldTime < CONFIG.player.maxJumpHoldTime) {
-                    this.velocityY += CONFIG.player.jumpHoldForce; this.jumpHoldTime += dt;
-                }
-
-                this.velocityY += CONFIG.physics.gravity;
-                this.x += this.velocityX; this.y += this.velocityY;
-
-                if (this.y >= CONFIG.physics.groundY - this.height) {
-                    this.y = CONFIG.physics.groundY - this.height; this.velocityY = 0;
-                    this.isGrounded = true; this.isJumping = false;
-                } else { this.isGrounded = false; }
-
-                this.x = Math.max(0, Math.min(CONFIG.canvas.width - this.width, this.x));
-                if (this.isAttacking && now - this.lastAttackTime > CONFIG.player.attackDuration) this.isAttacking = false;
-                if (this.isDamaged && now - this.lastDamageTime > 300) this.isDamaged = false;
-            },
-
-            jump() {
-                if (this.isGrounded && !this.isJumping) {
-                    this.velocityY = CONFIG.player.jumpForce; this.isJumping = true;
-                    this.isGrounded = false; this.jumpHoldTime = 0; this.jumpPressed = true; sounds.jump();
-                }
-            },
-            releaseJump() { this.jumpPressed = false; },
-
-            attack() {
-                const now = Date.now();
-                if (now - this.lastAttackTime < CONFIG.player.attackCooldown) return;
-                this.isAttacking = true; this.lastAttackTime = now; sounds.attack();
-
-                let atkPower = this.attackPower;
-                if (gameState.attackBuff && now < gameState.attackBuffEnd) atkPower *= 1.4;
-
-                const ab = { x: this.facingRight ? this.x + this.width - 10 : this.x - CONFIG.player.attackRange + 10,
-                    y: this.y + 20, width: CONFIG.player.attackRange, height: CONFIG.player.attackHeight };
-
-                let hit = false;
-                enemies.forEach(e => {
-                    if (!e.isDead && checkCollision(ab, e)) {
-                        e.takeDamage(atkPower);
-                        hit = true;
-                        // Frost combo check
-                        if (gameState.frostComboActive && now < gameState.frostComboEnd) {
-                            if (Math.random() < gameState.frostComboChance && !e.frozen) {
-                                e.freeze(CONFIG.vitoria.freezeDuration);
-                            }
-                            gameState.frostComboChance = Math.min(gameState.frostComboChance + 0.05, 0.6);
-                        }
-                    }
-                });
-
-                if (hit) {
-                    gameState.combo++; gameState.lastComboTime = now;
-                    if (gameState.combo > gameState.stageMaxCombo) gameState.stageMaxCombo = gameState.combo;
-                    if (gameState.combo > 1) { showCombo(gameState.combo); sounds.combo(); }
-                    createParticles(this.facingRight ? this.x + this.width + 20 : this.x - 20, this.y + this.height / 2, '#ff6b9d', 5);
-                }
-            },
-
-            takeDamage(amount) {
-                const now = Date.now();
-                if (now - this.lastDamageTime < CONFIG.player.damageCooldown) return;
-                if (gameState.shieldActive) return;
-                // Ice shield reflects damage
-                if (gameState.iceShieldActive && now < gameState.iceShieldEnd) {
-                    createParticles(this.x + this.width / 2, this.y + this.height / 2, '#00bcd4', 6);
-                    return;
-                }
-
-                this.health -= amount; this.isDamaged = true; this.lastDamageTime = now;
-                gameState.stageDamageTaken += amount; sounds.damage();
-                gameState.screenShake.intensity = 8; gameState.combo = 0;
-                if (gameState.frostComboActive) gameState.frostComboChance = 0.05;
-                createDamageIndicator(this.x + this.width / 2, this.y, amount);
-                createParticles(this.x + this.width / 2, this.y + this.height / 2, '#ff6b6b', 8);
-
-                if (this.health <= 0) { this.health = 0; gameOver(); }
-                updateHUD();
-            },
-
-            draw() {
-                ctx.save();
-                let s = images.playerIdle;
-                if (this.isDamaged) s = images.playerDamage;
-                else if (this.isAttacking) s = images.playerAttack;
-                else if (!this.isGrounded) s = images.playerJump;
-                else if (Math.abs(this.velocityX) > 0.5) s = this.isRunning ? images.playerRun : images.playerWalk;
-
-                ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath();
-                ctx.ellipse(this.x + this.width / 2, CONFIG.physics.groundY + 5, this.width / 2, 10, 0, 0, Math.PI * 2); ctx.fill();
-
-                // Attack buff glow
-                if (gameState.attackBuff && Date.now() < gameState.attackBuffEnd) {
-                    ctx.globalAlpha = 0.3 + Math.sin(Date.now() * 0.01) * 0.15;
-                    ctx.fillStyle = '#e67e22';
-                    ctx.beginPath();
-                    ctx.ellipse(this.x + this.width / 2, this.y + this.height / 2, this.width * 0.7, this.height * 0.6, 0, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.globalAlpha = 1;
-                }
-
-                // Ice shield glow
-                if (gameState.iceShieldActive && Date.now() < gameState.iceShieldEnd) {
-                    ctx.globalAlpha = 0.25 + Math.sin(Date.now() * 0.008) * 0.1;
-                    ctx.fillStyle = '#00bcd4';
-                    ctx.beginPath();
-                    ctx.ellipse(this.x + this.width / 2, this.y + this.height / 2, this.width * 0.8, this.height * 0.65, 0, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.globalAlpha = 1;
-                }
-
-                if (!this.facingRight) { ctx.scale(-1, 1); ctx.drawImage(s, -this.x - this.width, this.y, this.width, this.height); }
-                else ctx.drawImage(s, this.x, this.y, this.width, this.height);
-                ctx.restore();
-            }
-        };
-
-        // Sarah (Ranged DPS) - AI companion
-        const sarah = {
-            x: 160, y: CONFIG.physics.groundY - CONFIG.sarah.height,
-            width: CONFIG.sarah.width, height: CONFIG.sarah.height,
-            velocityX: 0, velocityY: 0, facingRight: true, isJumping: false,
-            isAttacking: false, lastAttackTime: 0,
-
-            reset() { this.x = 160; this.y = CONFIG.physics.groundY - this.height; this.velocityX = 0; this.velocityY = 0; this.facingRight = true; this.isJumping = false; this.isAttacking = false; this.lastAttackTime = 0; },
-
-            update(dt) {
-                if (!gameState.sarahInTeam) return;
-                const tx = player.x + (player.facingRight ? -90 : 90);
-                const dx = tx - this.x;
-                if (Math.abs(dx) > 30) { this.velocityX += Math.sign(dx) * 0.35; this.velocityX = Math.max(-5, Math.min(5, this.velocityX)); this.facingRight = dx > 0; }
-                else this.velocityX *= 0.8;
-
-                if (player.isJumping && this.y >= CONFIG.physics.groundY - this.height - 5 && Math.abs(dx) < 180) { this.velocityY = -11; this.isJumping = true; }
-                this.velocityY += CONFIG.physics.gravity; this.x += this.velocityX; this.y += this.velocityY;
-                if (this.y >= CONFIG.physics.groundY - this.height) { this.y = CONFIG.physics.groundY - this.height; this.velocityY = 0; this.isJumping = false; }
-                this.x = Math.max(0, Math.min(CONFIG.canvas.width - this.width, this.x));
-
-                const now = Date.now();
-                if (now - this.lastAttackTime > CONFIG.sarah.attackCooldown && enemies.length > 0) {
-                    const alive = enemies.filter(e => !e.isDead);
-                    if (alive.length > 0) {
-                        const nearest = alive.reduce((a, b) => Math.abs(a.x - this.x) < Math.abs(b.x - this.x) ? a : b);
-                        if (Math.abs(nearest.x - this.x) < CONFIG.sarah.attackRange) {
-                            this.shootProjectile(nearest); this.lastAttackTime = now;
-                            this.isAttacking = true; this.facingRight = nearest.x > this.x;
-                            setTimeout(() => this.isAttacking = false, 250);
-                        }
-                    }
-                }
-            },
-
-            shootProjectile(target) {
-                let atk = CONFIG.sarah.baseAttack + XP_SYSTEM.getStatBonus(gameState.playerLevel, 'attack') * 0.5;
-                if (gameState.attackBuff && Date.now() < gameState.attackBuffEnd) atk *= 1.4;
-                gameState.projectiles.push({
-                    x: this.x + this.width / 2, y: this.y + this.height / 2,
-                    vx: (target.x > this.x ? 1 : -1) * CONFIG.sarah.projectileSpeed,
-                    damage: atk, life: 1, size: 8, type: 'light'
-                });
-                sounds.shoot();
-            },
-
-            draw() {
-                if (!gameState.sarahInTeam) return;
-                ctx.save();
-                let s = images.sarahIdle;
-                if (this.isAttacking) s = images.sarahAttack;
-                else if (this.isJumping) s = images.sarahJump;
-                else if (Math.abs(this.velocityX) > 0.5) s = images.sarahRun;
-
-                ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.beginPath();
-                ctx.ellipse(this.x + this.width / 2, CONFIG.physics.groundY + 3, this.width / 2.5, 8, 0, 0, Math.PI * 2); ctx.fill();
-
-                if (!this.facingRight) { ctx.scale(-1, 1); ctx.drawImage(s, -this.x - this.width, this.y, this.width, this.height); }
-                else ctx.drawImage(s, this.x, this.y, this.width, this.height);
-                ctx.restore();
-            }
-        };
-
-        // Dani (Tank/Defender)
-        const dani = {
-            x: 80, y: CONFIG.physics.groundY - CONFIG.dani.height,
-            width: CONFIG.dani.width, height: CONFIG.dani.height,
-            velocityX: 0, velocityY: 0, facingRight: true, isJumping: false,
-            isDefending: false,
-
-            reset() { this.x = 80; this.y = CONFIG.physics.groundY - this.height; this.velocityX = 0; this.velocityY = 0; this.facingRight = true; this.isJumping = false; this.isDefending = false; },
-
-            update(dt) {
-                if (!gameState.daniInTeam) return;
-                const tx = player.x + (player.facingRight ? 60 : -60);
-                const dx = tx - this.x;
-                if (Math.abs(dx) > 20) { this.velocityX += Math.sign(dx) * 0.4; this.velocityX = Math.max(-5, Math.min(5, this.velocityX)); this.facingRight = player.facingRight; }
-                else this.velocityX *= 0.8;
-
-                if (player.isJumping && this.y >= CONFIG.physics.groundY - this.height - 5 && Math.abs(dx) < 180) { this.velocityY = -11; this.isJumping = true; }
-                this.velocityY += CONFIG.physics.gravity; this.x += this.velocityX; this.y += this.velocityY;
-                if (this.y >= CONFIG.physics.groundY - this.height) { this.y = CONFIG.physics.groundY - this.height; this.velocityY = 0; this.isJumping = false; }
-                this.x = Math.max(0, Math.min(CONFIG.canvas.width - this.width, this.x));
-
-                const now = Date.now();
-                if (gameState.shieldActive && now > gameState.shieldEndTime) {
-                    gameState.shieldActive = false; this.isDefending = false;
-                }
-            },
-
-            activateShield() {
-                if (!gameState.daniInTeam) return;
-                const now = Date.now();
-                if (now - gameState.lastShieldTime < CONFIG.dani.shieldCooldown) return;
-                gameState.shieldActive = true;
-                gameState.shieldEndTime = now + CONFIG.dani.shieldDuration;
-                gameState.lastShieldTime = now;
-                this.isDefending = true;
-                sounds.shield();
-                createParticles(this.x + this.width / 2, this.y + this.height / 2, '#3498db', 12);
-            },
-
-            draw() {
-                if (!gameState.daniInTeam) return;
-                ctx.save();
-                let s = images.daniIdle;
-                if (this.isDefending) s = images.daniDefense;
-                else if (this.isJumping) s = images.daniJump;
-                else if (Math.abs(this.velocityX) > 0.5) s = images.daniRun;
-
-                ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.beginPath();
-                ctx.ellipse(this.x + this.width / 2, CONFIG.physics.groundY + 3, this.width / 2.5, 8, 0, 0, Math.PI * 2); ctx.fill();
-
-                if (gameState.shieldActive) {
-                    ctx.globalAlpha = 0.3 + Math.sin(Date.now() * 0.005) * 0.15;
-                    ctx.fillStyle = '#3498db';
-                    ctx.beginPath();
-                    ctx.ellipse(this.x + this.width / 2, this.y + this.height / 2, 100, 80, 0, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.globalAlpha = 1;
-                }
-
-                if (!this.facingRight) { ctx.scale(-1, 1); ctx.drawImage(s, -this.x - this.width, this.y, this.width, this.height); }
-                else ctx.drawImage(s, this.x, this.y, this.width, this.height);
-                ctx.restore();
-            }
-        };
-
-        // ===== ALICE (Fire Support) =====
-        const alice = {
-            x: 200, y: CONFIG.physics.groundY - CONFIG.alice.height,
-            width: CONFIG.alice.width, height: CONFIG.alice.height,
-            velocityX: 0, velocityY: 0, facingRight: true, isJumping: false,
-            isAttacking: false, lastAttackTime: 0, isDamaged: false, lastDamageTime: 0,
-
-            reset() {
-                this.x = 200; this.y = CONFIG.physics.groundY - this.height;
-                this.velocityX = 0; this.velocityY = 0; this.facingRight = true;
-                this.isJumping = false; this.isAttacking = false; this.lastAttackTime = 0;
-                this.isDamaged = false; this.lastDamageTime = 0;
-            },
-
-            update(dt) {
-                if (!gameState.aliceInTeam) return;
-                const now = Date.now();
-
-                // Follow player at distance
-                const tx = player.x + (player.facingRight ? -120 : 120);
-                const dx = tx - this.x;
-                if (Math.abs(dx) > 40) {
-                    this.velocityX += Math.sign(dx) * 0.3;
-                    this.velocityX = Math.max(-4.5, Math.min(4.5, this.velocityX));
-                    this.facingRight = dx > 0;
-                } else this.velocityX *= 0.8;
-
-                if (player.isJumping && this.y >= CONFIG.physics.groundY - this.height - 5 && Math.abs(dx) < 200) {
-                    this.velocityY = -10; this.isJumping = true;
-                }
-
-                this.velocityY += CONFIG.physics.gravity;
-                this.x += this.velocityX; this.y += this.velocityY;
-                if (this.y >= CONFIG.physics.groundY - this.height) { this.y = CONFIG.physics.groundY - this.height; this.velocityY = 0; this.isJumping = false; }
-                this.x = Math.max(0, Math.min(CONFIG.canvas.width - this.width, this.x));
-
-                if (this.isDamaged && now - this.lastDamageTime > 300) this.isDamaged = false;
-                if (this.isAttacking && now - this.lastAttackTime > 600) this.isAttacking = false;
-
-                // Auto fire attack when enemies nearby
-                if (now - this.lastAttackTime > CONFIG.alice.attackCooldown) {
-                    const alive = enemies.filter(e => !e.isDead);
-                    const nearbyEnemies = alive.filter(e => {
-                        const dist = Math.sqrt(Math.pow(e.x - this.x, 2) + Math.pow(e.y - this.y, 2));
-                        return dist < CONFIG.alice.fireRadius;
-                    });
-                    if (nearbyEnemies.length > 0 || alive.length > 2) {
-                        this.fireAttack();
-                        this.lastAttackTime = now;
-                    }
-                }
-            },
-
-            fireAttack() {
-                this.isAttacking = true;
-                sounds.fire();
-
-                const baseDmg = 10 + XP_SYSTEM.getStatBonus(gameState.playerLevel, 'attack') * 0.3;
-                const cx = this.x + this.width / 2;
-                const cy = this.y + this.height / 2;
-
-                // AoE fire damage
-                enemies.forEach(e => {
-                    if (e.isDead) return;
-                    const dist = Math.sqrt(Math.pow(e.x + e.width/2 - cx, 2) + Math.pow(e.y + e.height/2 - cy, 2));
-                    if (dist < CONFIG.alice.fireRadius) {
-                        e.takeDamage(baseDmg);
-                        // Apply burn
-                        e.burnEnd = Date.now() + CONFIG.alice.burnDuration;
-                        e.burnDamage = CONFIG.alice.burnDamage;
-                    }
-                });
-
-                // Buff allies attack
-                gameState.attackBuff = true;
-                gameState.attackBuffEnd = Date.now() + CONFIG.alice.buffDuration;
-
-                // Fire particles
-                for (let i = 0; i < 20; i++) {
-                    const angle = (Math.PI * 2 / 20) * i;
-                    gameState.particles.push({
-                        x: cx + Math.cos(angle) * 30,
-                        y: cy + Math.sin(angle) * 20,
-                        vx: Math.cos(angle) * 3,
-                        vy: Math.sin(angle) * 2 - 1,
-                        life: 40, maxLife: 40, size: 6,
-                        color: Math.random() > 0.5 ? '#e67e22' : '#f39c12'
-                    });
-                }
-            },
-
-            draw() {
-                if (!gameState.aliceInTeam) return;
-                ctx.save();
-                let s = images.aliceIdle;
-                if (this.isDamaged) s = images.aliceDamage;
-                else if (this.isAttacking) s = images.aliceAttack;
-                else if (Math.abs(this.velocityX) > 0.5) s = images.aliceRun;
-
-                ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.beginPath();
-                ctx.ellipse(this.x + this.width / 2, CONFIG.physics.groundY + 3, this.width / 2.5, 8, 0, 0, Math.PI * 2); ctx.fill();
-
-                // Fire aura when attacking
-                if (this.isAttacking) {
-                    ctx.globalAlpha = 0.25;
-                    const grad = ctx.createRadialGradient(this.x + this.width/2, this.y + this.height/2, 10, this.x + this.width/2, this.y + this.height/2, CONFIG.alice.fireRadius);
-                    grad.addColorStop(0, '#e67e22'); grad.addColorStop(1, 'transparent');
-                    ctx.fillStyle = grad;
-                    ctx.beginPath();
-                    ctx.arc(this.x + this.width/2, this.y + this.height/2, CONFIG.alice.fireRadius, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.globalAlpha = 1;
-                }
-
-                if (!this.facingRight) { ctx.scale(-1, 1); ctx.drawImage(s, -this.x - this.width, this.y, this.width, this.height); }
-                else ctx.drawImage(s, this.x, this.y, this.width, this.height);
-                ctx.restore();
-            }
-        };
-
-        // ===== VITÓRIA (Ice Support) =====
-        const vitoria = {
-            x: 240, y: CONFIG.physics.groundY - CONFIG.vitoria.height,
-            width: CONFIG.vitoria.width, height: CONFIG.vitoria.height,
-            velocityX: 0, velocityY: 0, facingRight: true, isJumping: false,
-            currentSprite: 'idle', lastSkill1Time: 0, lastSkill2Time: 0, lastSkill3Time: 0,
-            isDamaged: false, lastDamageTime: 0,
-
-            reset() {
-                this.x = 240; this.y = CONFIG.physics.groundY - this.height;
-                this.velocityX = 0; this.velocityY = 0; this.facingRight = true;
-                this.isJumping = false; this.currentSprite = 'idle';
-                this.lastSkill1Time = 0; this.lastSkill2Time = 0; this.lastSkill3Time = 0;
-                this.isDamaged = false; this.lastDamageTime = 0;
-            },
-
-            update(dt) {
-                if (!gameState.vitoriaInTeam) return;
-                const now = Date.now();
-
-                const tx = player.x + (player.facingRight ? -150 : 150);
-                const dx = tx - this.x;
-                if (Math.abs(dx) > 40) {
-                    this.velocityX += Math.sign(dx) * 0.3;
-                    this.velocityX = Math.max(-4.5, Math.min(4.5, this.velocityX));
-                    this.facingRight = dx > 0;
-                } else this.velocityX *= 0.8;
-
-                if (player.isJumping && this.y >= CONFIG.physics.groundY - this.height - 5 && Math.abs(dx) < 200) {
-                    this.velocityY = -10; this.isJumping = true;
-                }
-
-                this.velocityY += CONFIG.physics.gravity;
-                this.x += this.velocityX; this.y += this.velocityY;
-                if (this.y >= CONFIG.physics.groundY - this.height) { this.y = CONFIG.physics.groundY - this.height; this.velocityY = 0; this.isJumping = false; }
-                this.x = Math.max(0, Math.min(CONFIG.canvas.width - this.width, this.x));
-
-                if (this.isDamaged && now - this.lastDamageTime > 300) this.isDamaged = false;
-
-                // Update sprite state
-                if (now - Math.max(this.lastSkill1Time, this.lastSkill2Time, this.lastSkill3Time) > 500) {
-                    this.currentSprite = 'idle';
-                }
-
-                // Auto use skills
-                const alive = enemies.filter(e => !e.isDead);
-                // Skill 1: Ice blast (auto when enemy in range)
-                if (alive.length > 0 && now - this.lastSkill1Time > CONFIG.vitoria.skill1Cooldown) {
-                    const nearest = alive.reduce((a, b) => Math.abs(a.x - this.x) < Math.abs(b.x - this.x) ? a : b);
-                    if (Math.abs(nearest.x - this.x) < CONFIG.vitoria.iceRange) {
-                        this.skill1IceBlast(nearest);
-                    }
-                }
-            },
-
-            // Skill 1: Ice blast projectile
-            skill1IceBlast(target) {
-                this.lastSkill1Time = Date.now();
-                this.currentSprite = 'attack1';
-                this.facingRight = target.x > this.x;
-                sounds.ice();
-
-                const atk = 12 + XP_SYSTEM.getStatBonus(gameState.playerLevel, 'attack') * 0.4;
-                gameState.projectiles.push({
-                    x: this.x + this.width / 2, y: this.y + this.height / 2,
-                    vx: (target.x > this.x ? 1 : -1) * 8,
-                    damage: atk, life: 1, size: 12, type: 'ice',
-                    freezeChance: CONFIG.vitoria.freezeChance
-                });
-            },
-
-            // Skill 2: AoE ice explosion (manually triggered by player pressing L)
-            skill2IceAoE() {
-                if (!gameState.vitoriaInTeam) return;
-                const now = Date.now();
-                if (now - this.lastSkill2Time < CONFIG.vitoria.skill2Cooldown) return;
-                this.lastSkill2Time = now;
-                this.currentSprite = 'attack2';
-                sounds.ice();
-
-                const cx = this.x + this.width / 2;
-                const cy = this.y + this.height / 2;
-                const dmg = 18 + XP_SYSTEM.getStatBonus(gameState.playerLevel, 'attack') * 0.5;
-
-                // Damage nearby enemies + freeze chance
-                enemies.forEach(e => {
-                    if (e.isDead) return;
-                    const dist = Math.sqrt(Math.pow(e.x + e.width/2 - cx, 2) + Math.pow(e.y + e.height/2 - cy, 2));
-                    if (dist < 180) {
-                        e.takeDamage(dmg);
-                        if (Math.random() < 0.5) e.freeze(CONFIG.vitoria.freezeDuration);
-                    }
-                });
-
-                // Give ice shield to allies
-                gameState.iceShieldActive = true;
-                gameState.iceShieldEnd = now + 4000;
-
-                // Ice particles
-                for (let i = 0; i < 25; i++) {
-                    const angle = (Math.PI * 2 / 25) * i;
-                    gameState.particles.push({
-                        x: cx + Math.cos(angle) * 20,
-                        y: cy + Math.sin(angle) * 15,
-                        vx: Math.cos(angle) * 4,
-                        vy: Math.sin(angle) * 3 - 2,
-                        life: 45, maxLife: 45, size: 5,
-                        color: Math.random() > 0.5 ? '#00bcd4' : '#4dd0e1'
-                    });
-                }
-            },
-
-            // Skill 3: Frost combo buff (manually triggered by player pressing L when skill2 is on cooldown)
-            skill3FrostCombo() {
-                if (!gameState.vitoriaInTeam) return;
-                const now = Date.now();
-                if (now - this.lastSkill3Time < CONFIG.vitoria.skill3Cooldown) return;
-                this.lastSkill3Time = now;
-                this.currentSprite = 'attack3';
-                sounds.ice();
-
-                // Each ally attack has increasing freeze chance
-                gameState.frostComboActive = true;
-                gameState.frostComboEnd = now + 8000;
-                gameState.frostComboChance = 0.05;
-
-                // Also buff attack
-                gameState.attackBuff = true;
-                gameState.attackBuffEnd = now + 8000;
-
-                // Particles
-                createParticles(this.x + this.width / 2, this.y + this.height / 2, '#4dd0e1', 15);
-            },
-
-            draw() {
-                if (!gameState.vitoriaInTeam) return;
-                ctx.save();
-                let s = images.vitoriaIdle;
-                if (this.isDamaged) s = images.vitoriaIdle; // no damage sprite available
-                else if (this.currentSprite === 'attack1') s = images.vitoriaAttack1;
-                else if (this.currentSprite === 'attack2') s = images.vitoriaAttack2;
-                else if (this.currentSprite === 'attack3') s = images.vitoriaAttack3;
-                else if (Math.abs(this.velocityX) > 0.5) s = images.vitoriaRun;
-
-                ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.beginPath();
-                ctx.ellipse(this.x + this.width / 2, CONFIG.physics.groundY + 3, this.width / 2.5, 8, 0, 0, Math.PI * 2); ctx.fill();
-
-                if (!this.facingRight) { ctx.scale(-1, 1); ctx.drawImage(s, -this.x - this.width, this.y, this.width, this.height); }
-                else ctx.drawImage(s, this.x, this.y, this.width, this.height);
-                ctx.restore();
-            }
-        };
-
-        // ================ ENEMY ================
-        class Enemy {
-            constructor(x, stage) {
-                this.width = 60; this.height = 80;
-                this.x = x; this.y = CONFIG.physics.groundY - this.height;
-                this.velocityX = 0; this.velocityY = 0;
-                this.health = stage.enemyHealth; this.maxHealth = stage.enemyHealth;
-                this.damage = stage.enemyDamage; this.speed = stage.enemySpeed;
-                this.isDead = false; this.isDamaged = false; this.isAttacking = false;
-                this.facingRight = x < CONFIG.canvas.width / 2;
-                this.lastAttackTime = 0; this.lastDamageTime = 0;
-                this.deathTime = 0; this.attackCooldown = 1200;
-                this.burnEnd = 0; this.burnDamage = 0; this.lastBurnTick = 0;
-                this.frozen = false; this.freezeEnd = 0;
-            }
-
-            freeze(duration) {
-                this.frozen = true;
-                this.freezeEnd = Date.now() + duration;
-                createParticles(this.x + this.width / 2, this.y + this.height / 2, '#00bcd4', 8);
-            }
-
-            update(dt) {
-                if (this.isDead) return;
-                const now = Date.now();
-
-                // Burn tick
-                if (now < this.burnEnd && now - this.lastBurnTick > 500) {
-                    this.health -= this.burnDamage;
-                    this.lastBurnTick = now;
-                    createParticles(this.x + this.width / 2, this.y, '#e67e22', 3);
-                    createDamageIndicator(this.x + this.width / 2, this.y, this.burnDamage, '#e67e22');
-                    if (this.health <= 0) { this.die(); return; }
-                }
-
-                // Freeze check
-                if (this.frozen) {
-                    if (now > this.freezeEnd) this.frozen = false;
-                    else return; // Can't move while frozen
-                }
-
-                if (this.isDamaged && now - this.lastDamageTime > 200) this.isDamaged = false;
-                if (this.isAttacking && now - this.lastAttackTime > 400) this.isAttacking = false;
-
-                // Move toward player
-                const dx = player.x - this.x;
-                this.facingRight = dx > 0;
-                if (Math.abs(dx) > 50) {
-                    this.velocityX = Math.sign(dx) * this.speed;
-                } else {
-                    this.velocityX = 0;
-                    if (now - this.lastAttackTime > this.attackCooldown) {
-                        this.isAttacking = true; this.lastAttackTime = now;
-                        if (checkCollision({ x: this.x - 20, y: this.y, width: this.width + 40, height: this.height }, player)) {
-                            player.takeDamage(this.damage);
-                        }
-                    }
-                }
-
-                this.x += this.velocityX;
-                this.x = Math.max(-50, Math.min(CONFIG.canvas.width + 50, this.x));
-            }
-
-            takeDamage(amount) {
-                this.health -= amount; this.isDamaged = true; this.lastDamageTime = Date.now();
-                sounds.hit();
-                createDamageIndicator(this.x + this.width / 2, this.y, Math.round(amount));
-                createParticles(this.x + this.width / 2, this.y + this.height / 2, '#ffffff', 4);
-                if (this.health <= 0) this.die();
-            }
-
-            die() {
-                this.isDead = true; this.deathTime = Date.now();
-                gameState.stageKills++;
-                const sc = CONFIG.scoring.killBase * (1 + gameState.combo * 0.2);
-                gameState.stageScore += Math.floor(sc);
-                createParticles(this.x + this.width / 2, this.y + this.height / 2, '#ffd700', 10);
-                checkStageComplete();
-            }
-
-            draw() {
-                if (this.isDead) {
-                    if (Date.now() - this.deathTime < 600) {
-                        ctx.save(); ctx.globalAlpha = Math.max(0, 1 - (Date.now() - this.deathTime) / 600);
-                        ctx.drawImage(images.enemyDead, this.x, this.y, this.width, this.height);
-                        ctx.restore();
-                    }
-                    return;
-                }
-
-                ctx.save();
-                let s = images.enemyIdle;
-                if (this.isDamaged) s = images.enemyDamage;
-                else if (this.isAttacking) s = images.enemyAttack;
-                else if (Math.abs(this.velocityX) > 0.3) s = this.facingRight ? images.enemyWalkR : images.enemyWalkL;
-
-                ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.beginPath();
-                ctx.ellipse(this.x + this.width / 2, CONFIG.physics.groundY + 3, this.width / 2, 7, 0, 0, Math.PI * 2); ctx.fill();
-
-                // Frozen effect
-                if (this.frozen) {
-                    ctx.globalAlpha = 0.3;
-                    ctx.fillStyle = '#00bcd4';
-                    ctx.fillRect(this.x - 5, this.y - 5, this.width + 10, this.height + 10);
-                    ctx.globalAlpha = 1;
-                }
-
-                // Burn effect
-                if (Date.now() < this.burnEnd) {
-                    ctx.globalAlpha = 0.2 + Math.sin(Date.now() * 0.01) * 0.1;
-                    ctx.fillStyle = '#e67e22';
-                    ctx.fillRect(this.x - 3, this.y - 3, this.width + 6, this.height + 6);
-                    ctx.globalAlpha = 1;
-                }
-
-                // Health bar
-                const hpPct = this.health / this.maxHealth;
-                ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(this.x, this.y - 10, this.width, 5);
-                ctx.fillStyle = hpPct > 0.5 ? '#4caf50' : hpPct > 0.25 ? '#ff9800' : '#f44336';
-                ctx.fillRect(this.x, this.y - 10, this.width * hpPct, 5);
-
-                ctx.drawImage(s, this.x, this.y, this.width, this.height);
-                ctx.restore();
-            }
-        }
-
-        // ================ PARTICLES & EFFECTS ================
-        function createParticles(x, y, color, count) {
-            for (let i = 0; i < count; i++) {
-                gameState.particles.push({
-                    x, y, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6 - 2,
-                    life: 30 + Math.random() * 20, maxLife: 50, size: 3 + Math.random() * 4, color
-                });
-            }
-        }
-        function updateParticles() {
-            gameState.particles = gameState.particles.filter(p => { p.x += p.vx; p.y += p.vy; p.vy += 0.1; p.life--; return p.life > 0; });
-        }
-        function drawParticles() {
-            gameState.particles.forEach(p => {
-                ctx.globalAlpha = p.life / p.maxLife; ctx.fillStyle = p.color;
-                ctx.beginPath(); ctx.arc(p.x, p.y, p.size * (p.life / p.maxLife), 0, Math.PI * 2); ctx.fill();
-            });
-            ctx.globalAlpha = 1;
-        }
-
-        function createDamageIndicator(x, y, amount, color) {
-            gameState.damageIndicators.push({ x, y, text: `-${amount}`, life: 40, color: color || '#ff6b6b' });
-        }
-        function updateDamageIndicators() {
-            gameState.damageIndicators = gameState.damageIndicators.filter(d => { d.y -= 1.5; d.life--; return d.life > 0; });
-        }
-        function drawDamageIndicators() {
-            gameState.damageIndicators.forEach(d => {
-                ctx.globalAlpha = d.life / 40;
-                ctx.fillStyle = d.color; ctx.font = 'bold 16px "Press Start 2P"';
-                ctx.textAlign = 'center'; ctx.fillText(d.text, d.x, d.y);
-            });
-            ctx.globalAlpha = 1;
-        }
-
-        function showCombo(combo) {
-            el.comboDisplay.textContent = `${combo}x COMBO!`;
-            el.comboDisplay.classList.remove('active');
-            void el.comboDisplay.offsetWidth;
-            el.comboDisplay.classList.add('active');
-        }
-
-        function updateProjectiles() {
-            gameState.projectiles = gameState.projectiles.filter(p => {
-                p.x += p.vx; p.life -= 0.02;
-                if (p.x < -50 || p.x > CONFIG.canvas.width + 50 || p.life <= 0) return false;
-
-                for (let e of enemies) {
-                    if (!e.isDead && checkCollision({ x: p.x - p.size, y: p.y - p.size, width: p.size * 2, height: p.size * 2 }, e)) {
-                        e.takeDamage(p.damage);
-                        if (p.type === 'ice' && p.freezeChance && Math.random() < p.freezeChance) {
-                            e.freeze(CONFIG.vitoria.freezeDuration);
-                        }
-                        createParticles(p.x, p.y, p.type === 'ice' ? '#00bcd4' : '#ffe082', 5);
-                        return false;
-                    }
-                }
-                return true;
-            });
-        }
-
-        function drawProjectiles() {
-            gameState.projectiles.forEach(p => {
-                ctx.save();
-                if (p.type === 'ice') {
-                    ctx.fillStyle = '#00bcd4'; ctx.shadowColor = '#00bcd4'; ctx.shadowBlur = 12;
-                } else {
-                    ctx.fillStyle = '#ffe082'; ctx.shadowColor = '#ffb300'; ctx.shadowBlur = 10;
-                }
-                ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
-                ctx.restore();
-            });
-        }
-
-        function updateScreenShake() {
-            if (gameState.screenShake.intensity > 0) {
-                gameState.screenShake.x = (Math.random() - 0.5) * gameState.screenShake.intensity;
-                gameState.screenShake.y = (Math.random() - 0.5) * gameState.screenShake.intensity;
-                gameState.screenShake.intensity *= 0.9;
-                if (gameState.screenShake.intensity < 0.5) gameState.screenShake.intensity = 0;
-            }
-        }
-
-        // Spawning
-        function spawnEnemy() {
-            const stage = gameState.currentStage; if (!stage) return;
-            if (enemies.length >= stage.maxEnemies) return;
-            if (stage.mission.type === 'kill' && gameState.stageKills >= stage.mission.target) return;
-            const side = Math.random() > 0.5 ? 1 : -1;
-            enemies.push(new Enemy(side === 1 ? CONFIG.canvas.width + 50 : -60, stage));
-        }
-
-        // Stage Complete Check
-        function checkStageComplete() {
-            const stage = gameState.currentStage; if (!stage || gameState.stageComplete) return;
-            let completed = false;
-            if (stage.mission.type === 'kill') {
-                if (gameState.stageKills >= stage.mission.target && enemies.filter(e => !e.isDead).length === 0) completed = true;
-            } else if (stage.mission.type === 'combo') {
-                if (gameState.stageMaxCombo >= stage.mission.target) completed = true;
-            }
-            if (completed) showResults(true);
-        }
-
-        // ================ RESULTS SCREEN ================
-        function showResults(victory) {
-            gameState.stageComplete = true;
-            gameState.running = false;
-
-            const stage = gameState.currentStage;
-            const elapsed = Math.floor((Date.now() - gameState.stageStartTime) / 1000);
-
-            let xpGained = 0;
-            let unlockedCharName = null;
-
-            if (victory) {
-                xpGained = stage.xpReward;
-                if (gameState.stageDamageTaken === 0) xpGained += 50;
-                if (gameState.stageMaxCombo >= 5) xpGained += 30;
-
-                const prevLevel = gameState.playerLevel;
-                gameState.totalXp += xpGained;
-                gameState.totalScore += gameState.stageScore;
-                const li = XP_SYSTEM.getLevelFromXp(gameState.totalXp);
-                gameState.playerLevel = li.level; gameState.currentXp = li.currentXp; gameState.xpToNextLevel = li.neededXp;
-
-                if (stage.id >= gameState.highestStage) gameState.highestStage = stage.id + 1;
-
-                let stars = 1;
-                if (gameState.stageDamageTaken === 0) stars = 3;
-                else if (gameState.stageDamageTaken < 30) stars = 2;
-                if (!gameState.stageStars[stage.id] || gameState.stageStars[stage.id] < stars) gameState.stageStars[stage.id] = stars;
-
-                // Check character unlock
-                if (stage.unlockChar && !gameState.unlockedChars[stage.unlockChar]) {
-                    gameState.unlockedChars[stage.unlockChar] = true;
-                    const charNames = {
-                        sarah: 'Sarah (Atacante)',
-                        dani: 'Dani (Defensora)',
-                        alice: 'Alice (Suporte Fogo)',
-                        vitoria: 'Vitória (Suporte Gelo)'
-                    };
-                    unlockedCharName = charNames[stage.unlockChar] || stage.unlockChar;
-                    sounds.unlock();
-                }
-
-                saveProgress();
-                sounds.stageComplete();
-
-                el.resultsTitle.textContent = 'FASE COMPLETA!';
-                el.resultsTitle.className = 'results-title victory';
-                el.resultXp.textContent = `+${xpGained} XP`; el.resultXp.style.display = 'block';
-                el.resultLevelUp.style.display = gameState.playerLevel > prevLevel ? 'block' : 'none';
-                if (gameState.playerLevel > prevLevel) sounds.levelUp();
-            } else {
-                sounds.gameOver();
-                el.resultsTitle.textContent = 'DERROTA';
-                el.resultsTitle.className = 'results-title defeat';
-                el.resultXp.style.display = 'none';
-                el.resultLevelUp.style.display = 'none';
-            }
-
-            el.resultsGrid.innerHTML = `
-                <div class="result-card"><div class="result-card-value">${stage.name}</div><div class="result-card-label">Fase</div></div>
-                <div class="result-card"><div class="result-card-value">${gameState.stageScore.toLocaleString()}</div><div class="result-card-label">Pontos</div></div>
-                <div class="result-card"><div class="result-card-value">${gameState.stageKills}</div><div class="result-card-label">Derrotados</div></div>
-                <div class="result-card"><div class="result-card-value">${gameState.stageMaxCombo}x</div><div class="result-card-label">Max Combo</div></div>
-                <div class="result-card"><div class="result-card-value">${elapsed}s</div><div class="result-card-label">Tempo</div></div>
-                <div class="result-card"><div class="result-card-value">${gameState.stageDamageTaken}</div><div class="result-card-label">Dano Recebido</div></div>
-            `;
-
-            if (unlockedCharName) {
-                el.resultUnlock.textContent = `🎉 ${unlockedCharName.toUpperCase()} DESBLOQUEADA! 🎉`;
-                el.resultUnlock.style.display = 'block';
-            } else {
-                el.resultUnlock.style.display = 'none';
-            }
-
-            // Buttons
-            el.resultsButtons.innerHTML = '';
-            if (victory) {
-                const nextStageId = stage.id + 1;
-                const nextStage = STAGES_DATA.find(s => s.id === nextStageId);
-                const isLastInWorld = !nextStage || nextStage.world !== stage.world;
-
-                if (isLastInWorld || nextStageId > 30) {
-                    const mapBtn = document.createElement('button');
-                    mapBtn.className = 'game-btn game-btn-secondary';
-                    mapBtn.innerHTML = '🗺️ VOLTAR AO MAPA';
-                    mapBtn.addEventListener('click', () => { hideResults(); showStageSelect(); });
-                    el.resultsButtons.appendChild(mapBtn);
-                } else {
-                    const mapBtn = document.createElement('button');
-                    mapBtn.className = 'game-btn game-btn-secondary';
-                    mapBtn.innerHTML = '🗺️ MAPA';
-                    mapBtn.addEventListener('click', () => { hideResults(); showStageSelect(); });
-                    el.resultsButtons.appendChild(mapBtn);
-
-                    const nextBtn = document.createElement('button');
-                    nextBtn.className = 'game-btn game-btn-primary';
-                    nextBtn.innerHTML = 'PRÓXIMA FASE →';
-                    nextBtn.addEventListener('click', () => { hideResults(); startStage(nextStageId); });
-                    el.resultsButtons.appendChild(nextBtn);
-                }
-            } else {
-                const retryBtn = document.createElement('button');
-                retryBtn.className = 'game-btn game-btn-danger';
-                retryBtn.innerHTML = '🔄 TENTAR NOVAMENTE';
-                retryBtn.addEventListener('click', () => { hideResults(); startStage(stage.id); });
-                el.resultsButtons.appendChild(retryBtn);
-
-                const mapBtn = document.createElement('button');
-                mapBtn.className = 'game-btn game-btn-secondary';
-                mapBtn.innerHTML = '🗺️ MAPA';
-                mapBtn.addEventListener('click', () => { hideResults(); showStageSelect(); });
-                el.resultsButtons.appendChild(mapBtn);
-            }
-
-            el.hudOverlay.style.display = 'none';
-            el.stageIndicator.style.display = 'none';
-            el.missionIndicator.style.display = 'none';
-            el.supportCooldown.style.display = 'none';
-            el.controlsPanel.style.display = 'none';
-
-            setTimeout(() => el.resultsScreen.classList.add('active'), victory ? 1000 : 500);
-        }
-
-        function hideResults() { el.resultsScreen.classList.remove('active'); }
-
-        // HUD
-        function updateHUD() {
-            el.healthBar.style.width = `${(player.health / player.maxHealth) * 100}%`;
-            el.xpBar.style.width = `${(gameState.currentXp / gameState.xpToNextLevel) * 100}%`;
-            el.levelDisplay.textContent = `Lv.${gameState.playerLevel}`;
-            const stage = gameState.currentStage;
-            if (stage && stage.mission.type === 'kill') el.killsDisplay.textContent = `${gameState.stageKills}/${stage.mission.target}`;
-            else if (stage) el.killsDisplay.textContent = gameState.stageKills;
-            el.scoreDisplay.textContent = gameState.stageScore.toLocaleString();
-
-            if (gameState.daniInTeam) {
-                const now = Date.now();
-                const cd = Math.max(0, CONFIG.dani.shieldCooldown - (now - gameState.lastShieldTime));
-                if (cd > 0) { el.supportCooldown.textContent = `🛡️ SHIELD: ${Math.ceil(cd / 1000)}s`; el.supportCooldown.style.color = '#888'; }
-                else { el.supportCooldown.textContent = '🛡️ SHIELD: PRONTO (K)'; el.supportCooldown.style.color = '#3498db'; }
-            }
-        }
-
-        // Drawing
-        function drawBackground() {
-            const grad = ctx.createLinearGradient(0, 0, 0, CONFIG.physics.groundY);
-            grad.addColorStop(0, '#1a2c4a'); grad.addColorStop(0.5, '#2d4a6d'); grad.addColorStop(1, '#3d5a80');
-            ctx.fillStyle = grad; ctx.fillRect(0, 0, CONFIG.canvas.width, CONFIG.physics.groundY);
-
-            if (images.background.complete && images.background.naturalWidth > 0) {
-                const bw = images.background.width || CONFIG.canvas.width;
-                const off = gameState.backgroundOffset % bw;
-                for (let i = -1; i <= Math.ceil(CONFIG.canvas.width / bw) + 1; i++) ctx.drawImage(images.background, off + i * bw, 0, bw, CONFIG.physics.groundY);
-            }
-
-            ctx.fillStyle = '#3a5a40'; ctx.fillRect(0, CONFIG.physics.groundY, CONFIG.canvas.width, CONFIG.canvas.height - CONFIG.physics.groundY);
-            ctx.fillStyle = '#588157';
-            for (let i = 0; i < 35; i++) { const x = ((i * 40 + gameState.backgroundOffset * 0.5) % (CONFIG.canvas.width + 50)) - 25; ctx.fillRect(x, CONFIG.physics.groundY - 3, 25, 8); }
-            ctx.strokeStyle = '#4a7a5a'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(0, CONFIG.physics.groundY); ctx.lineTo(CONFIG.canvas.width, CONFIG.physics.groundY); ctx.stroke();
-        }
-
-        // Game Loop
-        let lastTime = 0;
-        function gameLoop(timestamp) {
-            if (!gameState.running) return;
-            const dt = timestamp - lastTime; lastTime = timestamp;
-
-            if (gameState.paused || gameState.stageComplete) { requestAnimationFrame(gameLoop); return; }
-
-            ctx.clearRect(0, 0, CONFIG.canvas.width, CONFIG.canvas.height);
-            ctx.save(); ctx.translate(gameState.screenShake.x, gameState.screenShake.y);
-
-            player.update(dt); sarah.update(dt); dani.update(dt); alice.update(dt); vitoria.update(dt);
-            enemies.forEach(e => e.update(dt));
-            updateParticles(); updateDamageIndicators(); updateScreenShake(); updateProjectiles();
-
-            // Clear expired buffs
-            const now = Date.now();
-            if (gameState.attackBuff && now > gameState.attackBuffEnd) gameState.attackBuff = false;
-            if (gameState.iceShieldActive && now > gameState.iceShieldEnd) gameState.iceShieldActive = false;
-            if (gameState.frostComboActive && now > gameState.frostComboEnd) gameState.frostComboActive = false;
-
-            gameState.backgroundOffset -= player.velocityX * 0.3;
-
-            const stage = gameState.currentStage;
-            if (stage && now - gameState.lastSpawnTime > stage.spawnRate) { spawnEnemy(); gameState.lastSpawnTime = now; }
-            if (now - gameState.lastComboTime > CONFIG.scoring.comboTimeout && gameState.combo > 0) gameState.combo = 0;
-
-            if (stage && stage.mission.type === 'survive') {
-                const elapsed = (now - gameState.stageStartTime) / 1000;
-                if (elapsed >= stage.mission.target) showResults(true);
-            }
-
-            updateHUD();
-
-            drawBackground();
-            enemies.forEach(e => e.draw());
-            dani.draw(); alice.draw(); vitoria.draw(); sarah.draw(); player.draw();
-            drawProjectiles(); drawParticles(); drawDamageIndicators();
-
-            ctx.restore();
-            requestAnimationFrame(gameLoop);
-        }
-
-        // Game States
-        function startStage(stageId) {
-            initAudio();
-            const stage = STAGES_DATA.find(s => s.id === stageId);
-            if (!stage || stageId > gameState.highestStage) return;
-
-            gameState.currentStage = stage;
-            gameState.running = true; gameState.paused = false; gameState.stageComplete = false; gameState.playerDied = false;
-            gameState.stageKills = 0; gameState.stageScore = 0; gameState.stageDamageTaken = 0;
-            gameState.stageMaxCombo = 0; gameState.combo = 0; gameState.lastComboTime = 0;
-            gameState.lastSpawnTime = Date.now(); gameState.lastShieldTime = 0;
-            gameState.stageStartTime = Date.now(); gameState.backgroundOffset = 0;
-            gameState.particles = []; gameState.damageIndicators = []; gameState.projectiles = [];
-            gameState.screenShake = { x: 0, y: 0, intensity: 0 };
-            gameState.shieldActive = false; gameState.shieldEndTime = 0;
-            gameState.attackBuff = false; gameState.attackBuffEnd = 0;
-            gameState.iceShieldActive = false; gameState.iceShieldEnd = 0;
-            gameState.frostComboActive = false; gameState.frostComboEnd = 0; gameState.frostComboChance = 0;
-
-            gameState.sarahInTeam = gameState.selectedCharacters.includes('sarah');
-            gameState.daniInTeam = gameState.selectedCharacters.includes('dani');
-            gameState.aliceInTeam = gameState.selectedCharacters.includes('alice');
-            gameState.vitoriaInTeam = gameState.selectedCharacters.includes('vitoria');
-
-            player.reset(); sarah.reset(); dani.reset(); alice.reset(); vitoria.reset();
-            enemies = [];
-
-            // Update mobile skill buttons visibility
-            const sk1 = document.getElementById('mobileSkill1');
-            const sk2 = document.getElementById('mobileSkill2');
-            sk1.style.display = gameState.aliceInTeam ? 'flex' : 'none';
-            sk2.style.display = gameState.vitoriaInTeam ? 'flex' : 'none';
-
-            el.stageSelectScreen.classList.remove('active');
-            el.resultsScreen.classList.remove('active');
-            el.hudOverlay.style.display = 'flex';
-            el.stageIndicator.style.display = 'block'; el.stageIndicator.textContent = `FASE ${stage.name}`;
-            el.missionIndicator.style.display = 'block'; el.missionIndicator.textContent = stage.mission.text;
-            el.controlsPanel.style.display = window.innerWidth > 768 ? 'grid' : 'none';
-            el.supportCooldown.style.display = gameState.daniInTeam ? 'block' : 'none';
-
-            updateHUD();
-            lastTime = performance.now();
-            requestAnimationFrame(gameLoop);
-        }
-
-        function gameOver() {
-            gameState.playerDied = true;
-            showResults(false);
-        }
-
-        function togglePause() {
-            if (!gameState.running || gameState.stageComplete) return;
-            gameState.paused = !gameState.paused;
-            el.pauseOverlay.classList.toggle('active', gameState.paused);
-        }
-
-        // Stage Select UI
-        let currentWorld = 1, selectedStageId = 1;
-
-        function renderWorldTabs() {
-            el.worldTabs.innerHTML = '';
-            WORLDS.forEach((w, i) => {
-                const tab = document.createElement('button');
-                tab.className = `world-tab ${i + 1 === currentWorld ? 'active' : ''}`;
-                tab.textContent = `${i + 1}. ${w}`;
-                tab.addEventListener('click', () => { currentWorld = i + 1; renderWorldTabs(); renderStageGrid(); });
-                el.worldTabs.appendChild(tab);
-            });
-        }
-
-        function renderStageGrid() {
-            el.stageGrid.innerHTML = '';
-            STAGES_DATA.filter(s => s.world === currentWorld).forEach(stage => {
-                const node = document.createElement('div');
-                node.className = 'stage-node';
-                const unlocked = stage.id <= gameState.highestStage;
-                const completed = gameState.stageStars[stage.id] > 0;
-                const isCurrent = stage.id === gameState.highestStage;
-
-                if (completed) node.classList.add('completed');
-                else if (unlocked) { node.classList.add('unlocked'); if (isCurrent) node.classList.add('current'); }
-                else node.classList.add('locked');
-
-                node.innerHTML = `<div class="stage-number">${stage.stageInWorld}</div><div class="stage-stars">${'⭐'.repeat(gameState.stageStars[stage.id] || 0)}</div>`;
-                if (unlocked) node.addEventListener('click', () => selectStage(stage.id));
-                el.stageGrid.appendChild(node);
-            });
-        }
-
-        function selectStage(stageId) {
-            selectedStageId = stageId;
-            const stage = STAGES_DATA.find(s => s.id === stageId);
-            if (!stage) return;
-            el.stageInfoPanel.style.display = 'block';
-            el.stageInfoTitle.textContent = `FASE ${stage.name} - ${stage.worldName}`;
-            el.stageInfoMission.textContent = stage.mission.text;
-            el.stageXpReward.textContent = stage.xpReward;
-            el.stageScoreReward.textContent = stage.scoreReward;
-            renderTeamSelect();
-        }
-
-        function renderTeamSelect() {
-            el.teamSelectMini.innerHTML = '';
-            const chars = [
-                { id: 'lia', name: 'Lia', role: 'Guerreira', img: 'lia.png', always: true },
-                { id: 'sarah', name: 'Sarah', role: 'Atacante', img: 'sarah.png', always: false },
-                { id: 'dani', name: 'Dani', role: 'Defensora', img: 'dani.png', always: false },
-                { id: 'alice', name: 'Alice', role: 'Suporte 🔥', img: 'alice.png', always: false },
-                { id: 'vitoria', name: 'Vitória', role: 'Suporte ❄️', img: 'vitoria.png', always: false }
-            ];
-
-            chars.forEach(c => {
-                const div = document.createElement('div');
-                const unlocked = c.always || gameState.unlockedChars[c.id];
-                const selected = c.always || gameState.selectedCharacters.includes(c.id);
-                div.className = `team-char-mini ${selected ? 'selected' : ''} ${!unlocked ? 'locked' : ''}`;
-                div.innerHTML = `<img src="${c.img}" alt="${c.name}"><div class="char-name">${c.name}</div><div class="char-role">${c.role}</div>`;
-
-                if (unlocked && !c.always) {
-                    div.addEventListener('click', () => {
-                        if (gameState.selectedCharacters.includes(c.id)) {
-                            gameState.selectedCharacters = gameState.selectedCharacters.filter(x => x !== c.id);
-                        } else if (gameState.selectedCharacters.length < 3) {
-                            gameState.selectedCharacters.push(c.id);
-                        }
-                        renderTeamSelect();
-                    });
-                }
-                el.teamSelectMini.appendChild(div);
-            });
-        }
-
-        function updatePlayerStats() {
-            el.playerLevelStat.textContent = `Lv. ${gameState.playerLevel}`;
-            el.playerXpStat.textContent = gameState.totalXp.toLocaleString();
-            let ts = 0; Object.values(gameState.stageStars).forEach(s => ts += s);
-            el.playerStarsStat.textContent = ts;
-        }
-
-        function showStageSelect() {
-            updatePlayerStats(); renderWorldTabs(); renderStageGrid();
-            el.mainMenuScreen.classList.remove('active');
-            el.resultsScreen.classList.remove('active');
-            el.stageSelectScreen.classList.add('active');
-            el.hudOverlay.style.display = 'none'; el.stageIndicator.style.display = 'none';
-            el.missionIndicator.style.display = 'none'; el.supportCooldown.style.display = 'none';
-            el.controlsPanel.style.display = 'none';
-            selectStage(Math.min(gameState.highestStage, 30));
-        }
-
-        // Input
-        document.addEventListener('keydown', (e) => {
-            const k = e.key.toLowerCase(); gameState.keys[k] = true;
-            if (!gameState.running) return;
-            if ((k === 'w' || k === ' ' || k === 'arrowup') && !gameState.paused) { player.jump(); e.preventDefault(); }
-            if (k === 'j' && !gameState.paused) player.attack();
-            if (k === 'k' && !gameState.paused) {
-                // K = Dani shield or Vitória skill2
-                if (gameState.daniInTeam) dani.activateShield();
-                else if (gameState.vitoriaInTeam) vitoria.skill2IceAoE();
-            }
-            if (k === 'l' && !gameState.paused) {
-                // L = Vitória skill3 (frost combo buff)
-                if (gameState.vitoriaInTeam) vitoria.skill3FrostCombo();
-            }
-            if (k === 'escape' || k === 'p') togglePause();
-            if ([' ', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) e.preventDefault();
-        });
-        document.addEventListener('keyup', (e) => {
-            const k = e.key.toLowerCase(); gameState.keys[k] = false;
-            if (k === 'w' || k === ' ' || k === 'arrowup') player.releaseJump();
-        });
-
-        // Mobile Controls
-        function setupMobileControls() {
-            const ts = (key, action) => (e) => { e.preventDefault(); gameState.keys[key] = true; if (action) action(); };
-            const te = (key, action) => (e) => { e.preventDefault(); gameState.keys[key] = false; if (action) action(); };
-
-            document.getElementById('mobileLeft').addEventListener('touchstart', ts('a'));
-            document.getElementById('mobileLeft').addEventListener('touchend', te('a'));
-            document.getElementById('mobileRight').addEventListener('touchstart', ts('d'));
-            document.getElementById('mobileRight').addEventListener('touchend', te('d'));
-            document.getElementById('mobileJump').addEventListener('touchstart', ts('jump', () => player.jump()));
-            document.getElementById('mobileJump').addEventListener('touchend', te('jump', () => player.releaseJump()));
-            document.getElementById('mobileAttack').addEventListener('touchstart', ts('attack', () => player.attack()));
-            document.getElementById('mobileAttack').addEventListener('touchend', te('attack'));
-            document.getElementById('mobileSupport').addEventListener('touchstart', ts('support', () => dani.activateShield()));
-            document.getElementById('mobileSupport').addEventListener('touchend', te('support'));
-            document.getElementById('mobileSkill1').addEventListener('touchstart', ts('skill1', () => {
-                // Alice fire attack is auto, this triggers Vitória skill2 if alice not in team
-                if (gameState.vitoriaInTeam) vitoria.skill2IceAoE();
-            }));
-            document.getElementById('mobileSkill1').addEventListener('touchend', te('skill1'));
-            document.getElementById('mobileSkill2').addEventListener('touchstart', ts('skill2', () => {
-                if (gameState.vitoriaInTeam) vitoria.skill3FrostCombo();
-            }));
-            document.getElementById('mobileSkill2').addEventListener('touchend', te('skill2'));
-        }
-
-        // Event Listeners
-        document.getElementById('titleStartBtn').addEventListener('click', () => { initAudio(); el.titleScreen.classList.remove('active'); el.mainMenuScreen.classList.add('active'); });
-        document.getElementById('playGameBtn').addEventListener('click', showStageSelect);
-        document.getElementById('googleLoginBtn').addEventListener('click', () => {
-            alert('Login com Google será implementado em breve! Por enquanto, seus dados NÃO serão salvos.');
-        });
-        document.getElementById('backToMenuBtn').addEventListener('click', () => { el.stageSelectScreen.classList.remove('active'); el.mainMenuScreen.classList.add('active'); });
-        document.getElementById('playStageBtn').addEventListener('click', () => { startStage(selectedStageId); });
-
-        // Initialize
-        setupMobileControls();
-        gameState.selectedCharacters = ['lia'];
-        if ('ontouchstart' in window) el.mobileControls.style.display = 'flex';
-    </script>
+<script>
+const WORLDS=['Magewood Forest','Lunar Cave','Peak of Justice','The Vermilion City','Arc Island'];
+function getBg(id){if(id<=6)return'background';if(id<=13)return'bg1';if(id<=20)return'bg2';if(id<=26)return'bg3';if(id<=28)return'bg4';return'bg5'}
+
+const SD=[
+{id:1,w:1,wn:'Magewood Forest',sw:1,n:'1-1',m:{type:'kill',text:'Derrote 5 esqueletos',target:5},et:['skeleton'],eh:40,ed:8,es:1.5,me:3,sr:2500,xp:50,sc:300,uc:null},
+{id:2,w:1,wn:'Magewood Forest',sw:2,n:'1-2',m:{type:'kill',text:'Derrote 8 esqueletos',target:8},et:['skeleton'],eh:45,ed:10,es:1.6,me:4,sr:2300,xp:80,sc:400,uc:'sarah'},
+{id:3,w:1,wn:'Magewood Forest',sw:3,n:'1-3',m:{type:'survive',text:'Sobreviva por 45 segundos',target:45},et:['skeleton','dog'],eh:50,ed:10,es:1.7,me:4,sr:2200,xp:100,sc:500,uc:null},
+{id:4,w:1,wn:'Magewood Forest',sw:4,n:'1-4',m:{type:'kill',text:'Derrote 10 inimigos',target:10},et:['skeleton','dog'],eh:55,ed:12,es:1.7,me:5,sr:2100,xp:120,sc:600,uc:null},
+{id:5,w:1,wn:'Magewood Forest',sw:5,n:'1-5',m:{type:'combo',text:'Alcance combo 4x',target:4},et:['skeleton','dog'],eh:50,ed:12,es:1.8,me:5,sr:2000,xp:140,sc:700,uc:null},
+{id:6,w:1,wn:'Magewood Forest',sw:6,n:'1-6',m:{type:'kill',text:'Derrote 15 inimigos + Mini-Boss',target:15,hasBoss:true},et:['skeleton','dog'],eh:60,ed:14,es:1.8,me:5,sr:1900,xp:200,sc:1000,uc:null},
+{id:7,w:1,wn:'Magewood Forest',sw:7,n:'1-7',m:{type:'kill',text:'🌫️ Neblina! Derrote 12',target:12},et:['skeleton','dog'],eh:65,ed:14,es:1.9,me:5,sr:1800,xp:220,sc:1100,uc:null,fog:1},
+{id:8,w:1,wn:'Magewood Forest',sw:8,n:'1-8',m:{type:'survive',text:'🛡️ Defenda 60s! Desbloqueie Dani',target:60},et:['skeleton','dog'],eh:60,ed:16,es:2,me:6,sr:1700,xp:250,sc:1200,uc:'dani'},
+{id:9,w:1,wn:'Magewood Forest',sw:9,n:'1-9',m:{type:'kill',text:'⚔️ Inimigos com escudo! Derrote 14',target:14},et:['skeleton','dog','archer'],eh:80,ed:16,es:1.8,me:5,sr:1800,xp:270,sc:1300,uc:null,se:1},
+{id:10,w:1,wn:'Magewood Forest',sw:10,n:'1-10',m:{type:'kill',text:'💀 Mini-Boss Esqueleto Gigante!',target:10,hasBoss:1},et:['skeleton','dog','bigbone'],eh:70,ed:18,es:1.9,me:5,sr:1700,xp:300,sc:1500,uc:null},
+{id:11,w:1,wn:'Magewood Forest',sw:11,n:'1-11',m:{type:'kill',text:'🌿 Múltiplas rotas! Derrote 16',target:16},et:['skeleton','dog','archer'],eh:75,ed:18,es:2,me:6,sr:1600,xp:320,sc:1600,uc:null},
+{id:12,w:1,wn:'Magewood Forest',sw:12,n:'1-12',m:{type:'kill',text:'🧙 Necromantes! Derrote 18',target:18},et:['skeleton','necromancer','dog'],eh:80,ed:20,es:2,me:6,sr:1500,xp:350,sc:1700,uc:null},
+{id:13,w:1,wn:'Magewood Forest',sw:13,n:'1-13',m:{type:'kill',text:'⚔️ Ondas de ataque! Derrote 20',target:20},et:['skeleton','dog','archer'],eh:85,ed:20,es:2.1,me:7,sr:1400,xp:380,sc:1800,uc:null},
+{id:14,w:2,wn:'Lunar Cave',sw:1,n:'2-1',m:{type:'survive',text:'🧩 Plataformas! Sobreviva 50s',target:50},et:['skeleton','archer'],eh:85,ed:22,es:2.1,me:5,sr:1500,xp:400,sc:1900,uc:null},
+{id:15,w:2,wn:'Lunar Cave',sw:2,n:'2-2',m:{type:'survive',text:'🔥 Proteja Alice! 70s',target:70},et:['skeleton','necromancer','dog'],eh:90,ed:22,es:2.1,me:7,sr:1300,xp:450,sc:2000,uc:'alice'},
+{id:16,w:2,wn:'Lunar Cave',sw:3,n:'2-3',m:{type:'kill',text:'💨 Inimigos rápidos! Derrote 22',target:22},et:['dog','skeleton','archer'],eh:90,ed:24,es:2.8,me:7,sr:1200,xp:480,sc:2100,uc:null},
+{id:17,w:2,wn:'Lunar Cave',sw:4,n:'2-4',m:{type:'survive',text:'🪨 Plataformas móveis! 55s',target:55},et:['skeleton','archer','necromancer'],eh:95,ed:24,es:2.2,me:6,sr:1400,xp:500,sc:2200,uc:null},
+{id:18,w:2,wn:'Lunar Cave',sw:5,n:'2-5',m:{type:'kill',text:'🎯 Emboscadas! Derrote 25',target:25},et:['skeleton','dog','archer','necromancer'],eh:100,ed:26,es:2.3,me:8,sr:1100,xp:530,sc:2300,uc:null},
+{id:19,w:2,wn:'Lunar Cave',sw:6,n:'2-6',m:{type:'kill',text:'💀💀 Dupla Mini-Boss!',target:15,hasBoss:1},et:['skeleton','bigbone'],eh:110,ed:28,es:2.2,me:6,sr:1300,xp:560,sc:2400,uc:null},
+{id:20,w:2,wn:'Lunar Cave',sw:7,n:'2-7',m:{type:'kill',text:'🧙‍♂️ Necromante Elite!',target:20,hasBoss:1},et:['necromancer','skeleton','archer'],eh:110,ed:28,es:2.3,me:7,sr:1200,xp:600,sc:2500,uc:null},
+{id:21,w:3,wn:'Peak of Justice',sw:1,n:'3-1',m:{type:'kill',text:'🌑 Floresta escura! Derrote 22',target:22},et:['skeleton','dog','necromancer'],eh:115,ed:30,es:2.3,me:7,sr:1200,xp:630,sc:2600,uc:null,fog:1},
+{id:22,w:3,wn:'Peak of Justice',sw:2,n:'3-2',m:{type:'kill',text:'👻 Inimigos invisíveis!',target:18},et:['skeleton','dog','archer'],eh:120,ed:30,es:2.4,me:6,sr:1300,xp:660,sc:2700,uc:null,fog:1,ie:1},
+{id:23,w:3,wn:'Peak of Justice',sw:3,n:'3-3',m:{type:'kill',text:'❄️ Destrua totens! Desbloqueie Vitória',target:15},et:['skeleton','necromancer','dog'],eh:120,ed:32,es:2.3,me:7,sr:1200,xp:700,sc:2800,uc:'vitoria'},
+{id:24,w:3,wn:'Peak of Justice',sw:4,n:'3-4',m:{type:'survive',text:'🌧️ Chuva mágica! 80s',target:80},et:['skeleton','archer','necromancer','dog'],eh:125,ed:32,es:2,me:7,sr:1200,xp:730,sc:2900,uc:null,slow:1},
+{id:25,w:3,wn:'Peak of Justice',sw:5,n:'3-5',m:{type:'survive',text:'⏳ Sobrevivência longa! 90s',target:90},et:['skeleton','dog','archer','necromancer'],eh:130,ed:34,es:2.5,me:8,sr:1100,xp:760,sc:3000,uc:null},
+{id:26,w:4,wn:'The Vermilion City',sw:1,n:'4-1',m:{type:'kill',text:'⚔️ Ajude Miguel! Desbloqueie Miguel',target:25},et:['skeleton','dog','archer','bigbone'],eh:135,ed:34,es:2.5,me:8,sr:1000,xp:800,sc:3200,uc:'miguel'},
+{id:27,w:4,wn:'The Vermilion City',sw:2,n:'4-2',m:{type:'kill',text:'⚡ Combate intenso!',target:30},et:['skeleton','dog','archer','necromancer'],eh:140,ed:36,es:2.8,me:9,sr:900,xp:850,sc:3400,uc:null},
+{id:28,w:4,wn:'The Vermilion City',sw:3,n:'4-3',m:{type:'kill',text:'☠️ Todos os inimigos! Derrote 35',target:35},et:['skeleton','dog','archer','necromancer','bigbone'],eh:145,ed:36,es:2.6,me:9,sr:900,xp:900,sc:3600,uc:null},
+{id:29,w:5,wn:'Arc Island',sw:1,n:'5-1',m:{type:'kill',text:'🏚️ Ruína! Derrote 35',target:35},et:['skeleton','dog','archer','necromancer','bigbone'],eh:150,ed:38,es:2.7,me:10,sr:850,xp:950,sc:3800,uc:null},
+{id:30,w:5,wn:'Arc Island',sw:2,n:'5-2',m:{type:'kill',text:'👑 BOSS: Warden of Bones!',target:20,hasBoss:1,isFinal:1},et:['skeleton','necromancer','bigbone'],eh:160,ed:40,es:2.5,me:8,sr:1000,xp:1500,sc:5000,uc:'lilia'}
+];
+
+const XP={f(l){return Math.floor(100*Math.pow(1.5,l-1))},g(t){let l=1,n=0;while(t>=n+this.f(l)){n+=this.f(l);l++;if(l>99)break}return{level:l,currentXp:t-n,neededXp:this.f(l)}},b(l,s){return{attack:l*3,health:l*10,speed:Math.min(l*.1,3)}[s]||0}};
+const C={W:1280,H:720,GY:620,G:.5,AR:.98,P:{w:70,h:100,ws:4,rs:7,ac:.45,dc:.35,jf:-14,jhf:-.5,mjh:200,ad:300,acd:400,dcd:1000,ar:90,ah:70,bh:100,ba:20},
+S:{w:65,h:95,ps:10,ar:400,acd:600,ba:15},D:{w:70,h:100,sd:6000,scd:15000},
+A:{w:65,h:95,fr:150,bd:3,bdr:3000,bfd:5000,acd:8000},V:{w:65,h:95,fc:.25,fd:2000,s1c:5000,s2c:12000,s3c:10000},
+M:{w:65,h:95,ps:12,acd:800,ba:18},L:{w:65,h:95,pr:160,hAmt:15,shAmt:20,atkBuff:1.3,burnDmg:4,bdr:4000,acd:10000}};
+
+const G_={totalXp:0,pl:1,cx:0,xn:100,hs:1,ss:{},uc:{lia:1,sarah:0,dani:0,alice:0,vitoria:0,miguel:0,lilia:0},ts:0,cs:null,sel:['lia'],pc:'lia',
+sit:0,dit:0,ait:0,vit:0,mit:0,lit:0,run:0,pau:0,sc:0,died:0,sk:0,ssc:0,sdt:0,smc:0,sst:0,co:0,lct:0,lsp:0,bo:0,
+par:[],di:[],ssh:{x:0,y:0,i:0},keys:{},proj:[],
+shA:0,shE:0,lsT:0,aBuf:0,aBufE:0,iSh:0,iShE:0,fCA:0,fCE:0,fCC:0,
+login:0,fog:0,slow:0};
+
+function save(){if(!G_.login)return;localStorage.setItem('liaSave',JSON.stringify({x:G_.totalXp,h:G_.hs,s:G_.ss,u:G_.uc,t:G_.ts}))}
+function load(){if(!G_.login)return;const s=localStorage.getItem('liaSave');if(s){const d=JSON.parse(s);G_.totalXp=d.x||0;G_.hs=d.h||1;G_.ss=d.s||{};G_.uc=d.u||{lia:1};G_.ts=d.t||0;const l=XP.g(G_.totalXp);G_.pl=l.level;G_.cx=l.currentXp;G_.xn=l.neededXp}}
+
+const cv=document.getElementById('gameCanvas'),ctx=cv.getContext('2d');
+const el={};
+['loadingScreen','titleScreen','mainMenuScreen','stageSelectScreen','resultsScreen','resultsTitle','resultsGrid','resultXp','resultLevelUp','resultUnlock','resultsButtons','hudOverlay','stageIndicator','missionIndicator','healthBar','xpBar','levelDisplay','killsDisplay','scoreDisplay','supportCooldown','comboDisplay','pauseOverlay','controlsPanel','mobileControls','worldTabs','stageGrid','stageInfoPanel','stageInfoTitle','stageInfoMission','stageXpReward','stageScoreReward','teamSelectMini','playerLevelStat','playerXpStat','playerStarsStat','fogOverlay'].forEach(id=>el[id]=document.getElementById(id));
+
+function resize(){const c=cv.parentElement,ar=C.W/C.H;let w=c.clientWidth,h=w/ar;if(h>c.clientHeight){h=c.clientHeight;w=h*ar}cv.width=C.W;cv.height=C.H;cv.style.width=w+'px';cv.style.height=h+'px'}
+window.addEventListener('resize',resize);resize();
+
+let ac=null;
+function iA(){if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)()}
+function pt(f,d,t='square',v=.1){if(!ac)return;const o=ac.createOscillator(),g=ac.createGain();o.type=t;o.frequency.value=f;g.gain.value=v;g.gain.exponentialRampToValueAtTime(.01,ac.currentTime+d);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+d)}
+const snd={jump:()=>pt(400,.1,'square',.08),atk:()=>pt(200,.15,'sawtooth',.1),hit:()=>pt(150,.1,'square',.12),dmg:()=>pt(100,.2,'sawtooth',.15),shield:()=>{pt(300,.1,'sine',.1);setTimeout(()=>pt(500,.15,'sine',.1),100)},shoot:()=>pt(600,.08,'sine',.08),combo:()=>pt(800,.1,'sine',.1),fire:()=>{pt(250,.2,'sawtooth',.12);setTimeout(()=>pt(350,.15,'sawtooth',.1),100)},ice:()=>{pt(700,.15,'sine',.1);setTimeout(()=>pt(900,.1,'sine',.08),100)},energy:()=>{pt(350,.1,'sine',.1);setTimeout(()=>pt(450,.08,'sine',.08),50);setTimeout(()=>pt(550,.08,'sine',.08),100)},purple:()=>{pt(300,.2,'sine',.12);setTimeout(()=>pt(500,.15,'sine',.1),100);setTimeout(()=>pt(400,.1,'sine',.08),200)},sc:()=>{pt(523,.15);setTimeout(()=>pt(659,.15),150);setTimeout(()=>pt(784,.2),300);setTimeout(()=>pt(1047,.3),450)},unlock:()=>{for(let i=0;i<5;i++)setTimeout(()=>pt(400+i*100,.1,'sine',.12),i*80)},lu:()=>{pt(523,.1);setTimeout(()=>pt(784,.1),100);setTimeout(()=>pt(1047,.2),200)},go:()=>{pt(200,.3,'sawtooth',.12);setTimeout(()=>pt(150,.4,'sawtooth',.1),300)}};
+
+const img={};
+const id_={playerIdle:'lia.png',playerWalk:'liawalk.png',playerRun:'liarun.png',playerJump:'liajump.png',playerAttack:'liaattacking.png',playerDamage:'liadamage.png',
+sarahIdle:'sarah.png',sarahRun:'sarahrun.png',sarahJump:'sarahjump.png',sarahAttack:'sarahattack.png',sarahDamage:'sarahdamage.png',
+daniIdle:'dani.png',daniRun:'danirun.png',daniJump:'danijump.png',daniDefense:'danidefense.png',daniDamage:'danidamage.png',
+aliceIdle:'alice.png',aliceRun:'alicerun.png',aliceAttack:'aliceattack.png',aliceDamage:'alicedamage.png',
+vitoriaIdle:'vitoria.png',vitoriaRun:'vitoriarun.png',vitoriaA1:'vitoriaattack1.png',vitoriaA2:'vitoriaattack2.png',vitoriaA3:'vitoriaattack3.png',
+miguelIdle:'miguel.png',miguelRun:'miguelrun.png',miguelJump:'migueljump.png',miguelAttack:'miguelattack.png',miguelDamage:'migueldamage.png',
+liliaIdle:'lilia.png',liliaRun:'liliarun.png',liliaJump:'liliajump.png',liliaAttack:'liliaattack.png',liliaDamage:'liliadamage.png',
+skeleton:'skeleton.png',skeletonWL:'skeletonwalkl.png',skeletonWR:'skeletonwalkr.png',skeletonAtk:'skeletonattack.png',skeletonDmg:'skeletondamage.png',skeletonDead:'skeletonko.png',
+dog:'edmf.png',archer:'bonearc.png',necromancer:'wizbon.png',bigbone:'bigbon.png',
+background:'mapa.png',bg1:'bg_forest1.png',bg2:'bg_forest2.png',bg3:'bg_forest3.png',bg4:'bg_forest4.png',bg5:'bg_forest5.png'};
+let il=0;const tl=Object.keys(id_).length;
+function oil(){il++;if(il>=tl)el.loadingScreen.style.display='none'}
+Object.entries(id_).forEach(([k,v])=>{img[k]=new Image();img[k].src=v;img[k].onload=oil;img[k].onerror=oil});
+let curBg=null;let enemies=[];
+function cc(a,b){return a.x<b.x+b.width&&a.x+a.width>b.x&&a.y<b.y+b.height&&a.y+a.height>b.y}
+
+// ===== PLAYER =====
+const P={x:100,y:0,w:C.P.w,h:C.P.h,vx:0,vy:0,hp:100,mhp:100,ap:20,gr:0,jmp:0,atk:0,dmg:0,run:0,fr:1,lat:0,ldt:0,jht:0,jp:0,
+width:C.P.w,height:C.P.h,
+reset(){const h=XP.b(G_.pl,'health'),a=XP.b(G_.pl,'attack');this.mhp=C.P.bh+h;this.hp=this.mhp;this.ap=C.P.ba+a;this.x=100;this.y=C.GY-this.h;this.vx=0;this.vy=0;this.gr=0;this.jmp=0;this.atk=0;this.dmg=0;this.fr=1;this.lat=0;this.ldt=0;this.jht=0;this.jp=0},
+update(dt){const now=Date.now(),sb=XP.b(G_.pl,'speed');this.run=G_.keys['shift'];let ts=(this.run?C.P.rs:C.P.ws)+sb;if(G_.slow)ts*=.7;
+if(G_.keys['a']||G_.keys['arrowleft']){this.vx=Math.max(this.vx-C.P.ac,-ts);this.fr=0}else if(G_.keys['d']||G_.keys['arrowright']){this.vx=Math.min(this.vx+C.P.ac,ts);this.fr=1}else{if(Math.abs(this.vx)<C.P.dc)this.vx=0;else this.vx+=this.vx>0?-C.P.dc:C.P.dc}
+if(!this.gr)this.vx*=C.AR;if(this.jmp&&this.jp&&this.jht<C.P.mjh){this.vy+=C.P.jhf;this.jht+=dt}
+this.vy+=C.G;this.x+=this.vx;this.y+=this.vy;
+if(this.y>=C.GY-this.h){this.y=C.GY-this.h;this.vy=0;this.gr=1;this.jmp=0}else this.gr=0;
+this.x=Math.max(0,Math.min(C.W-this.w,this.x));
+if(this.atk&&now-this.lat>C.P.ad)this.atk=0;if(this.dmg&&now-this.ldt>300)this.dmg=0;
+if(G_.fog){el.fogOverlay.style.setProperty('--px',(this.x+this.w/2)/C.W*100+'%');el.fogOverlay.style.setProperty('--py',(this.y+this.h/2)/C.H*100+'%')}},
+jump(){if(this.gr&&!this.jmp){this.vy=C.P.jf;this.jmp=1;this.gr=0;this.jht=0;this.jp=1;snd.jump()}},
+rj(){this.jp=0},
+attack(){const now=Date.now();if(now-this.lat<C.P.acd)return;this.atk=1;this.lat=now;snd.atk();let a=this.ap;if(G_.aBuf&&now<G_.aBufE)a*=1.4;
+const ab={x:this.fr?this.x+this.w-10:this.x-C.P.ar+10,y:this.y+20,width:C.P.ar,height:C.P.ah};let hit=0;
+enemies.forEach(e=>{if(!e.dead&&cc(ab,e)){e.takeDmg(a);hit=1;if(G_.fCA&&now<G_.fCE&&Math.random()<G_.fCC&&!e.frz)e.freeze(C.V.fd);G_.fCC=Math.min((G_.fCC||0)+.05,.6)}});
+if(hit){G_.co++;G_.lct=now;if(G_.co>G_.smc)G_.smc=G_.co;if(G_.co>1){showCombo(G_.co);snd.combo()}cP(this.fr?this.x+this.w+20:this.x-20,this.y+this.h/2,'#ff6b9d',5)}},
+takeDmg(a){const now=Date.now();if(now-this.ldt<C.P.dcd)return;if(G_.shA)return;if(G_.iSh&&now<G_.iShE){cP(this.x+this.w/2,this.y+this.h/2,'#00bcd4',6);return}
+this.hp-=a;this.dmg=1;this.ldt=now;G_.sdt+=a;snd.dmg();G_.ssh.i=8;G_.co=0;if(G_.fCA)G_.fCC=.05;
+cDI(this.x+this.w/2,this.y,a);cP(this.x+this.w/2,this.y+this.h/2,'#ff6b6b',8);if(this.hp<=0){this.hp=0;gOver()}uHUD()},
+draw(){ctx.save();let s=img.playerIdle;if(this.dmg)s=img.playerDamage;else if(this.atk)s=img.playerAttack;else if(!this.gr)s=img.playerJump;else if(Math.abs(this.vx)>.5)s=this.run?img.playerRun:img.playerWalk;
+ctx.fillStyle='rgba(0,0,0,0.3)';ctx.beginPath();ctx.ellipse(this.x+this.w/2,C.GY+5,this.w/2,10,0,0,Math.PI*2);ctx.fill();
+if(G_.aBuf&&Date.now()<G_.aBufE){ctx.globalAlpha=.3+Math.sin(Date.now()*.01)*.15;ctx.fillStyle='#e67e22';ctx.beginPath();ctx.ellipse(this.x+this.w/2,this.y+this.h/2,this.w*.7,this.h*.6,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1}
+if(G_.iSh&&Date.now()<G_.iShE){ctx.globalAlpha=.25;ctx.fillStyle='#00bcd4';ctx.beginPath();ctx.ellipse(this.x+this.w/2,this.y+this.h/2,this.w*.8,this.h*.65,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1}
+if(!this.fr){ctx.scale(-1,1);ctx.drawImage(s,-this.x-this.w,this.y,this.w,this.h)}else ctx.drawImage(s,this.x,this.y,this.w,this.h);ctx.restore()}};
+
+// ===== COMPANIONS =====
+function fP(s,ox){const tx=P.x+(P.fr?ox:-ox),dx=tx-s.x;if(Math.abs(dx)>30){s.vx+=Math.sign(dx)*.35;s.vx=Math.max(-5,Math.min(5,s.vx));s.fr=dx>0?1:0}else s.vx*=.8;if(P.jmp&&s.y>=C.GY-s.h-5&&Math.abs(dx)<180){s.vy=-11;s.jmp=1}s.vy+=C.G;s.x+=s.vx;s.y+=s.vy;if(s.y>=C.GY-s.h){s.y=C.GY-s.h;s.vy=0;s.jmp=0}s.x=Math.max(0,Math.min(C.W-s.w,s.x))}
+function dC(s,sp){ctx.save();ctx.fillStyle='rgba(0,0,0,0.25)';ctx.beginPath();ctx.ellipse(s.x+s.w/2,C.GY+3,s.w/2.5,8,0,0,Math.PI*2);ctx.fill();if(!s.fr){ctx.scale(-1,1);ctx.drawImage(sp,-s.x-s.w,s.y,s.w,s.h)}else ctx.drawImage(sp,s.x,s.y,s.w,s.h);ctx.restore()}
+
+// Sarah
+const sarah={x:150,y:0,w:65,h:95,vx:0,vy:0,fr:1,jmp:0,atk:0,lat:0,width:65,height:95,
+reset(){this.x=150;this.y=C.GY-this.h;this.vx=0;this.vy=0;this.atk=0;this.lat=0},
+update(){if(!G_.sit)return;fP(this,-90);const now=Date.now();if(this.atk&&now-this.lat>250)this.atk=0;
+if(now-this.lat>C.S.acd){const a=enemies.filter(e=>!e.dead);if(a.length>0){const n=a.reduce((x,y)=>Math.abs(x.x-this.x)<Math.abs(y.x-this.x)?x:y);if(Math.abs(n.x-this.x)<C.S.ar){let d=C.S.ba+XP.b(G_.pl,'attack')*.5;if(G_.aBuf&&now<G_.aBufE)d*=1.4;G_.proj.push({x:this.x+this.w/2,y:this.y+this.h/2,vx:(n.x>this.x?1:-1)*C.S.ps,damage:d,life:1,size:8,type:'light'});this.lat=now;this.atk=1;this.fr=n.x>this.x?1:0;snd.shoot()}}}},
+draw(){if(!G_.sit)return;let s=img.sarahIdle;if(this.atk)s=img.sarahAttack;else if(this.jmp)s=img.sarahJump;else if(Math.abs(this.vx)>.5)s=img.sarahRun;dC(this,s)}};
+
+// Dani
+const dani={x:80,y:0,w:70,h:100,vx:0,vy:0,fr:1,jmp:0,def:0,width:70,height:100,
+reset(){this.x=80;this.y=C.GY-this.h;this.vx=0;this.vy=0;this.def=0},
+activateShield(){if(!G_.dit)return;const now=Date.now();if(now-G_.lsT<C.D.scd)return;G_.shA=1;G_.shE=now+C.D.sd;G_.lsT=now;this.def=1;snd.shield();cP(this.x+this.w/2,this.y+this.h/2,'#3498db',12)},
+update(){if(!G_.dit)return;fP(this,60);if(G_.shA&&Date.now()>G_.shE){G_.shA=0;this.def=0}},
+draw(){if(!G_.dit)return;ctx.save();let s=img.daniIdle;if(this.def)s=img.daniDefense;else if(this.jmp)s=img.daniJump;else if(Math.abs(this.vx)>.5)s=img.daniRun;
+ctx.fillStyle='rgba(0,0,0,0.25)';ctx.beginPath();ctx.ellipse(this.x+this.w/2,C.GY+3,this.w/2.5,8,0,0,Math.PI*2);ctx.fill();
+if(G_.shA){ctx.globalAlpha=.3+Math.sin(Date.now()*.005)*.15;ctx.fillStyle='#3498db';ctx.beginPath();ctx.ellipse(this.x+this.w/2,this.y+this.h/2,100,80,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1}
+if(!this.fr){ctx.scale(-1,1);ctx.drawImage(s,-this.x-this.w,this.y,this.w,this.h)}else ctx.drawImage(s,this.x,this.y,this.w,this.h);ctx.restore()}};
+
+// Alice
+const alice={x:200,y:0,w:65,h:95,vx:0,vy:0,fr:1,jmp:0,atk:0,lat:0,width:65,height:95,
+reset(){this.x=200;this.y=C.GY-this.h;this.vx=0;this.vy=0;this.atk=0;this.lat=0},
+fireAttack(){this.atk=1;this.lat=Date.now();snd.fire();const d=10+XP.b(G_.pl,'attack')*.3,cx=this.x+this.w/2,cy=this.y+this.h/2;
+enemies.forEach(e=>{if(e.dead)return;const dist=Math.sqrt(Math.pow(e.x+e.width/2-cx,2)+Math.pow(e.y+e.height/2-cy,2));if(dist<C.A.fr){e.takeDmg(d);e.burnEnd=Date.now()+C.A.bdr;e.burnDmg=C.A.bd}});
+G_.aBuf=1;G_.aBufE=Date.now()+C.A.bfd;for(let i=0;i<20;i++){const a=(Math.PI*2/20)*i;G_.par.push({x:cx+Math.cos(a)*30,y:cy+Math.sin(a)*20,vx:Math.cos(a)*3,vy:Math.sin(a)*2-1,life:40,ml:40,size:6,color:Math.random()>.5?'#e67e22':'#f39c12'})}},
+update(){if(!G_.ait)return;fP(this,-120);const now=Date.now();if(this.atk&&now-this.lat>600)this.atk=0;if(now-this.lat>C.A.acd&&enemies.filter(e=>!e.dead).length>0)this.fireAttack()},
+draw(){if(!G_.ait)return;ctx.save();let s=img.aliceIdle;if(this.atk){s=img.aliceAttack;ctx.globalAlpha=.25;const g=ctx.createRadialGradient(this.x+this.w/2,this.y+this.h/2,10,this.x+this.w/2,this.y+this.h/2,C.A.fr);g.addColorStop(0,'#e67e22');g.addColorStop(1,'transparent');ctx.fillStyle=g;ctx.beginPath();ctx.arc(this.x+this.w/2,this.y+this.h/2,C.A.fr,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1}else if(Math.abs(this.vx)>.5)s=img.aliceRun;dC(this,s);ctx.restore()}};
+
+// Vitória
+const vitoria={x:240,y:0,w:65,h:95,vx:0,vy:0,fr:1,jmp:0,cs:'idle',ls1:0,ls2:0,ls3:0,width:65,height:95,
+reset(){this.x=240;this.y=C.GY-this.h;this.vx=0;this.vy=0;this.cs='idle';this.ls1=0;this.ls2=0;this.ls3=0},
+s2(){if(!G_.vit)return;const now=Date.now();if(now-this.ls2<C.V.s2c)return;this.ls2=now;this.cs='a2';snd.ice();const cx=this.x+this.w/2,cy=this.y+this.h/2,d=18+XP.b(G_.pl,'attack')*.5;
+enemies.forEach(e=>{if(e.dead)return;const dist=Math.sqrt(Math.pow(e.x+e.width/2-cx,2)+Math.pow(e.y+e.height/2-cy,2));if(dist<180){e.takeDmg(d);if(Math.random()<.5)e.freeze(C.V.fd)}});
+G_.iSh=1;G_.iShE=now+4000;for(let i=0;i<25;i++){const a=(Math.PI*2/25)*i;G_.par.push({x:cx+Math.cos(a)*20,y:cy+Math.sin(a)*15,vx:Math.cos(a)*4,vy:Math.sin(a)*3-2,life:45,ml:45,size:5,color:Math.random()>.5?'#00bcd4':'#4dd0e1'})}},
+s3(){if(!G_.vit)return;const now=Date.now();if(now-this.ls3<C.V.s3c)return;this.ls3=now;this.cs='a3';snd.ice();G_.fCA=1;G_.fCE=now+8000;G_.fCC=.05;G_.aBuf=1;G_.aBufE=now+8000;cP(this.x+this.w/2,this.y+this.h/2,'#4dd0e1',15)},
+update(){if(!G_.vit)return;fP(this,-150);const now=Date.now();if(now-Math.max(this.ls1,this.ls2,this.ls3)>500)this.cs='idle';
+const a=enemies.filter(e=>!e.dead);if(a.length>0&&now-this.ls1>C.V.s1c){const n=a.reduce((x,y)=>Math.abs(x.x-this.x)<Math.abs(y.x-this.x)?x:y);if(Math.abs(n.x-this.x)<350){this.ls1=now;this.cs='a1';this.fr=n.x>this.x?1:0;snd.ice();const d=12+XP.b(G_.pl,'attack')*.4;G_.proj.push({x:this.x+this.w/2,y:this.y+this.h/2,vx:(n.x>this.x?1:-1)*8,damage:d,life:1,size:12,type:'ice',fc:C.V.fc})}}},
+draw(){if(!G_.vit)return;let s=img.vitoriaIdle;if(this.cs==='a1')s=img.vitoriaA1;else if(this.cs==='a2')s=img.vitoriaA2;else if(this.cs==='a3')s=img.vitoriaA3;else if(Math.abs(this.vx)>.5)s=img.vitoriaRun;dC(this,s)}};
+
+// Miguel - shoots 3 green energy spheres
+const miguel={x:180,y:0,w:65,h:95,vx:0,vy:0,fr:1,jmp:0,atk:0,lat:0,width:65,height:95,
+reset(){this.x=180;this.y=C.GY-this.h;this.vx=0;this.vy=0;this.atk=0;this.lat=0},
+shoot(){this.atk=1;this.lat=Date.now();snd.energy();const d=C.M.ba+XP.b(G_.pl,'attack')*.6;const dir=this.fr?1:-1;
+if(G_.aBuf&&Date.now()<G_.aBufE){}// buff already applied in damage
+for(let i=0;i<3;i++){setTimeout(()=>{let dmg=d;if(G_.aBuf&&Date.now()<G_.aBufE)dmg*=1.4;
+G_.proj.push({x:this.x+this.w/2,y:this.y+this.h/2,vx:dir*C.M.ps,damage:dmg,life:1,size:10,type:'energy'})},i*100)}},
+update(){if(!G_.mit)return;fP(this,-60);const now=Date.now();if(this.atk&&now-this.lat>400)this.atk=0;
+if(now-this.lat>C.M.acd){const a=enemies.filter(e=>!e.dead);if(a.length>0){const n=a.reduce((x,y)=>Math.abs(x.x-this.x)<Math.abs(y.x-this.x)?x:y);if(Math.abs(n.x-this.x)<400){this.fr=n.x>this.x?1:0;this.shoot()}}}},
+draw(){if(!G_.mit)return;let s=img.miguelIdle;if(this.atk)s=img.miguelAttack;else if(this.jmp)s=img.miguelJump;else if(Math.abs(this.vx)>.5)s=img.miguelRun;dC(this,s)}};
+
+// Lilia - purple flame burst: heals/shields/buffs allies, burns enemies
+const lilia={x:220,y:0,w:65,h:95,vx:0,vy:0,fr:1,jmp:0,atk:0,lat:0,width:65,height:95,
+reset(){this.x=220;this.y=C.GY-this.h;this.vx=0;this.vy=0;this.atk=0;this.lat=0},
+purpleBurst(){this.atk=1;this.lat=Date.now();snd.purple();const cx=this.x+this.w/2,cy=this.y+this.h/2;
+// Heal player
+P.hp=Math.min(P.mhp,P.hp+C.L.hAmt);
+// Shield + attack buff
+G_.iSh=1;G_.iShE=Date.now()+3000;
+G_.aBuf=1;G_.aBufE=Date.now()+6000;
+// Burn enemies in range
+const d=8+XP.b(G_.pl,'attack')*.3;
+enemies.forEach(e=>{if(e.dead)return;const dist=Math.sqrt(Math.pow(e.x+e.width/2-cx,2)+Math.pow(e.y+e.height/2-cy,2));if(dist<C.L.pr){e.burnEnd=Date.now()+C.L.bdr;e.burnDmg=C.L.burnDmg;e.takeDmg(d)}});
+// Purple particles
+for(let i=0;i<25;i++){const a=(Math.PI*2/25)*i;G_.par.push({x:cx+Math.cos(a)*25,y:cy+Math.sin(a)*20,vx:Math.cos(a)*4,vy:Math.sin(a)*3-2,life:50,ml:50,size:7,color:Math.random()>.5?'#9c27b0':'#ce93d8'})}},
+update(){if(!G_.lit)return;fP(this,-180);const now=Date.now();if(this.atk&&now-this.lat>700)this.atk=0;
+if(now-this.lat>C.L.acd&&enemies.filter(e=>!e.dead).length>0)this.purpleBurst()},
+draw(){if(!G_.lit)return;ctx.save();let s=img.liliaIdle;if(this.atk){s=img.liliaAttack;ctx.globalAlpha=.2;const g=ctx.createRadialGradient(this.x+this.w/2,this.y+this.h/2,10,this.x+this.w/2,this.y+this.h/2,C.L.pr);g.addColorStop(0,'#9c27b0');g.addColorStop(1,'transparent');ctx.fillStyle=g;ctx.beginPath();ctx.arc(this.x+this.w/2,this.y+this.h/2,C.L.pr,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1}else if(Math.abs(this.vx)>.5)s=img.liliaRun;dC(this,s);ctx.restore()}};
+
+// ===== ENEMY =====
+function gEI(t){return{skeleton:img.skeleton,dog:img.dog,archer:img.archer,necromancer:img.necromancer,bigbone:img.bigbone}[t]||img.skeleton}
+class Enemy{
+constructor(x,st,type){this.type=type||'skeleton';const sz={skeleton:[60,80],dog:[70,55],archer:[55,80],necromancer:[55,85],bigbone:[90,120]}[this.type]||[60,80];this.width=sz[0];this.height=sz[1];this.x=x;this.y=C.GY-this.height;this.vx=0;this.vy=0;let hm=1,dm=1,sm=1;if(this.type==='dog'){hm=.6;sm=1.8;dm=.8}if(this.type==='archer'){hm=.7;dm=1.2;sm=.7}if(this.type==='necromancer'){hm=1.2;dm=1.5;sm=.6}if(this.type==='bigbone'){hm=3;dm=2;sm=.5}
+this.hp=st.eh*hm;this.mhp=this.hp;this.dmg_=st.ed*dm;this.spd=st.es*sm;this.dead=0;this.isDmg=0;this.isAtk=0;this.fr=x<C.W/2?1:0;this.lat=0;this.ldt=0;this.dt=0;this.acd=this.type==='necromancer'?2000:this.type==='archer'?1800:1200;
+this.burnEnd=0;this.burnDmg=0;this.lbt=0;this.frz=0;this.frzE=0;this.sh=st.se&&Math.random()>.5;if(this.sh)this.hp*=1.5;this.inv=st.ie&&this.type==='skeleton'}
+freeze(d){this.frz=1;this.frzE=Date.now()+d;cP(this.x+this.width/2,this.y+this.height/2,'#00bcd4',8)}
+update(){if(this.dead)return;const now=Date.now();if(now<this.burnEnd&&now-this.lbt>500){this.hp-=this.burnDmg;this.lbt=now;cP(this.x+this.width/2,this.y,'#e67e22',3);cDI(this.x+this.width/2,this.y,this.burnDmg,'#e67e22');if(this.hp<=0){this.die();return}}
+if(this.frz){if(now>this.frzE)this.frz=0;else return}if(this.isDmg&&now-this.ldt>200)this.isDmg=0;if(this.isAtk&&now-this.lat>400)this.isAtk=0;
+const dx=P.x-this.x;this.fr=dx>0?1:0;const ar=this.type==='archer'||this.type==='necromancer'?200:50;
+if(Math.abs(dx)>ar)this.vx=Math.sign(dx)*this.spd;else{this.vx=0;if(now-this.lat>this.acd){this.isAtk=1;this.lat=now;if(this.type==='archer'||this.type==='necromancer')G_.proj.push({x:this.x+this.width/2,y:this.y+this.height/3,vx:Math.sign(dx)*7,damage:this.dmg_*.6,life:1,size:6,type:'enemy',isE:1});else if(cc({x:this.x-20,y:this.y,width:this.width+40,height:this.height},P))P.takeDmg(this.dmg_)}}
+this.x+=this.vx;this.x=Math.max(-50,Math.min(C.W+50,this.x))}
+takeDmg(a){if(this.sh)a*=.6;this.hp-=a;this.isDmg=1;this.ldt=Date.now();snd.hit();cDI(this.x+this.width/2,this.y,Math.round(a));cP(this.x+this.width/2,this.y+this.height/2,'#fff',4);if(this.hp<=0)this.die()}
+die(){this.dead=1;this.dt=Date.now();G_.sk++;const sc=100*(1+G_.co*.2);G_.ssc+=Math.floor(sc);cP(this.x+this.width/2,this.y+this.height/2,'#ffd700',10);chkComplete()}
+draw(){if(this.dead){if(Date.now()-this.dt<600){ctx.save();ctx.globalAlpha=Math.max(0,1-(Date.now()-this.dt)/600);ctx.drawImage(this.type==='skeleton'?img.skeletonDead:gEI(this.type),this.x,this.y,this.width,this.height);ctx.restore()}return}
+ctx.save();let s=gEI(this.type);if(this.type==='skeleton'){if(this.isDmg)s=img.skeletonDmg;else if(this.isAtk)s=img.skeletonAtk;else if(Math.abs(this.vx)>.3)s=this.fr?img.skeletonWR:img.skeletonWL}
+if(this.inv){const d=Math.abs(this.x-P.x);ctx.globalAlpha=d<150?.8:.1}
+ctx.fillStyle='rgba(0,0,0,0.2)';ctx.beginPath();ctx.ellipse(this.x+this.width/2,C.GY+3,this.width/2,7,0,0,Math.PI*2);ctx.fill();
+if(this.frz){ctx.fillStyle='rgba(0,188,212,0.3)';ctx.fillRect(this.x-5,this.y-5,this.width+10,this.height+10)}
+if(Date.now()<this.burnEnd){ctx.fillStyle='rgba(230,126,34,0.2)';ctx.fillRect(this.x-3,this.y-3,this.width+6,this.height+6)}
+if(this.sh){ctx.strokeStyle='rgba(100,200,255,0.6)';ctx.lineWidth=3;ctx.strokeRect(this.x-2,this.y-2,this.width+4,this.height+4)}
+const hp=this.hp/this.mhp;ctx.fillStyle='rgba(0,0,0,0.6)';ctx.fillRect(this.x,this.y-10,this.width,5);ctx.fillStyle=hp>.5?'#4caf50':hp>.25?'#ff9800':'#f44336';ctx.fillRect(this.x,this.y-10,this.width*hp,5);
+ctx.drawImage(s,this.x,this.y,this.width,this.height);ctx.restore()}}
+
+// ===== EFFECTS =====
+function cP(x,y,c,n){for(let i=0;i<n;i++)G_.par.push({x,y,vx:(Math.random()-.5)*6,vy:(Math.random()-.5)*6-2,life:30+Math.random()*20,ml:50,size:3+Math.random()*4,color:c})}
+function uP(){G_.par=G_.par.filter(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.1;p.life--;return p.life>0})}
+function dP(){G_.par.forEach(p=>{ctx.globalAlpha=p.life/p.ml;ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.size*(p.life/p.ml),0,Math.PI*2);ctx.fill()});ctx.globalAlpha=1}
+function cDI(x,y,a,c){G_.di.push({x,y,text:'-'+a,life:40,color:c||'#ff6b6b'})}
+function uDI(){G_.di=G_.di.filter(d=>{d.y-=1.5;d.life--;return d.life>0})}
+function dDI(){G_.di.forEach(d=>{ctx.globalAlpha=d.life/40;ctx.fillStyle=d.color;ctx.font='bold 16px "Press Start 2P"';ctx.textAlign='center';ctx.fillText(d.text,d.x,d.y)});ctx.globalAlpha=1}
+function showCombo(c){el.comboDisplay.textContent=c+'x COMBO!';el.comboDisplay.classList.remove('active');void el.comboDisplay.offsetWidth;el.comboDisplay.classList.add('active')}
+function uProj(){G_.proj=G_.proj.filter(p=>{p.x+=p.vx;p.life-=.02;if(p.x<-50||p.x>C.W+50||p.life<=0)return false;if(p.isE){if(cc({x:p.x-p.size,y:p.y-p.size,width:p.size*2,height:p.size*2},P)){P.takeDmg(p.damage);return false}}else{for(let e of enemies){if(!e.dead&&cc({x:p.x-p.size,y:p.y-p.size,width:p.size*2,height:p.size*2},e)){e.takeDmg(p.damage);if(p.type==='ice'&&p.fc&&Math.random()<p.fc)e.freeze(C.V.fd);cP(p.x,p.y,p.type==='ice'?'#00bcd4':p.type==='energy'?'#4caf50':'#ffe082',5);return false}}}return true})}
+function dProj(){G_.proj.forEach(p=>{ctx.save();if(p.isE){ctx.fillStyle='#a855f7';ctx.shadowColor='#a855f7';ctx.shadowBlur=10}else if(p.type==='ice'){ctx.fillStyle='#00bcd4';ctx.shadowColor='#00bcd4';ctx.shadowBlur=12}else if(p.type==='energy'){ctx.fillStyle='#4caf50';ctx.shadowColor='#4caf50';ctx.shadowBlur=12}else{ctx.fillStyle='#ffe082';ctx.shadowColor='#ffb300';ctx.shadowBlur=10}ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();ctx.restore()})}
+function uSS(){if(G_.ssh.i>0){G_.ssh.x=(Math.random()-.5)*G_.ssh.i;G_.ssh.y=(Math.random()-.5)*G_.ssh.i;G_.ssh.i*=.9;if(G_.ssh.i<.5)G_.ssh.i=0}}
+function spawnE(){const st=G_.cs;if(!st)return;if(enemies.filter(e=>!e.dead).length>=st.me)return;if(st.m.type==='kill'&&G_.sk>=st.m.target)return;const side=Math.random()>.5?1:-1;const types=st.et||['skeleton'];const type=types[Math.floor(Math.random()*types.length)];enemies.push(new Enemy(side===1?C.W+50:-60,st,type))}
+function chkComplete(){const st=G_.cs;if(!st||G_.sc)return;if(st.m.type==='kill'&&G_.sk>=st.m.target&&enemies.filter(e=>!e.dead).length===0)showRes(1);if(st.m.type==='combo'&&G_.smc>=st.m.target)showRes(1)}
+
+function showRes(v){G_.sc=1;G_.run=0;const st=G_.cs,el_=Math.floor((Date.now()-G_.sst)/1000);let xpG=0,ucN=null;
+if(v){xpG=st.xp;if(G_.sdt===0)xpG+=50;if(G_.smc>=5)xpG+=30;const prev=G_.pl;G_.totalXp+=xpG;G_.ts+=G_.ssc;const l=XP.g(G_.totalXp);G_.pl=l.level;G_.cx=l.currentXp;G_.xn=l.neededXp;if(st.id>=G_.hs)G_.hs=st.id+1;let stars=1;if(G_.sdt===0)stars=3;else if(G_.sdt<30)stars=2;if(!G_.ss[st.id]||G_.ss[st.id]<stars)G_.ss[st.id]=stars;
+if(st.uc&&!G_.uc[st.uc]){G_.uc[st.uc]=1;const cn={sarah:'Sarah (Atacante)',dani:'Dani (Defensora)',alice:'Alice (Suporte Fogo)',vitoria:'Vitória (Suporte Gelo)',miguel:'Miguel (Atirador)',lilia:'Lilia (Criativa)'};ucN=cn[st.uc]||st.uc;snd.unlock()}
+save();snd.sc();el.resultsTitle.textContent='FASE COMPLETA!';el.resultsTitle.className='results-title victory';el.resultXp.textContent='+'+xpG+' XP';el.resultXp.style.display='block';el.resultLevelUp.style.display=G_.pl>prev?'block':'none';if(G_.pl>prev)snd.lu();
+}else{snd.go();el.resultsTitle.textContent='DERROTA';el.resultsTitle.className='results-title defeat';el.resultXp.style.display='none';el.resultLevelUp.style.display='none'}
+el.resultsGrid.innerHTML='<div class="result-card"><div class="result-card-value">'+st.n+'</div><div class="result-card-label">Fase</div></div><div class="result-card"><div class="result-card-value">'+G_.ssc.toLocaleString()+'</div><div class="result-card-label">Pontos</div></div><div class="result-card"><div class="result-card-value">'+G_.sk+'</div><div class="result-card-label">Derrotados</div></div><div class="result-card"><div class="result-card-value">'+G_.smc+'x</div><div class="result-card-label">Max Combo</div></div><div class="result-card"><div class="result-card-value">'+el_+'s</div><div class="result-card-label">Tempo</div></div><div class="result-card"><div class="result-card-value">'+G_.sdt+'</div><div class="result-card-label">Dano Recebido</div></div>';
+if(ucN){el.resultUnlock.textContent='🎉 '+ucN.toUpperCase()+' DESBLOQUEADO(A)! 🎉';el.resultUnlock.style.display='block'}else el.resultUnlock.style.display='none';
+el.resultsButtons.innerHTML='';
+if(v){const nid=st.id+1,ns=SD.find(s=>s.id===nid),isL=!ns||ns.w!==st.w;
+if(isL||nid>30){const b=document.createElement('button');b.className='game-btn game-btn-secondary';b.innerHTML='🗺️ VOLTAR AO MAPA';b.addEventListener('click',()=>{hRes();showSS()});el.resultsButtons.appendChild(b)}
+else{const b=document.createElement('button');b.className='game-btn game-btn-secondary';b.innerHTML='🗺️ MAPA';b.addEventListener('click',()=>{hRes();showSS()});el.resultsButtons.appendChild(b);const n=document.createElement('button');n.className='game-btn game-btn-primary';n.innerHTML='PRÓXIMA →';n.addEventListener('click',()=>{hRes();startS(nid)});el.resultsButtons.appendChild(n)}
+}else{const r=document.createElement('button');r.className='game-btn game-btn-danger';r.innerHTML='🔄 RETRY';r.addEventListener('click',()=>{hRes();startS(st.id)});el.resultsButtons.appendChild(r);const m=document.createElement('button');m.className='game-btn game-btn-secondary';m.innerHTML='🗺️ MAPA';m.addEventListener('click',()=>{hRes();showSS()});el.resultsButtons.appendChild(m)}
+el.hudOverlay.style.display='none';el.stageIndicator.style.display='none';el.missionIndicator.style.display='none';el.supportCooldown.style.display='none';el.controlsPanel.style.display='none';el.fogOverlay.classList.remove('active');
+setTimeout(()=>el.resultsScreen.classList.add('active'),v?1000:500)}
+function hRes(){el.resultsScreen.classList.remove('active')}
+function gOver(){G_.died=1;showRes(0)}
+
+function uHUD(){el.healthBar.style.width=(P.hp/P.mhp)*100+'%';el.xpBar.style.width=(G_.cx/G_.xn)*100+'%';el.levelDisplay.textContent='Lv.'+G_.pl;const st=G_.cs;if(st&&st.m.type==='kill')el.killsDisplay.textContent=G_.sk+'/'+st.m.target;else if(st&&st.m.type==='survive'){const r=Math.max(0,st.m.target-Math.floor((Date.now()-G_.sst)/1000));el.killsDisplay.textContent=r+'s'}else el.killsDisplay.textContent=G_.sk;el.scoreDisplay.textContent=G_.ssc.toLocaleString();
+if(G_.dit){const now=Date.now(),cd=Math.max(0,C.D.scd-(now-G_.lsT));el.supportCooldown.textContent=cd>0?'🛡️ '+Math.ceil(cd/1000)+'s':'🛡️ PRONTO';el.supportCooldown.style.color=cd>0?'#888':'#3498db'}}
+
+function drawBg(){const bg=curBg;if(bg&&bg.complete&&bg.naturalWidth>0){const bh=bg.height||C.H;const scaleH=C.GY/bh;const sw=bg.width*scaleH;const off=G_.bo%sw;for(let i=-1;i<=Math.ceil(C.W/sw)+1;i++)ctx.drawImage(bg,off+i*sw,0,sw,C.GY)}else{const g=ctx.createLinearGradient(0,0,0,C.GY);g.addColorStop(0,'#1a2c4a');g.addColorStop(1,'#3d5a80');ctx.fillStyle=g;ctx.fillRect(0,0,C.W,C.GY)}
+ctx.fillStyle='#3a5a40';ctx.fillRect(0,C.GY,C.W,C.H-C.GY);ctx.fillStyle='#588157';for(let i=0;i<35;i++){const x=((i*40+G_.bo*.5)%(C.W+50))-25;ctx.fillRect(x,C.GY-3,25,8)}ctx.strokeStyle='#4a7a5a';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,C.GY);ctx.lineTo(C.W,C.GY);ctx.stroke()}
+
+let lt=0;
+function loop(ts){if(!G_.run)return;const dt=ts-lt;lt=ts;if(G_.pau||G_.sc){requestAnimationFrame(loop);return}
+ctx.clearRect(0,0,C.W,C.H);ctx.save();ctx.translate(G_.ssh.x,G_.ssh.y);
+P.update(dt);sarah.update();dani.update();alice.update();vitoria.update();miguel.update();lilia.update();
+enemies.forEach(e=>e.update());uP();uDI();uSS();uProj();
+const now=Date.now();if(G_.aBuf&&now>G_.aBufE)G_.aBuf=0;if(G_.iSh&&now>G_.iShE)G_.iSh=0;if(G_.fCA&&now>G_.fCE)G_.fCA=0;
+G_.bo-=P.vx*.3;const st=G_.cs;if(st&&now-G_.lsp>st.sr){spawnE();G_.lsp=now}if(now-G_.lct>2000&&G_.co>0)G_.co=0;
+if(st&&st.m.type==='survive'&&(now-G_.sst)/1000>=st.m.target)showRes(1);
+uHUD();drawBg();enemies.forEach(e=>e.draw());dani.draw();alice.draw();vitoria.draw();lilia.draw();miguel.draw();sarah.draw();P.draw();dProj();dP();dDI();
+ctx.restore();requestAnimationFrame(loop)}
+
+// Primary character attack
+const CA={
+lia:{icon:'⚔',css:'attack-lia',fn:()=>P.attack()},
+sarah:{icon:'✦',css:'attack-sarah',fn:()=>{const a=enemies.filter(e=>!e.dead);if(a.length>0){const n=a.reduce((x,y)=>Math.abs(x.x-P.x)<Math.abs(y.x-P.x)?x:y);let d=C.S.ba+XP.b(G_.pl,'attack')*.5;G_.proj.push({x:P.x+P.w/2,y:P.y+P.h/2,vx:(n.x>P.x?1:-1)*C.S.ps,damage:d,life:1,size:8,type:'light'});snd.shoot()}}},
+dani:{icon:'🛡',css:'attack-dani',fn:()=>dani.activateShield()},
+alice:{icon:'🔥🔥',css:'attack-alice',fn:()=>{alice.fireAttack();alice.lat=Date.now()}},
+vitoria:{icon:'❄',css:'attack-vitoria',fn:()=>vitoria.s2()},
+miguel:{icon:'🔫',css:'attack-miguel',fn:()=>{miguel.shoot();miguel.lat=Date.now()}},
+lilia:{icon:'🔮',css:'attack-lilia',fn:()=>{lilia.purpleBurst();lilia.lat=Date.now()}}
+};
+function uMAB(){const b=document.getElementById('mobileAttack'),i=CA[G_.pc]||CA.lia;b.textContent=i.icon;b.className='mobile-btn '+i.css}
+function pAtk(){(CA[G_.pc]||CA.lia).fn()}
+
+function startS(id){iA();const st=SD.find(s=>s.id===id);if(!st||id>G_.hs)return;
+G_.cs=st;G_.run=1;G_.pau=0;G_.sc=0;G_.died=0;G_.sk=0;G_.ssc=0;G_.sdt=0;G_.smc=0;G_.co=0;G_.lct=0;G_.lsp=Date.now();G_.lsT=0;G_.sst=Date.now();G_.bo=0;G_.par=[];G_.di=[];G_.proj=[];G_.ssh={x:0,y:0,i:0};G_.shA=0;G_.shE=0;G_.aBuf=0;G_.aBufE=0;G_.iSh=0;G_.iShE=0;G_.fCA=0;G_.fCE=0;G_.fCC=0;G_.fog=!!st.fog;G_.slow=!!st.slow;
+el.fogOverlay.classList.toggle('active',G_.fog);
+curBg=img[getBg(id)]||img.background;
+G_.sit=G_.sel.includes('sarah')?1:0;G_.dit=G_.sel.includes('dani')?1:0;G_.ait=G_.sel.includes('alice')?1:0;G_.vit=G_.sel.includes('vitoria')?1:0;G_.mit=G_.sel.includes('miguel')?1:0;G_.lit=G_.sel.includes('lilia')?1:0;
+G_.pc=G_.sel[0]||'lia';uMAB();
+P.reset();sarah.reset();dani.reset();alice.reset();vitoria.reset();miguel.reset();lilia.reset();enemies=[];
+el.stageSelectScreen.classList.remove('active');el.resultsScreen.classList.remove('active');el.hudOverlay.style.display='flex';el.stageIndicator.style.display='block';el.stageIndicator.textContent='FASE '+st.n;el.missionIndicator.style.display='block';el.missionIndicator.textContent=st.m.text;el.controlsPanel.style.display=window.innerWidth>768?'grid':'none';el.supportCooldown.style.display=G_.dit?'block':'none';uHUD();lt=performance.now();requestAnimationFrame(loop)}
+function tPause(){if(!G_.run||G_.sc)return;G_.pau=!G_.pau;el.pauseOverlay.classList.toggle('active',G_.pau)}
+
+let cW=1,selS=1;
+function rWT(){el.worldTabs.innerHTML='';WORLDS.forEach((w,i)=>{const t=document.createElement('button');t.className='world-tab '+(i+1===cW?'active':'');t.textContent=(i+1)+'. '+w;t.addEventListener('click',()=>{cW=i+1;rWT();rSG()});el.worldTabs.appendChild(t)})}
+function rSG(){el.stageGrid.innerHTML='';SD.filter(s=>s.w===cW).forEach(st=>{const n=document.createElement('div');n.className='stage-node';const u=st.id<=G_.hs,c=G_.ss[st.id]>0,ic=st.id===G_.hs;if(c)n.classList.add('completed');else if(u){n.classList.add('unlocked');if(ic)n.classList.add('current')}else n.classList.add('locked');n.innerHTML='<div class="stage-number">'+st.sw+'</div><div class="stage-stars">'+('⭐'.repeat(G_.ss[st.id]||0))+'</div>';if(u)n.addEventListener('click',()=>selStage(st.id));el.stageGrid.appendChild(n)})}
+function selStage(id){selS=id;const s=SD.find(x=>x.id===id);if(!s)return;el.stageInfoPanel.style.display='block';el.stageInfoTitle.textContent='FASE '+s.n+' - '+s.wn;el.stageInfoMission.textContent=s.m.text;el.stageXpReward.textContent=s.xp;el.stageScoreReward.textContent=s.sc;rTS()}
+function rTS(){el.teamSelectMini.innerHTML='';
+[{id:'lia',n:'Lia',r:'Guerreira',i:'lia.png',a:1},{id:'sarah',n:'Sarah',r:'Atacante',i:'sarah.png'},{id:'dani',n:'Dani',r:'Defensora',i:'dani.png'},{id:'alice',n:'Alice',r:'Suporte🔥',i:'alice.png'},{id:'vitoria',n:'Vitória',r:'Suporte❄️',i:'vitoria.png'},{id:'miguel',n:'Miguel',r:'Atirador',i:'miguel.png'},{id:'lilia',n:'Lilia',r:'Criativa',i:'lilia.png'}].forEach(c=>{
+const div=document.createElement('div'),ul=c.a||G_.uc[c.id],idx=G_.sel.indexOf(c.id),ip=idx===0,sel=idx>=0;
+div.className='team-char-mini'+(sel?' selected':'')+(ip?' primary-char':'')+(!ul?' locked':'');
+div.innerHTML='<img src="'+c.i+'" alt="'+c.n+'"><div class="cn">'+(ip?'★ ':'')+c.n+'</div><div class="cr">'+c.r+'</div>';
+if(ul)div.addEventListener('click',()=>{if(idx>=0){if(ip&&G_.sel.length>1)G_.sel.push(G_.sel.shift());else if(!ip)G_.sel.splice(idx,1)}else if(G_.sel.length<4)G_.sel.push(c.id);rTS()});
+el.teamSelectMini.appendChild(div)})}
+function uPS(){el.playerLevelStat.textContent='Lv. '+G_.pl;el.playerXpStat.textContent=G_.totalXp.toLocaleString();let t=0;Object.values(G_.ss).forEach(s=>t+=s);el.playerStarsStat.textContent=t}
+function showSS(){uPS();rWT();rSG();el.mainMenuScreen.classList.remove('active');el.resultsScreen.classList.remove('active');el.stageSelectScreen.classList.add('active');el.hudOverlay.style.display='none';el.stageIndicator.style.display='none';el.missionIndicator.style.display='none';el.supportCooldown.style.display='none';el.controlsPanel.style.display='none';el.fogOverlay.classList.remove('active');selStage(Math.min(G_.hs,30))}
+
+document.addEventListener('keydown',e=>{const k=e.key.toLowerCase();G_.keys[k]=1;if(!G_.run)return;if((k==='w'||k===' '||k==='arrowup')&&!G_.pau){P.jump();e.preventDefault()}if(k==='j'&&!G_.pau)pAtk();if(k==='k'&&!G_.pau){if(G_.dit)dani.activateShield();else if(G_.vit)vitoria.s2()}if(k==='l'&&!G_.pau&&G_.vit)vitoria.s3();if(k==='escape'||k==='p')tPause();if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault()});
+document.addEventListener('keyup',e=>{const k=e.key.toLowerCase();G_.keys[k]=0;if(k==='w'||k===' '||k==='arrowup')P.rj()});
+
+function setupM(){const ts=(k,a)=>e=>{e.preventDefault();G_.keys[k]=1;if(a)a()},te=(k,a)=>e=>{e.preventDefault();G_.keys[k]=0;if(a)a()};
+document.getElementById('mobileLeft').addEventListener('touchstart',ts('a'));document.getElementById('mobileLeft').addEventListener('touchend',te('a'));
+document.getElementById('mobileRight').addEventListener('touchstart',ts('d'));document.getElementById('mobileRight').addEventListener('touchend',te('d'));
+document.getElementById('mobileJump').addEventListener('touchstart',ts('jump',()=>P.jump()));document.getElementById('mobileJump').addEventListener('touchend',te('jump',()=>P.rj()));
+document.getElementById('mobileAttack').addEventListener('touchstart',ts('atk',()=>pAtk()));document.getElementById('mobileAttack').addEventListener('touchend',te('atk'))}
+
+document.getElementById('titleStartBtn').addEventListener('click',()=>{iA();el.titleScreen.classList.remove('active');el.mainMenuScreen.classList.add('active')});
+document.getElementById('playGameBtn').addEventListener('click',showSS);
+document.getElementById('googleLoginBtn').addEventListener('click',()=>alert('Login com Google será implementado em breve!\nSem login, seus dados NÃO serão salvos ao fechar o jogo.'));
+document.getElementById('backToMenuBtn').addEventListener('click',()=>{el.stageSelectScreen.classList.remove('active');el.mainMenuScreen.classList.add('active')});
+document.getElementById('playStageBtn').addEventListener('click',()=>startS(selS));
+setupM();G_.sel=['lia'];if('ontouchstart' in window)el.mobileControls.style.display='flex';
+</script>
 </body>
 </html>
