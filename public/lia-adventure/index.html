@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
-        :root{--primary:#ff6b9d;--primary-dark:#e0558a;--primary-glow:rgba(255,107,157,0.5);--secondary:#4dccbd;--secondary-dark:#3eb3a5;--danger:#ff6b6b;--warning:#ffb347;--bg-dark:#0d1b2a;--bg-darker:#06101a;--text-primary:#fff;--text-secondary:#a9d1ff;--gold:#ffd700;--xp-purple:#a855f7;--alice-orange:#e67e22;--vitoria-cyan:#00bcd4;--miguel-green:#4caf50;--lilia-purple:#9c27b0;--isabela-red:#8b0000;--gabriel-blue:#1565c0;--luccas-green:#2e7d32;--agatha-purple:#7b1fa2;--poiqui-black:#333}
+        :root{--primary:#ff6b9d;--primary-dark:#e0558a;--primary-glow:rgba(255,107,157,0.5);--secondary:#4dccbd;--secondary-dark:#3eb3a5;--danger:#ff6b6b;--warning:#ffb347;--bg-dark:#0d1b2a;--bg-darker:#06101a;--text-primary:#fff;--text-secondary:#a9d1ff;--gold:#ffd700;--xp-purple:#a855f7;--alice-orange:#e67e22;--vitoria-cyan:#00bcd4;--miguel-green:#4caf50;--lilia-purple:#9c27b0;--isabela-red:#8b0000;--gabriel-blue:#1565c0;--luccas-green:#2e7d32;--agatha-purple:#7b1fa2;--poiqui-black:#333;--yasmim-blue:#1a237e}
         html,body{height:100%;overflow:hidden}
         body{font-family:'Fredoka',sans-serif;background:linear-gradient(135deg,var(--bg-darker),var(--bg-dark),#1a2c4a);color:var(--text-primary);display:flex;align-items:center;justify-content:center;min-height:100vh}
         .game-wrapper{display:flex;flex-direction:column;align-items:center;width:100%;height:100%}
@@ -122,6 +122,7 @@
         .mobile-btn.attack-julia{background:rgba(200,50,30,0.4);border-color:#c62828}
         .mobile-btn.attack-agatha{background:rgba(123,31,162,0.4);border-color:var(--agatha-purple)}
         .mobile-btn.attack-poiqui{background:rgba(51,51,51,0.4);border-color:var(--poiqui-black)}
+        .mobile-btn.attack-yasmim{background:rgba(26,35,126,0.4);border-color:var(--yasmim-blue)}
         .mobile-btn.jump{background:rgba(77,204,189,0.4);border-color:var(--secondary)}
         .cooldown-overlay{position:absolute;bottom:80px;right:10px;background:rgba(0,0,0,0.8);padding:4px 10px;border-radius:8px;font-family:'Press Start 2P',cursive;font-size:.35rem;color:var(--warning);z-index:20;display:none}
         .mobile-btn.on-cooldown{opacity:.4;pointer-events:none}
@@ -220,10 +221,11 @@ S:{w:65,h:95,ps:10,ar:400,acd:600,ba:15},D:{w:70,h:100,sd:6000,scd:15000},MN:{w:
 A:{w:65,h:95,fr:150,bd:3,bdr:3000,bfd:5000,acd:8000},V:{w:65,h:95,fc:.25,fd:2000,s1c:5000,s2c:12000,s3c:10000},
 M:{w:65,h:95,ps:12,acd:800,ba:18},L:{w:65,h:95,pr:160,hAmt:15,shAmt:20,atkBuff:1.3,burnDmg:4,bdr:4000,acd:10000},
 GB:{w:65,h:95,rfl:1500,rcd:8000},LC:{w:65,h:95,shHP:40,shDur:10000,atkBuf:1.3,bufDur:6000,acd1:12000,acd2:10000,ps:10},
-AG:{w:65,h:95,ba:50,acd:10000},PQ:{w:65,h:95,ba:15,flameR:180,burnDmg:6,bdr:3000,acd1:7000,acd2:12000,auraR:100,auraDmg:4,auraDur:6000}};
+AG:{w:65,h:95,ba:50,acd:10000},PQ:{w:65,h:95,ba:15,flameR:180,burnDmg:6,bdr:3000,acd1:7000,acd2:12000,auraR:100,auraDmg:4,auraDur:6000},
+YA:{w:65,h:95,ba:25,exR:160,acd:10000,shHP:35,atkBuf:1.3,bufDur:6000,burnDmg:5,bdr:3000,frzC:.4,frzD:2000}};
 
-const G_={totalXp:0,pl:1,cx:0,xn:100,hs:1,ss:{},uc:{lia:1,sarah:1,dani:1,alice:1,vitoria:1,miguel:1,lilia:1,isabela:1,gabriel:1,luccas:1,manuh:1,julia:1,agatha:1,poiqui:1},ts:0,cs:null,sel:['lia'],pc:'lia',
-sit:0,dit:0,ait:0,vit:0,mit:0,lit:0,ibt:0,gbt:0,lut:0,mnt:0,jut:0,agt:0,pqt:0,run:0,pau:0,sc:0,died:0,sk:0,ssc:0,sdt:0,smc:0,sst:0,co:0,lct:0,lsp:0,bo:0,
+const G_={totalXp:0,pl:1,cx:0,xn:100,hs:1,ss:{},uc:{lia:1,sarah:1,dani:1,alice:1,vitoria:1,miguel:1,lilia:1,isabela:1,gabriel:1,luccas:1,manuh:1,julia:1,agatha:1,poiqui:1,yasmim:1},ts:0,cs:null,sel:['lia'],pc:'lia',
+sit:0,dit:0,ait:0,vit:0,mit:0,lit:0,ibt:0,gbt:0,lut:0,mnt:0,jut:0,agt:0,pqt:0,yat:0,run:0,pau:0,sc:0,died:0,sk:0,ssc:0,sdt:0,smc:0,sst:0,co:0,lct:0,lsp:0,bo:0,
 par:[],di:[],ssh:{x:0,y:0,i:0},keys:{},proj:[],
 shA:0,shE:0,lsT:0,aBuf:0,aBufE:0,iSh:0,iShE:0,fCA:0,fCE:0,fCC:0,
 lcSh:0,lcShHP:0,lcShE:0,
@@ -261,6 +263,7 @@ manuhIdle:'manuh.png',manuhRun:'manuhrun.png',manuhJump:'manuhjump.png',manuhDam
 juliaIdle:'julia.png',juliaRun:'juliarun.png',juliaJump:'juliajump.png',juliaDamage:'juliadamage.png',juliaAttack:'juliaattack.png',
 agathaIdle:'agatha.png',agathaRun:'agatharun.png',agathaJump:'agathajump.png',agathaDamage:'agathadamage.png',agathaAttack:'agathaattack.png',
 poiquiIdle:'poiqui.png',poiquiRun:'poiquirun.png',poiquiDamage:'poiquidamage.png',poiquiAttack1:'poiquiattack1.png',poiquiAttack2:'poiquiattack2.png',
+yasmimIdle:'yasmim.png',yasmimRun:'yasmimrun.png',yasmimJump:'yasmimjump.png',yasmimDamage:'yasmimdamage.png',yasmimDefense:'yasmimdefense.png',
 skeleton:'skeleton.png',skeletonWL:'skeletonwalkl.png',skeletonWR:'skeletonwalkr.png',skeletonAtk:'skeletonattack.png',skeletonDmg:'skeletondamage.png',skeletonDead:'skeletonko.png',
 dog:'edmf.png',archer:'bonearc.png',necromancer:'wizbon.png',bigbone:'bigbon.png',
 background:'mapa.png',bg1:'bg_forest1.png',bg2:'bg_forest2.png',bg3:'bg_forest3.png',bg4:'bg_forest4.png',bg5:'bg_forest5.png'};
@@ -482,6 +485,30 @@ draw(){if(!G_.pqt)return;ctx.save();let s=img.poiquiIdle;if(this.atk&&this.atkTy
 if(G_.pqAura&&Date.now()<G_.pqAuraE){ctx.globalAlpha=.15+Math.sin(Date.now()*.01)*.1;ctx.fillStyle='#ff6f00';ctx.beginPath();ctx.arc(this.x+this.w/2,this.y+this.h/2,C.PQ.auraR,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1}
 dC(this,s);ctx.restore()}};
 
+// Yasmim - Defender: dual ice/fire explosion
+const yasmim={x:400,y:0,w:65,h:95,vx:0,vy:0,fr:1,jmp:0,def:0,lat:0,width:65,height:95,
+reset(){this.x=400;this.y=C.GY-this.h;this.vx=0;this.vy=0;this.def=0;this.lat=0},
+dualExplosion(){this.def=1;this.lat=Date.now();snd.ice();snd.fire();const cx=this.x+this.w/2,cy=this.y+this.h/2;
+const d=C.YA.ba+XP.b(G_.pl,'attack')*.5;
+// Ice explosion left
+const iceX=cx-80;
+enemies.forEach(e=>{if(e.dead)return;const dist=Math.sqrt(Math.pow(e.x+e.width/2-iceX,2)+Math.pow(e.y+e.height/2-cy,2));if(dist<C.YA.exR){e.takeDmg(d);if(Math.random()<C.YA.frzC)e.freeze(C.YA.frzD)}});
+for(let i=0;i<15;i++){const a=(Math.PI*2/15)*i;G_.par.push({x:iceX+Math.cos(a)*30,y:cy+Math.sin(a)*25,vx:Math.cos(a)*5,vy:Math.sin(a)*4-2,life:40,ml:40,size:6,color:Math.random()>.5?'#00bcd4':'#80deea'})}
+// Fire explosion right
+const fireX=cx+80;
+enemies.forEach(e=>{if(e.dead)return;const dist=Math.sqrt(Math.pow(e.x+e.width/2-fireX,2)+Math.pow(e.y+e.height/2-cy,2));if(dist<C.YA.exR){e.takeDmg(d);e.burnEnd=Date.now()+C.YA.bdr;e.burnDmg=C.YA.burnDmg}});
+for(let i=0;i<15;i++){const a=(Math.PI*2/15)*i;G_.par.push({x:fireX+Math.cos(a)*30,y:cy+Math.sin(a)*25,vx:Math.cos(a)*5,vy:Math.sin(a)*4-2,life:40,ml:40,size:6,color:Math.random()>.5?'#ff6f00':'#ffd600'})}
+// Shield + attack buff for allies
+G_.lcSh=1;G_.lcShHP=C.YA.shHP+XP.b(G_.pl,'health')*.3;G_.lcShE=Date.now()+8000;
+G_.aBuf=1;G_.aBufE=Date.now()+C.YA.bufDur;
+cP(cx,cy,'#1a237e',12)},
+update(){if(!G_.yat)return;fP(this,100);const now=Date.now();if(this.def&&now-this.lat>1500)this.def=0;
+if(now-this.lat>C.YA.acd&&enemies.filter(e=>!e.dead).length>0)this.dualExplosion()},
+draw(){if(!G_.yat)return;ctx.save();let s=img.yasmimIdle;if(this.def){s=img.yasmimDefense;ctx.globalAlpha=.2;ctx.fillStyle='#00bcd4';ctx.beginPath();ctx.arc(this.x+this.w/2-80,this.y+this.h/2,C.YA.exR*.6,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ff6f00';ctx.beginPath();ctx.arc(this.x+this.w/2+80,this.y+this.h/2,C.YA.exR*.6,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1}else if(this.jmp)s=img.yasmimJump;else if(Math.abs(this.vx)>.5)s=img.yasmimRun;dC(this,s);ctx.restore()}};
+
+// Helper: sync companion position to player for primary attacks
+function syncToP(c){c.x=P.x;c.y=P.y;c.fr=P.fr}
+
 // Player character sprite map (for primary character rendering)
 const pcSpr={
 lia:{idle:img.playerIdle,walk:img.playerWalk,run:img.playerRun,jump:img.playerJump,attack:img.playerAttack,damage:img.playerDamage},
@@ -497,7 +524,8 @@ luccas:{idle:img.luccasIdle,walk:img.luccasRun,run:img.luccasRun,jump:img.luccas
 manuh:{idle:img.manuhIdle,walk:img.manuhRun,run:img.manuhRun,jump:img.manuhJump,attack:img.manuhAttack,damage:img.manuhDamage},
 julia:{idle:img.juliaIdle,walk:img.juliaRun,run:img.juliaRun,jump:img.juliaJump,attack:img.juliaAttack,damage:img.juliaDamage},
 agatha:{idle:img.agathaIdle,walk:img.agathaRun,run:img.agathaRun,jump:img.agathaJump,attack:img.agathaAttack,damage:img.agathaDamage},
-poiqui:{idle:img.poiquiIdle,walk:img.poiquiRun,run:img.poiquiRun,jump:img.poiquiIdle,attack:img.poiquiAttack1,damage:img.poiquiDamage}};
+poiqui:{idle:img.poiquiIdle,walk:img.poiquiRun,run:img.poiquiRun,jump:img.poiquiIdle,attack:img.poiquiAttack1,damage:img.poiquiDamage},
+yasmim:{idle:img.yasmimIdle,walk:img.yasmimRun,run:img.yasmimRun,jump:img.yasmimJump,attack:img.yasmimDefense,damage:img.yasmimDamage}};
 
 // ===== ENEMY =====
 function gEI(t){return{skeleton:img.skeleton,dog:img.dog,archer:img.archer,necromancer:img.necromancer,bigbone:img.bigbone}[t]||img.skeleton}
@@ -562,31 +590,32 @@ ctx.fillStyle='#3a5a40';ctx.fillRect(0,C.GY,C.W,C.H-C.GY);ctx.fillStyle='#588157
 let lt=0;
 function loop(ts){if(!G_.run)return;const dt=ts-lt;lt=ts;if(G_.pau||G_.sc){requestAnimationFrame(loop);return}
 ctx.clearRect(0,0,C.W,C.H);ctx.save();ctx.translate(G_.ssh.x,G_.ssh.y);
-P.update(dt);sarah.update();dani.update();alice.update();vitoria.update();miguel.update();lilia.update();isabela.update();gabriel.update();luccas.update();manuh.update();julia.update();agatha.update();poiqui.update();
+P.update(dt);sarah.update();dani.update();alice.update();vitoria.update();miguel.update();lilia.update();isabela.update();gabriel.update();luccas.update();manuh.update();julia.update();agatha.update();poiqui.update();yasmim.update();
 enemies.forEach(e=>e.update());uP();uDI();uSS();uProj();
 const now=Date.now();if(G_.aBuf&&now>G_.aBufE)G_.aBuf=0;if(G_.iSh&&now>G_.iShE)G_.iSh=0;if(G_.fCA&&now>G_.fCE)G_.fCA=0;if(G_.lcSh&&now>G_.lcShE)G_.lcSh=0;if(G_.pqAura&&now>G_.pqAuraE)G_.pqAura=0;
 G_.bo-=P.vx*.3;const st=G_.cs;if(st&&now-G_.lsp>st.sr){spawnE();G_.lsp=now}if(now-G_.lct>2000&&G_.co>0)G_.co=0;
 if(st&&st.m.type==='survive'&&(now-G_.sst)/1000>=st.m.target)showRes(1);
-uHUD();drawBg();enemies.forEach(e=>e.draw());dani.draw();alice.draw();vitoria.draw();lilia.draw();miguel.draw();isabela.draw();gabriel.draw();luccas.draw();manuh.draw();julia.draw();agatha.draw();poiqui.draw();sarah.draw();P.draw();dProj();dP();dDI();
+uHUD();drawBg();enemies.forEach(e=>e.draw());dani.draw();alice.draw();vitoria.draw();lilia.draw();miguel.draw();isabela.draw();gabriel.draw();luccas.draw();manuh.draw();julia.draw();agatha.draw();poiqui.draw();yasmim.draw();sarah.draw();P.draw();dProj();dP();dDI();
 ctx.restore();requestAnimationFrame(loop)}
 
 // Primary character attack with cooldowns
-const CA_CD={lia:400,sarah:600,dani:15000,alice:8000,vitoria:12000,miguel:800,lilia:10000,isabela:8000,gabriel:8000,luccas:12000,manuh:6000,julia:9000,agatha:10000,poiqui:7000};
+const CA_CD={lia:400,sarah:600,dani:15000,alice:8000,vitoria:12000,miguel:800,lilia:10000,isabela:8000,gabriel:8000,luccas:12000,manuh:6000,julia:9000,agatha:10000,poiqui:7000,yasmim:10000};
 const CA={
 lia:{icon:'⚔',css:'attack-lia',fn:()=>P.attack()},
 sarah:{icon:'✦',css:'attack-sarah',fn:()=>{const now=Date.now();if(now-G_.pAtkLast<CA_CD.sarah)return;G_.pAtkLast=now;const a=enemies.filter(e=>!e.dead);if(a.length>0){const n=a.reduce((x,y)=>Math.abs(x.x-P.x)<Math.abs(y.x-P.x)?x:y);let d=C.S.ba+XP.b(G_.pl,'attack')*.5;G_.proj.push({x:P.x+P.w/2,y:P.y+P.h/2,vx:(n.x>P.x?1:-1)*C.S.ps,damage:d,life:1,size:8,type:'light'});snd.shoot()}}},
-dani:{icon:'🛡',css:'attack-dani',fn:()=>{const now=Date.now();if(now-G_.pAtkLast<CA_CD.dani)return;G_.pAtkLast=now;dani.activateShield()}},
-alice:{icon:'🔥🔥',css:'attack-alice',fn:()=>{const now=Date.now();if(now-G_.pAtkLast<CA_CD.alice)return;G_.pAtkLast=now;alice.fireAttack();alice.lat=now}},
-vitoria:{icon:'❄',css:'attack-vitoria',fn:()=>{const now=Date.now();if(now-G_.pAtkLast<CA_CD.vitoria)return;G_.pAtkLast=now;vitoria.s2()}},
-miguel:{icon:'🔫',css:'attack-miguel',fn:()=>{const now=Date.now();if(now-G_.pAtkLast<CA_CD.miguel)return;G_.pAtkLast=now;miguel.shoot();miguel.lat=now}},
-lilia:{icon:'🔮',css:'attack-lilia',fn:()=>{const now=Date.now();if(now-G_.pAtkLast<CA_CD.lilia)return;G_.pAtkLast=now;lilia.purpleBurst();lilia.lat=now}},
-isabela:{icon:'🦇',css:'attack-isabela',fn:()=>{const now=Date.now();if(now-G_.pAtkLast<CA_CD.isabela)return;G_.pAtkLast=now;isabela.batSwarm();isabela.lat=now}},
-gabriel:{icon:'🛡️',css:'attack-gabriel',fn:()=>{const now=Date.now();if(now-G_.pAtkLast<CA_CD.gabriel)return;G_.pAtkLast=now;gabriel.reflect();gabriel.lat=now}},
-luccas:{icon:'🟢',css:'attack-luccas',fn:()=>{const now=Date.now();if(now-G_.pAtkLast<CA_CD.luccas)return;G_.pAtkLast=now;luccas.throwShield();luccas.lat1=now}},
-manuh:{icon:'🗡️',css:'attack-manuh',fn:()=>{const now=Date.now();if(now-G_.pAtkLast<CA_CD.manuh)return;G_.pAtkLast=now;manuh.iceSlash();manuh.lat=now}},
-julia:{icon:'🔥',css:'attack-julia',fn:()=>{const now=Date.now();if(now-G_.pAtkLast<CA_CD.julia)return;G_.pAtkLast=now;julia.flameBurst();julia.lat=now}},
-agatha:{icon:'✨',css:'attack-agatha',fn:()=>{const now=Date.now();if(now-G_.pAtkLast<CA_CD.agatha)return;G_.pAtkLast=now;agatha.lightBeam();agatha.lat=now}},
-poiqui:{icon:'🔥',css:'attack-poiqui',fn:()=>{const now=Date.now();if(now-G_.pAtkLast<CA_CD.poiqui)return;G_.pAtkLast=now;poiqui.flameBlast();poiqui.lat1=now}}
+dani:{icon:'🛡',css:'attack-dani',fn:()=>{const now=Date.now();if(now-G_.pAtkLast<CA_CD.dani)return;G_.pAtkLast=now;syncToP(dani);dani.activateShield()}},
+alice:{icon:'🔥🔥',css:'attack-alice',fn:()=>{const now=Date.now();if(now-G_.pAtkLast<CA_CD.alice)return;G_.pAtkLast=now;syncToP(alice);alice.fireAttack();alice.lat=now}},
+vitoria:{icon:'❄',css:'attack-vitoria',fn:()=>{const now=Date.now();if(now-G_.pAtkLast<CA_CD.vitoria)return;G_.pAtkLast=now;syncToP(vitoria);vitoria.s2()}},
+miguel:{icon:'🔫',css:'attack-miguel',fn:()=>{const now=Date.now();if(now-G_.pAtkLast<CA_CD.miguel)return;G_.pAtkLast=now;syncToP(miguel);miguel.shoot();miguel.lat=now}},
+lilia:{icon:'🔮',css:'attack-lilia',fn:()=>{const now=Date.now();if(now-G_.pAtkLast<CA_CD.lilia)return;G_.pAtkLast=now;syncToP(lilia);lilia.purpleBurst();lilia.lat=now}},
+isabela:{icon:'🦇',css:'attack-isabela',fn:()=>{const now=Date.now();if(now-G_.pAtkLast<CA_CD.isabela)return;G_.pAtkLast=now;syncToP(isabela);isabela.batSwarm();isabela.lat=now}},
+gabriel:{icon:'🛡️',css:'attack-gabriel',fn:()=>{const now=Date.now();if(now-G_.pAtkLast<CA_CD.gabriel)return;G_.pAtkLast=now;syncToP(gabriel);gabriel.reflect();gabriel.lat=now}},
+luccas:{icon:'🟢',css:'attack-luccas',fn:()=>{const now=Date.now();if(now-G_.pAtkLast<CA_CD.luccas)return;G_.pAtkLast=now;syncToP(luccas);luccas.throwShield();luccas.lat1=now}},
+manuh:{icon:'🗡️',css:'attack-manuh',fn:()=>{const now=Date.now();if(now-G_.pAtkLast<CA_CD.manuh)return;G_.pAtkLast=now;syncToP(manuh);manuh.iceSlash();manuh.lat=now}},
+julia:{icon:'🔥',css:'attack-julia',fn:()=>{const now=Date.now();if(now-G_.pAtkLast<CA_CD.julia)return;G_.pAtkLast=now;syncToP(julia);julia.flameBurst();julia.lat=now}},
+agatha:{icon:'✨',css:'attack-agatha',fn:()=>{const now=Date.now();if(now-G_.pAtkLast<CA_CD.agatha)return;G_.pAtkLast=now;syncToP(agatha);agatha.lightBeam();agatha.lat=now}},
+poiqui:{icon:'🔥',css:'attack-poiqui',fn:()=>{const now=Date.now();if(now-G_.pAtkLast<CA_CD.poiqui)return;G_.pAtkLast=now;syncToP(poiqui);poiqui.flameBlast();poiqui.lat1=now}},
+yasmim:{icon:'💥',css:'attack-yasmim',fn:()=>{const now=Date.now();if(now-G_.pAtkLast<CA_CD.yasmim)return;G_.pAtkLast=now;syncToP(yasmim);yasmim.dualExplosion();yasmim.lat=now}}
 };
 function uMAB(){const b=document.getElementById('mobileAttack'),i=CA[G_.pc]||CA.lia;b.textContent=i.icon;b.className='mobile-btn '+i.css;
 // Update cooldown display
@@ -612,8 +641,9 @@ G_.mnt=G_.sel.includes('manuh')&&G_.pc!=='manuh'?1:0;
 G_.jut=G_.sel.includes('julia')&&G_.pc!=='julia'?1:0;
 G_.agt=G_.sel.includes('agatha')&&G_.pc!=='agatha'?1:0;
 G_.pqt=G_.sel.includes('poiqui')&&G_.pc!=='poiqui'?1:0;
+G_.yat=G_.sel.includes('yasmim')&&G_.pc!=='yasmim'?1:0;
 uMAB();
-P.reset();sarah.reset();dani.reset();alice.reset();vitoria.reset();miguel.reset();lilia.reset();isabela.reset();gabriel.reset();luccas.reset();manuh.reset();julia.reset();agatha.reset();poiqui.reset();enemies=[];
+P.reset();sarah.reset();dani.reset();alice.reset();vitoria.reset();miguel.reset();lilia.reset();isabela.reset();gabriel.reset();luccas.reset();manuh.reset();julia.reset();agatha.reset();poiqui.reset();yasmim.reset();enemies=[];
 el.stageSelectScreen.classList.remove('active');el.resultsScreen.classList.remove('active');el.hudOverlay.style.display='flex';el.stageIndicator.style.display='block';el.stageIndicator.textContent='FASE '+st.n;el.missionIndicator.style.display='block';el.missionIndicator.textContent=st.m.text;el.controlsPanel.style.display=window.innerWidth>768?'grid':'none';el.supportCooldown.style.display=G_.dit?'block':'none';uHUD();lt=performance.now();requestAnimationFrame(loop)}
 function tPause(){if(!G_.run||G_.sc)return;G_.pau=!G_.pau;el.pauseOverlay.classList.toggle('active',G_.pau)}
 
@@ -622,7 +652,7 @@ function rWT(){el.worldTabs.innerHTML='';const t=document.createElement('button'
 function rSG(){el.stageGrid.innerHTML='';SD.forEach(st=>{const n=document.createElement('div');n.className='stage-node';const u=st.id<=G_.hs,c=G_.ss[st.id]>0,ic=st.id===G_.hs;if(c)n.classList.add('completed');else if(u){n.classList.add('unlocked');if(ic)n.classList.add('current')}else n.classList.add('locked');n.innerHTML='<div class="stage-number">'+st.sw+'</div><div class="stage-stars">'+('⭐'.repeat(G_.ss[st.id]||0))+'</div>';if(u)n.addEventListener('click',()=>selStage(st.id));el.stageGrid.appendChild(n)})}
 function selStage(id){selS=id;const s=SD.find(x=>x.id===id);if(!s)return;el.stageInfoPanel.style.display='block';el.stageInfoTitle.textContent='FASE '+s.n+' - '+s.wn;el.stageInfoMission.textContent=s.m.text;el.stageXpReward.textContent=s.xp;el.stageScoreReward.textContent=s.sc;rTS()}
 function rTS(){el.teamSelectMini.innerHTML='';
-const chars=[{id:'lia',n:'Lia',r:'Atacante',i:'lia.png'},{id:'sarah',n:'Sarah',r:'Atacante',i:'sarah.png'},{id:'dani',n:'Dani',r:'Defensora',i:'dani.png'},{id:'alice',n:'Alice',r:'Suporte🔥',i:'alice.png'},{id:'vitoria',n:'Vitória',r:'Suporte❄️',i:'vitoria.png'},{id:'miguel',n:'Miguel',r:'Atirador',i:'miguel.png'},{id:'lilia',n:'Lilia',r:'Criativa',i:'lilia.png'},{id:'isabela',n:'Isabela',r:'Atacante🦇',i:'isabela.png'},{id:'gabriel',n:'Gabriel',r:'Defensor🛡️',i:'gabriel.png'},{id:'luccas',n:'Luccas',r:'Criativo🟢',i:'luccas.png'},{id:'manuh',n:'Manuh',r:'Criativa🗡️',i:'manuh.png'},{id:'julia',n:'Julia',r:'Suporte🔥',i:'julia.png'},{id:'agatha',n:'Agatha',r:'Atacante✨',i:'agatha.png'},{id:'poiqui',n:'Poiqui',r:'Atacante🔥',i:'poiqui.png'}];
+const chars=[{id:'lia',n:'Lia',r:'Atacante',i:'lia.png'},{id:'sarah',n:'Sarah',r:'Atacante',i:'sarah.png'},{id:'dani',n:'Dani',r:'Defensora',i:'dani.png'},{id:'alice',n:'Alice',r:'Suporte🔥',i:'alice.png'},{id:'vitoria',n:'Vitória',r:'Suporte❄️',i:'vitoria.png'},{id:'miguel',n:'Miguel',r:'Atirador',i:'miguel.png'},{id:'lilia',n:'Lilia',r:'Criativa',i:'lilia.png'},{id:'isabela',n:'Isabela',r:'Atacante🦇',i:'isabela.png'},{id:'gabriel',n:'Gabriel',r:'Defensor🛡️',i:'gabriel.png'},{id:'luccas',n:'Luccas',r:'Criativo🟢',i:'luccas.png'},{id:'manuh',n:'Manuh',r:'Criativa🗡️',i:'manuh.png'},{id:'julia',n:'Julia',r:'Suporte🔥',i:'julia.png'},{id:'agatha',n:'Agatha',r:'Atacante✨',i:'agatha.png'},{id:'poiqui',n:'Poiqui',r:'Atacante🔥',i:'poiqui.png'},{id:'yasmim',n:'Yasmim',r:'Defensor💥',i:'yasmim.png'}];
 chars.forEach(c=>{
 const div=document.createElement('div'),idx=G_.sel.indexOf(c.id),ip=idx===0,sel=idx>=0;
 div.className='team-char-mini'+(sel?' selected':'')+(ip?' primary-char':'');
