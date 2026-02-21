@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         :root{--primary:#ff6b9d;--primary-dark:#e0558a;--primary-glow:rgba(255,107,157,0.5);--secondary:#4dccbd;--secondary-dark:#3eb3a5;--danger:#ff6b6b;--warning:#ffb347;--bg-dark:#0d1b2a;--bg-darker:#06101a;--text-primary:#fff;--text-secondary:#a9d1ff;--gold:#ffd700;--xp-purple:#a855f7;--alice-orange:#e67e22;--vitoria-cyan:#00bcd4;--miguel-green:#4caf50;--lilia-purple:#9c27b0;--isabela-red:#8b0000;--gabriel-blue:#1565c0;--luccas-green:#2e7d32;--agatha-purple:#7b1fa2;--poiqui-black:#333;--yasmim-blue:#1a237e;--shogo-orange:#ff6600}
@@ -144,6 +145,31 @@
         .key{display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#3a4d6e,#2a3d5e);min-width:22px;height:20px;padding:0 5px;border-radius:4px;font-family:'Press Start 2P',cursive;font-size:.35rem;color:var(--text-primary);box-shadow:0 2px 0 #1a2639}
         .fog-overlay{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:5;background:radial-gradient(circle 200px at var(--px,50%) var(--py,50%),transparent 0%,rgba(0,0,0,0.85) 100%);opacity:0;transition:opacity .3s}
         .fog-overlay.active{opacity:1}
+        .hamburger-btn{position:absolute;top:15px;left:15px;z-index:110;background:rgba(0,0,0,0.6);border:2px solid rgba(255,255,255,0.3);border-radius:10px;width:45px;height:45px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.5rem;color:white;transition:all .3s;backdrop-filter:blur(5px)}
+        .hamburger-btn:hover{border-color:var(--primary);background:rgba(255,107,157,0.3)}
+        .side-panel{position:absolute;top:0;left:-320px;width:300px;height:100%;background:linear-gradient(180deg,rgba(6,16,26,0.98),rgba(13,27,42,0.98));backdrop-filter:blur(15px);z-index:115;transition:left .3s ease;padding:60px 20px 20px;overflow-y:auto;border-right:2px solid rgba(255,255,255,0.1)}
+        .side-panel.open{left:0}
+        .side-panel-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:112;display:none}
+        .side-panel-overlay.active{display:block}
+        .panel-section{margin-bottom:20px;padding:15px;background:rgba(255,255,255,0.05);border-radius:12px;border:1px solid rgba(255,255,255,0.1)}
+        .panel-section-title{font-family:'Press Start 2P',cursive;font-size:.5rem;color:var(--primary);margin-bottom:12px;text-transform:uppercase}
+        .panel-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+        .panel-label{font-size:.75rem;color:var(--text-secondary)}
+        .panel-btn{font-family:'Press Start 2P',cursive;font-size:.4rem;padding:8px 14px;border:2px solid rgba(255,255,255,0.2);border-radius:8px;background:rgba(0,0,0,0.3);color:white;cursor:pointer;transition:all .2s}
+        .panel-btn:hover{border-color:var(--primary);background:rgba(255,107,157,0.2)}
+        .panel-btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-color:var(--primary);box-shadow:0 3px 0 #b03e6a}
+        .panel-btn-secondary{background:linear-gradient(135deg,var(--secondary),var(--secondary-dark));border-color:var(--secondary);box-shadow:0 3px 0 #2a9d8f}
+        .panel-input{width:100%;padding:8px 12px;border:2px solid rgba(255,255,255,0.2);border-radius:8px;background:rgba(0,0,0,0.4);color:white;font-family:'Fredoka',sans-serif;font-size:.8rem;margin-bottom:8px;outline:none}
+        .panel-input:focus{border-color:var(--primary)}
+        .panel-input::placeholder{color:rgba(255,255,255,0.3)}
+        .auth-form{display:none}.auth-form.active{display:block}
+        .auth-msg{font-size:.65rem;color:var(--secondary);margin-top:5px;min-height:20px}
+        .auth-msg.error{color:var(--danger)}
+        .user-info{text-align:center;padding:10px}
+        .user-info-name{font-family:'Press Start 2P',cursive;font-size:.5rem;color:var(--gold);margin-bottom:5px}
+        .user-info-email{font-size:.65rem;color:var(--text-secondary)}
+        .zoom-controls{display:flex;align-items:center;gap:10px}
+        .zoom-value{font-family:'Press Start 2P',cursive;font-size:.45rem;color:var(--gold);min-width:40px;text-align:center}
         @media(max-width:768px){.mobile-controls{display:flex}.stage-grid{grid-template-columns:repeat(5,1fr)}.stage-node{min-width:50px}.stage-number{font-size:.6rem}}
         @media(max-width:480px){.mobile-btn{width:55px;height:55px;font-size:1.3rem}.stage-grid{grid-template-columns:repeat(4,1fr)}}
         @media(min-width:769px){.controls-panel{display:grid}}
@@ -163,8 +189,47 @@
         <div class="combo-display" id="comboDisplay"></div>
         <div class="pause-overlay" id="pauseOverlay">PAUSADO</div>
         <div class="loading-screen" id="loadingScreen"><div class="loading-spinner"></div><div class="loading-text">CARREGANDO...</div></div>
+        <button class="hamburger-btn" id="hamburgerBtn">☰</button>
+        <div class="side-panel-overlay" id="sidePanelOverlay"></div>
+        <div class="side-panel" id="sidePanel">
+            <div class="panel-section">
+                <div class="panel-section-title">🔧 Configurações</div>
+                <div class="panel-row"><span class="panel-label">Tamanho da Tela</span><div class="zoom-controls"><button class="panel-btn" id="zoomOutBtn">−</button><span class="zoom-value" id="zoomValue">100%</span><button class="panel-btn" id="zoomInBtn">+</button></div></div>
+                <div class="panel-row"><span class="panel-label">Tela Cheia</span><button class="panel-btn" id="fullscreenBtn">⛶</button></div>
+            </div>
+            <div class="panel-section">
+                <div class="panel-section-title">👤 Conta</div>
+                <div id="loggedOutView">
+                    <div style="display:flex;gap:8px;margin-bottom:12px">
+                        <button class="panel-btn panel-btn-primary" id="showLoginBtn" style="flex:1">LOGIN</button>
+                        <button class="panel-btn panel-btn-secondary" id="showSignupBtn" style="flex:1">CRIAR</button>
+                    </div>
+                    <div class="auth-form active" id="loginForm">
+                        <input class="panel-input" type="email" id="loginEmail" placeholder="Email">
+                        <input class="panel-input" type="password" id="loginPassword" placeholder="Senha">
+                        <button class="panel-btn panel-btn-primary" id="loginBtn" style="width:100%">ENTRAR</button>
+                        <div class="auth-msg" id="loginMsg"></div>
+                    </div>
+                    <div class="auth-form" id="signupForm">
+                        <input class="panel-input" type="text" id="signupName" placeholder="Nome de Jogador">
+                        <input class="panel-input" type="email" id="signupEmail" placeholder="Email">
+                        <input class="panel-input" type="password" id="signupPassword" placeholder="Senha (min. 6 chars)">
+                        <button class="panel-btn panel-btn-secondary" id="signupBtn" style="width:100%">CRIAR CONTA</button>
+                        <div class="auth-msg" id="signupMsg"></div>
+                    </div>
+                </div>
+                <div id="loggedInView" style="display:none">
+                    <div class="user-info"><div class="user-info-name" id="userDisplayName">Jogador</div><div class="user-info-email" id="userEmail"></div></div>
+                    <button class="panel-btn" id="logoutBtn" style="width:100%;margin-top:8px">SAIR</button>
+                </div>
+            </div>
+            <div class="panel-section">
+                <div class="panel-section-title">ℹ️ Sobre</div>
+                <div class="panel-label" style="font-size:.6rem;line-height:1.5">Lia Adventure v1.0<br>16 personagens • 30 fases<br>Magewood Forest</div>
+            </div>
+        </div>
         <div class="game-screen active" id="titleScreen"><h1 class="title-logo">LIA ADVENTURE</h1><p class="press-start">PRESS START</p><button class="start-btn-big" id="titleStartBtn">START</button></div>
-        <div class="game-screen" id="mainMenuScreen"><h2 class="menu-title">LIA ADVENTURE</h2><div class="menu-options"><button class="menu-btn menu-btn-primary" id="playGameBtn">INICIAR JOGO</button><button class="menu-btn menu-btn-google" id="googleLoginBtn">🔵 LOGAR CONTA GOOGLE</button><p class="google-hint">Logue para salvar progresso. Sem login, dados serão perdidos.</p></div></div>
+        <div class="game-screen" id="mainMenuScreen"><h2 class="menu-title">LIA ADVENTURE</h2><div class="menu-options"><button class="menu-btn menu-btn-primary" id="playGameBtn">INICIAR JOGO</button><p class="google-hint" id="loginStatusHint">Sem login, dados NÃO serão salvos.</p></div></div>
         <div class="game-screen" id="stageSelectScreen">
             <div class="stage-select-header"><h2 class="stage-select-title">SELECIONAR FASE</h2><button class="back-btn" id="backToMenuBtn">← VOLTAR</button></div>
             <div class="player-stats-panel"><div class="player-stat-item"><div class="player-stat-value" id="playerLevelStat">Lv. 1</div><div class="player-stat-label">Nível</div></div><div class="player-stat-item"><div class="player-stat-value" id="playerXpStat">0</div><div class="player-stat-label">XP Total</div></div><div class="player-stat-item"><div class="player-stat-value" id="playerStarsStat">0</div><div class="player-stat-label">⭐ Estrelas</div></div></div>
@@ -235,8 +300,8 @@ pqAura:0,pqAuraE:0,
 pAtkLast:0,
 login:0,fog:0,slow:0};
 
-function save(){if(!G_.login)return;localStorage.setItem('liaSave',JSON.stringify({x:G_.totalXp,h:G_.hs,s:G_.ss,u:G_.uc,t:G_.ts}))}
-function load(){if(!G_.login)return;const s=localStorage.getItem('liaSave');if(s){const d=JSON.parse(s);G_.totalXp=d.x||0;G_.hs=d.h||1;G_.ss=d.s||{};G_.uc=d.u||{lia:1};G_.ts=d.t||0;const l=XP.g(G_.totalXp);G_.pl=l.level;G_.cx=l.currentXp;G_.xn=l.neededXp}}
+async function save(){try{localStorage.setItem('liaSave',JSON.stringify({x:G_.totalXp,h:G_.hs,s:G_.ss,u:G_.uc,t:G_.ts}));if(G_.login&&G_.userId&&window.sbClient){await window.sbClient.from('game_saves').upsert({user_id:G_.userId,total_xp:G_.totalXp,highest_stage:G_.hs,stage_stars:G_.ss,unlocked_chars:G_.uc,total_score:G_.ts,player_level:G_.pl},{onConflict:'user_id'})}}catch(e){console.error('Save error:',e)}}
+async function load(){try{const s=localStorage.getItem('liaSave');if(s){const d=JSON.parse(s);G_.totalXp=d.x||0;G_.hs=d.h||1;G_.ss=d.s||{};G_.uc=d.u||{lia:1};G_.ts=d.t||0;const l=XP.g(G_.totalXp);G_.pl=l.level;G_.cx=l.currentXp;G_.xn=l.neededXp}if(G_.login&&G_.userId&&window.sbClient){const{data}=await window.sbClient.from('game_saves').select('*').eq('user_id',G_.userId).maybeSingle();if(data){G_.totalXp=data.total_xp||0;G_.hs=data.highest_stage||1;G_.ss=data.stage_stars||{};G_.uc=data.unlocked_chars||{lia:1};G_.ts=data.total_score||0;const l=XP.g(G_.totalXp);G_.pl=l.level;G_.cx=l.currentXp;G_.xn=l.neededXp}}}catch(e){console.error('Load error:',e)}}
 
 const cv=document.getElementById('gameCanvas'),ctx=cv.getContext('2d');
 const el={};
@@ -293,7 +358,7 @@ rj(){this.jp=0},
 attack(){const now=Date.now();if(now-this.lat<C.P.acd)return;this.atk=1;this.lat=now;snd.atk();let a=this.ap;if(G_.aBuf&&now<G_.aBufE)a*=1.4;
 const ab={x:this.fr?this.x+this.w-10:this.x-C.P.ar+10,y:this.y+20,width:C.P.ar,height:C.P.ah};let hit=0;
 enemies.forEach(e=>{if(!e.dead&&cc(ab,e)){e.takeDmg(a);hit=1;if(G_.fCA&&now<G_.fCE&&Math.random()<G_.fCC&&!e.frz)e.freeze(C.V.fd);G_.fCC=Math.min((G_.fCC||0)+.05,.6)}});
-if(hit){G_.co++;G_.lct=now;if(G_.co>G_.smc)G_.smc=G_.co;if(G_.co>1){showCombo(G_.co);snd.combo()}cP(this.fr?this.x+this.w+20:this.x-20,this.y+this.h/2,'#ff6b9d',5)}},
+if(hit){cP(this.fr?this.x+this.w+20:this.x-20,this.y+this.h/2,'#ff6b9d',5)}},
 takeDmg(a){const now=Date.now();if(now-this.ldt<C.P.dcd)return;if(G_.shA)return;if(G_.iSh&&now<G_.iShE){cP(this.x+this.w/2,this.y+this.h/2,'#00bcd4',6);return}
 if(G_.lcSh&&Date.now()<G_.lcShE){G_.lcShHP-=a;cP(this.x+this.w/2,this.y+this.h/2,'#2e7d32',4);if(G_.lcShHP<=0){G_.lcSh=0;cP(this.x+this.w/2,this.y,'#ff6b6b',8)}return}
 this.hp-=a;this.dmg=1;this.ldt=now;G_.sdt+=a;snd.dmg();G_.ssh.i=8;G_.co=0;if(G_.fCA)G_.fCC=.05;
@@ -459,7 +524,7 @@ const agatha={x:360,y:0,w:65,h:95,vx:0,vy:0,fr:1,jmp:0,atk:0,lat:0,width:65,heig
 reset(){this.x=360;this.y=C.GY-this.h;this.vx=0;this.vy=0;this.atk=0;this.lat=0},
 lightBeam(){this.atk=1;this.lat=Date.now();snd.energy();const d=C.AG.ba+XP.b(G_.pl,'attack')*.8;
 // Pierce ALL enemies
-enemies.forEach(e=>{if(!e.dead)e.takeDmg(d)});
+enemies.forEach(e=>{if(!e.dead)e.takeDmg(d,true)});
 // Visual beam
 const cx=this.x+this.w/2,cy=this.y+this.h/2;
 for(let i=0;i<30;i++){G_.par.push({x:cx+(this.fr?1:-1)*i*40,y:cy+(Math.random()-.5)*20,vx:(this.fr?1:-1)*8,vy:(Math.random()-.5)*2,life:30,ml:30,size:8,color:Math.random()>.5?'#ffd700':'#fff9c4'})}},
@@ -585,7 +650,7 @@ if(this.frz){if(now>this.frzE)this.frz=0;else return}if(this.isDmg&&now-this.ldt
 const dx=P.x-this.x;this.fr=dx>0?1:0;const ar=this.type==='archer'||this.type==='necromancer'?200:50;
 if(Math.abs(dx)>ar)this.vx=Math.sign(dx)*this.spd;else{this.vx=0;if(now-this.lat>this.acd){this.isAtk=1;this.lat=now;if(this.type==='archer'||this.type==='necromancer')G_.proj.push({x:this.x+this.width/2,y:this.y+this.height/3,vx:Math.sign(dx)*7,damage:this.dmg_*.6,life:1,size:6,type:'enemy',isE:1});else if(cc({x:this.x-20,y:this.y,width:this.width+40,height:this.height},P))P.takeDmg(this.dmg_)}}
 this.x+=this.vx;this.x=Math.max(-50,Math.min(C.W+50,this.x))}
-takeDmg(a){if(this.sh)a*=.6;this.hp-=a;this.isDmg=1;this.ldt=Date.now();snd.hit();cDI(this.x+this.width/2,this.y,Math.round(a));cP(this.x+this.width/2,this.y+this.height/2,'#fff',4);if(this.hp<=0)this.die()}
+takeDmg(a,noCombo){if(this.sh)a*=.6;this.hp-=a;this.isDmg=1;this.ldt=Date.now();snd.hit();cDI(this.x+this.width/2,this.y,Math.round(a));cP(this.x+this.width/2,this.y+this.height/2,'#fff',4);if(!noCombo){G_.co++;G_.lct=Date.now();if(G_.co>G_.smc)G_.smc=G_.co;if(G_.co>1){showCombo(G_.co);snd.combo()}chkComplete()}if(this.hp<=0)this.die()}
 die(){this.dead=1;this.dt=Date.now();G_.sk++;const sc=100*(1+G_.co*.2);G_.ssc+=Math.floor(sc);cP(this.x+this.width/2,this.y+this.height/2,'#ffd700',10);chkComplete()}
 draw(){if(this.dead){if(Date.now()-this.dt<600){ctx.save();ctx.globalAlpha=Math.max(0,1-(Date.now()-this.dt)/600);ctx.drawImage(this.type==='skeleton'?img.skeletonDead:gEI(this.type),this.x,this.y,this.width,this.height);ctx.restore()}return}
 ctx.save();let s=gEI(this.type);if(this.type==='skeleton'){if(this.isDmg)s=img.skeletonDmg;else if(this.isAtk)s=img.skeletonAtk;else if(Math.abs(this.vx)>.3)s=this.fr?img.skeletonWR:img.skeletonWL}
@@ -634,7 +699,7 @@ function drawBg(){const bg=curBg;if(bg&&bg.complete&&bg.naturalWidth>0){const bh
 ctx.fillStyle='#3a5a40';ctx.fillRect(0,C.GY,C.W,C.H-C.GY);ctx.fillStyle='#588157';for(let i=0;i<35;i++){const x=((i*40+G_.bo*.5)%(C.W+50))-25;ctx.fillRect(x,C.GY-3,25,8)}ctx.strokeStyle='#4a7a5a';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,C.GY);ctx.lineTo(C.W,C.GY);ctx.stroke()}
 
 let lt=0;
-function loop(ts){if(!G_.run)return;const dt=ts-lt;lt=ts;if(G_.pau||G_.sc){requestAnimationFrame(loop);return}
+function loop(ts){if(!G_.run)return;try{const dt=ts-lt;lt=ts;if(G_.pau||G_.sc){requestAnimationFrame(loop);return}
 ctx.clearRect(0,0,C.W,C.H);ctx.save();ctx.translate(G_.ssh.x,G_.ssh.y);
 P.update(dt);sarah.update();dani.update();alice.update();vitoria.update();miguel.update();lilia.update();isabela.update();gabriel.update();luccas.update();manuh.update();julia.update();agatha.update();poiqui.update();yasmim.update();shogo.update();
 enemies.forEach(e=>e.update());uP();uDI();uSS();uProj();
@@ -642,7 +707,7 @@ const now=Date.now();if(G_.aBuf&&now>G_.aBufE)G_.aBuf=0;if(G_.iSh&&now>G_.iShE)G
 G_.bo-=P.vx*.3;const st=G_.cs;if(st&&now-G_.lsp>st.sr){spawnE();G_.lsp=now}if(now-G_.lct>2000&&G_.co>0)G_.co=0;
 if(st&&st.m.type==='survive'&&(now-G_.sst)/1000>=st.m.target)showRes(1);
 uHUD();drawBg();enemies.forEach(e=>e.draw());dani.draw();alice.draw();vitoria.draw();lilia.draw();miguel.draw();isabela.draw();gabriel.draw();luccas.draw();manuh.draw();julia.draw();agatha.draw();poiqui.draw();yasmim.draw();shogo.draw();sarah.draw();P.draw();dProj();dP();dDI();
-ctx.restore();requestAnimationFrame(loop)}
+ctx.restore()}catch(err){console.error('Game loop error:',err)}requestAnimationFrame(loop)}
 
 // Primary character attack with cooldowns
 const CA_CD={lia:400,sarah:600,dani:15000,alice:8000,vitoria:12000,miguel:800,lilia:10000,isabela:8000,gabriel:8000,luccas:12000,manuh:6000,julia:9000,agatha:10000,poiqui:7000,yasmim:10000,shogo:5000};
@@ -692,7 +757,7 @@ G_.yat=G_.sel.includes('yasmim')&&G_.pc!=='yasmim'?1:0;
 G_.sgt=G_.sel.includes('shogo')&&G_.pc!=='shogo'?1:0;
 uMAB();
 P.reset();sarah.reset();dani.reset();alice.reset();vitoria.reset();miguel.reset();lilia.reset();isabela.reset();gabriel.reset();luccas.reset();manuh.reset();julia.reset();agatha.reset();poiqui.reset();yasmim.reset();shogo.reset();enemies=[];
-el.stageSelectScreen.classList.remove('active');el.resultsScreen.classList.remove('active');el.hudOverlay.style.display='flex';el.stageIndicator.style.display='block';el.stageIndicator.textContent='FASE '+st.n;el.missionIndicator.style.display='block';el.missionIndicator.textContent=st.m.text;el.controlsPanel.style.display=window.innerWidth>768?'grid':'none';el.supportCooldown.style.display=G_.dit?'block':'none';uHUD();lt=performance.now();requestAnimationFrame(loop)}
+el.stageSelectScreen.classList.remove('active');el.resultsScreen.classList.remove('active');el.hudOverlay.style.display='flex';el.stageIndicator.style.display='block';el.stageIndicator.textContent='FASE '+st.n;el.missionIndicator.style.display='block';el.missionIndicator.textContent=st.m.text;el.controlsPanel.style.display=window.innerWidth>768?'grid':'none';el.supportCooldown.style.display=G_.dit?'block':'none';document.getElementById('hamburgerBtn').style.display='none';document.getElementById('sidePanel').classList.remove('open');document.getElementById('sidePanelOverlay').classList.remove('active');uHUD();lt=performance.now();requestAnimationFrame(loop)}
 function tPause(){if(!G_.run||G_.sc)return;G_.pau=!G_.pau;el.pauseOverlay.classList.toggle('active',G_.pau)}
 
 let cW=1,selS=1;
@@ -709,7 +774,7 @@ div.addEventListener('click',()=>{const ci=G_.sel.indexOf(c.id);if(ci>=0){if(G_.
 div.addEventListener('dblclick',()=>{const ci=G_.sel.indexOf(c.id);if(ci>0){G_.sel.splice(ci,1);G_.sel.unshift(c.id)}else if(ci<0&&G_.sel.length<3){G_.sel.unshift(c.id)}rTS()});
 el.teamSelectMini.appendChild(div)})}
 function uPS(){el.playerLevelStat.textContent='Lv. '+G_.pl;el.playerXpStat.textContent=G_.totalXp.toLocaleString();let t=0;Object.values(G_.ss).forEach(s=>t+=s);el.playerStarsStat.textContent=t}
-function showSS(){uPS();rWT();rSG();el.mainMenuScreen.classList.remove('active');el.resultsScreen.classList.remove('active');el.stageSelectScreen.classList.add('active');el.hudOverlay.style.display='none';el.stageIndicator.style.display='none';el.missionIndicator.style.display='none';el.supportCooldown.style.display='none';el.controlsPanel.style.display='none';el.fogOverlay.classList.remove('active');selStage(Math.min(G_.hs,30))}
+function showSS(){uPS();rWT();rSG();el.mainMenuScreen.classList.remove('active');el.resultsScreen.classList.remove('active');el.stageSelectScreen.classList.add('active');el.hudOverlay.style.display='none';el.stageIndicator.style.display='none';el.missionIndicator.style.display='none';el.supportCooldown.style.display='none';el.controlsPanel.style.display='none';el.fogOverlay.classList.remove('active');document.getElementById('hamburgerBtn').style.display='flex';selStage(Math.min(G_.hs,30))}
 
 document.addEventListener('keydown',e=>{const k=e.key.toLowerCase();G_.keys[k]=1;if(!G_.run)return;if((k==='w'||k===' '||k==='arrowup')&&!G_.pau){P.jump();e.preventDefault()}if(k==='j'&&!G_.pau)pAtk();if(k==='k'&&!G_.pau){if(G_.dit)dani.activateShield();else if(G_.vit)vitoria.s2()}if(k==='l'&&!G_.pau&&G_.vit)vitoria.s3();if(k==='escape'||k==='p')tPause();if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault()});
 document.addEventListener('keyup',e=>{const k=e.key.toLowerCase();G_.keys[k]=0;if(k==='w'||k===' '||k==='arrowup')P.rj()});
@@ -720,12 +785,44 @@ document.getElementById('mobileRight').addEventListener('touchstart',ts('d'));do
 document.getElementById('mobileJump').addEventListener('touchstart',ts('jump',()=>P.jump()));document.getElementById('mobileJump').addEventListener('touchend',te('jump',()=>P.rj()));
 document.getElementById('mobileAttack').addEventListener('touchstart',ts('atk',()=>pAtk()));document.getElementById('mobileAttack').addEventListener('touchend',te('atk'))}
 
-document.getElementById('titleStartBtn').addEventListener('click',()=>{iA();el.titleScreen.classList.remove('active');el.mainMenuScreen.classList.add('active')});
+// Supabase init
+const SB_URL='https://hdlrrzmrsycihrvbjlvz.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhkbHJyem1yc3ljaWhydmJqbHZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2ODUwMjAsImV4cCI6MjA4NzI2MTAyMH0.CHuA05krSL5Jx9nMQKAhm-WY754EgCBAo4HB_uCw2zg';
+G_.userId=null;
+try{window.sbClient=window.supabase.createClient(SB_URL,SB_KEY)}catch(e){console.warn('Supabase not available:',e);window.sbClient=null}
+
+async function checkAuth(){if(!window.sbClient)return;try{const{data:{session}}=await window.sbClient.auth.getSession();if(session){G_.login=1;G_.userId=session.user.id;updateAuthUI(session.user);await load()}}catch(e){console.error(e)}}
+function updateAuthUI(user){const li=document.getElementById('loggedInView'),lo=document.getElementById('loggedOutView'),hint=document.getElementById('loginStatusHint');
+if(user){li.style.display='block';lo.style.display='none';document.getElementById('userDisplayName').textContent=user.user_metadata?.display_name||'Jogador';document.getElementById('userEmail').textContent=user.email;if(hint){hint.textContent='✅ Logado! Progresso salvo automaticamente.';hint.style.color='var(--secondary)'}}
+else{li.style.display='none';lo.style.display='block';if(hint){hint.textContent='Sem login, dados NÃO serão salvos.';hint.style.color=''}}}
+if(window.sbClient){window.sbClient.auth.onAuthStateChange(async(ev,session)=>{if(ev==='SIGNED_IN'&&session){G_.login=1;G_.userId=session.user.id;updateAuthUI(session.user);await load()}else if(ev==='SIGNED_OUT'){G_.login=0;G_.userId=null;updateAuthUI(null)}})}
+
+// Hamburger menu
+let gameZoom=100;
+document.getElementById('hamburgerBtn').addEventListener('click',()=>{document.getElementById('sidePanel').classList.toggle('open');document.getElementById('sidePanelOverlay').classList.toggle('active')});
+document.getElementById('sidePanelOverlay').addEventListener('click',()=>{document.getElementById('sidePanel').classList.remove('open');document.getElementById('sidePanelOverlay').classList.remove('active')});
+document.getElementById('zoomInBtn').addEventListener('click',()=>{gameZoom=Math.min(150,gameZoom+10);document.getElementById('zoomValue').textContent=gameZoom+'%';document.querySelector('.game-wrapper').style.transform='scale('+gameZoom/100+')';document.querySelector('.game-wrapper').style.transformOrigin='center center'});
+document.getElementById('zoomOutBtn').addEventListener('click',()=>{gameZoom=Math.max(50,gameZoom-10);document.getElementById('zoomValue').textContent=gameZoom+'%';document.querySelector('.game-wrapper').style.transform='scale('+gameZoom/100+')';document.querySelector('.game-wrapper').style.transformOrigin='center center'});
+document.getElementById('fullscreenBtn').addEventListener('click',()=>{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen().catch(()=>{})});
+
+// Auth forms
+document.getElementById('showLoginBtn').addEventListener('click',()=>{document.getElementById('loginForm').classList.add('active');document.getElementById('signupForm').classList.remove('active')});
+document.getElementById('showSignupBtn').addEventListener('click',()=>{document.getElementById('signupForm').classList.add('active');document.getElementById('loginForm').classList.remove('active')});
+document.getElementById('loginBtn').addEventListener('click',async()=>{const email=document.getElementById('loginEmail').value,pw=document.getElementById('loginPassword').value,msg=document.getElementById('loginMsg');
+if(!email||!pw){msg.textContent='Preencha todos os campos';msg.className='auth-msg error';return}msg.textContent='Entrando...';msg.className='auth-msg';
+try{const{error}=await window.sbClient.auth.signInWithPassword({email,password:pw});if(error)throw error;msg.textContent='✅ Logado!';msg.className='auth-msg';document.getElementById('sidePanel').classList.remove('open');document.getElementById('sidePanelOverlay').classList.remove('active')}catch(e){msg.textContent=e.message||'Erro ao fazer login';msg.className='auth-msg error'}});
+document.getElementById('signupBtn').addEventListener('click',async()=>{const name=document.getElementById('signupName').value,email=document.getElementById('signupEmail').value,pw=document.getElementById('signupPassword').value,msg=document.getElementById('signupMsg');
+if(!email||!pw||!name){msg.textContent='Preencha todos os campos';msg.className='auth-msg error';return}if(pw.length<6){msg.textContent='Senha: mínimo 6 caracteres';msg.className='auth-msg error';return}msg.textContent='Criando conta...';msg.className='auth-msg';
+try{const{error}=await window.sbClient.auth.signUp({email,password:pw,options:{data:{display_name:name}}});if(error)throw error;msg.textContent='✅ Conta criada! Verifique seu email.';msg.className='auth-msg'}catch(e){msg.textContent=e.message||'Erro ao criar conta';msg.className='auth-msg error'}});
+document.getElementById('logoutBtn').addEventListener('click',async()=>{try{await window.sbClient.auth.signOut();G_.login=0;G_.userId=null;updateAuthUI(null)}catch(e){console.error(e)}});
+
+// Main nav
+document.getElementById('titleStartBtn').addEventListener('click',()=>{iA();document.getElementById('sidePanel').classList.remove('open');document.getElementById('sidePanelOverlay').classList.remove('active');el.titleScreen.classList.remove('active');el.mainMenuScreen.classList.add('active')});
 document.getElementById('playGameBtn').addEventListener('click',showSS);
-document.getElementById('googleLoginBtn').addEventListener('click',()=>alert('Login com Google será implementado em breve!\nSem login, seus dados NÃO serão salvos ao fechar o jogo.'));
-document.getElementById('backToMenuBtn').addEventListener('click',()=>{el.stageSelectScreen.classList.remove('active');el.mainMenuScreen.classList.add('active')});
+document.getElementById('backToMenuBtn').addEventListener('click',()=>{el.stageSelectScreen.classList.remove('active');el.mainMenuScreen.classList.add('active');document.getElementById('hamburgerBtn').style.display='flex'});
 document.getElementById('playStageBtn').addEventListener('click',()=>startS(selS));
 setupM();G_.sel=['lia'];if('ontouchstart' in window)el.mobileControls.style.display='flex';
+checkAuth();load();
 </script>
 </body>
 </html>
